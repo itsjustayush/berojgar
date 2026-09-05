@@ -12,6 +12,8 @@ import {
   Video,
   Settings,
   Circle,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { Conversation, UserProfile } from '../types';
 import { searchUsers, getOrCreateDirectConversation } from '../lib/socialChatService';
@@ -26,6 +28,8 @@ interface ChatListSidebarProps {
   onOpenProfile: () => void;
   onLogout: () => void;
   onStartNewDirectChat: (targetUser: UserProfile) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
@@ -36,6 +40,8 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
   onOpenProfile,
   onLogout,
   onStartNewDirectChat,
+  isCollapsed = false,
+  onToggleCollapse,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
@@ -108,6 +114,184 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
+  const renderNewChatModal = () => {
+    if (!showNewChatModal) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
+        <div className="w-full max-w-md bg-[#101c36] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl max-h-[85vh] flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <BerozgarLogo variant="icon" size="sm" />
+              <h3 className="font-extrabold text-lg text-white" style={{ fontFamily: 'Mukta, sans-serif' }}>
+                Start a New Chat
+              </h3>
+            </div>
+            <button
+              onClick={() => setShowNewChatModal(false)}
+              className="text-white/40 hover:text-white font-mono text-xs cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          <p className="text-xs text-white/60 mb-4 font-sans">
+            Enter any Instagram-style @username to connect and message on Berozgar instantly.
+          </p>
+
+          <div className="relative mb-4">
+            <input
+              type="text"
+              placeholder="Search @username or name..."
+              value={searchQuery}
+              onChange={(e) => handleSearchNetwork(e.target.value)}
+              autoFocus
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 font-mono focus:outline-none focus:border-[#EF4E22]"
+            />
+          </div>
+
+          <div className="max-h-60 overflow-y-auto divide-y divide-white/5 flex-1 custom-scrollbar">
+            {searchResults.length > 0 ? (
+              searchResults.map((user) => (
+                <button
+                  key={user.uid}
+                  onClick={() => {
+                    onStartNewDirectChat(user);
+                    setShowNewChatModal(false);
+                    setSearchQuery('');
+                  }}
+                  className="w-full p-2.5 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left cursor-pointer"
+                >
+                  <div className="shrink-0">
+                    <UserAvatar
+                      name={user.displayName}
+                      username={user.username}
+                      photoURL={user.photoURL}
+                      size="sm"
+                      showStatus
+                      isOnline={user.status === 'online'}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-bold text-white block truncate">{user.displayName}</span>
+                    <span className="text-[10px] font-mono text-[#EF4E22] block truncate">@{user.username}</span>
+                  </div>
+                  <span className="px-2 py-1 rounded bg-[#EF4E22] text-[#FFF9F3] font-mono text-[10px] font-bold shadow-sm">
+                    Message
+                  </span>
+                </button>
+              ))
+            ) : searchQuery ? (
+              <div className="p-4 text-center text-xs text-white/40 font-mono">
+                No users found matching "{searchQuery}"
+              </div>
+            ) : (
+              <div className="p-4 text-center text-xs text-white/40 font-mono">
+                Type a username above to search registered Berozgar users
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (isCollapsed) {
+    return (
+      <div className="w-[72px] h-full flex flex-col bg-[#0b1326] border-r border-white/10 select-none items-center py-3 justify-between">
+        {/* Top Controls: Expand toggle and New Chat */}
+        <div className="flex flex-col items-center gap-2.5 w-full px-2">
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-[#EF4E22] flex items-center justify-center transition-colors cursor-pointer border border-white/10 shadow-xs"
+            title="Expand sidebar"
+            aria-label="Expand sidebar"
+          >
+            <PanelLeftOpen size={18} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowNewChatModal(true)}
+            className="w-10 h-10 rounded-xl bg-[#EF4E22]/15 hover:bg-[#EF4E22]/25 text-[#EF4E22] border border-[#EF4E22]/30 flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+            title="Start new chat with @username"
+            aria-label="Start new chat"
+          >
+            <Plus size={18} />
+          </button>
+
+          <div className="w-8 h-[1px] bg-white/10 my-0.5" />
+        </div>
+
+        {/* Middle: Conversation Avatars */}
+        <div className="flex-1 w-full overflow-y-auto py-1 px-2 space-y-2.5 flex flex-col items-center custom-scrollbar">
+          {filteredConversations.map((conv) => {
+            const other = getOtherParticipant(conv);
+            const isActive = conv.id === activeConversationId;
+            const unreadCount = conv.unreadCounts?.[currentUser.uid] || 0;
+
+            return (
+              <button
+                key={conv.id}
+                type="button"
+                onClick={() => onSelectConversation(conv.id)}
+                className={`relative p-1 rounded-2xl transition-all group cursor-pointer ${
+                  isActive
+                    ? 'ring-2 ring-[#EF4E22] bg-[#EF4E22]/20 shadow-[0_0_12px_rgba(239,78,34,0.35)]'
+                    : 'hover:bg-white/10'
+                }`}
+                title={`${other.displayName} (@${other.username})`}
+              >
+                <UserAvatar
+                  name={other.displayName || other.username}
+                  username={other.username}
+                  photoURL={other.photoURL}
+                  size="md"
+                  showStatus
+                  isOnline={other.status === 'online'}
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EF4E22] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-md">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom: Profile & Logout */}
+        <div className="flex flex-col items-center gap-2 pt-2 border-t border-white/10 w-full px-2">
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            className="p-1 rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
+            title={`Profile: ${currentUser.displayName} (@${currentUser.username})`}
+          >
+            <UserAvatar
+              name={currentUser.displayName}
+              username={currentUser.username}
+              photoURL={currentUser.photoURL}
+              size="sm"
+              showStatus
+              isOnline={currentUser.status === 'online'}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="w-8 h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors cursor-pointer"
+            title="Sign Out"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+
+        {renderNewChatModal()}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full md:w-80 lg:w-96 h-full flex flex-col bg-[#0b1326] border-r border-white/10 select-none">
       {/* Sidebar Header */}
@@ -125,6 +309,18 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
           >
             <Plus size={16} />
           </button>
+
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="hidden md:flex w-8 h-8 rounded-lg text-white/60 hover:text-white hover:bg-white/10 border border-white/10 items-center justify-center transition-colors cursor-pointer"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              <PanelLeftClose size={16} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -318,83 +514,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
       </div>
 
       {/* New Chat Dialog / Discover Modal */}
-      {showNewChatModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
-          <div className="w-full max-w-md bg-[#101c36] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <BerozgarLogo variant="icon" size="sm" />
-                <h3 className="font-extrabold text-lg text-white" style={{ fontFamily: 'Mukta, sans-serif' }}>
-                  Start a New Chat
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowNewChatModal(false)}
-                className="text-white/40 hover:text-white font-mono text-xs cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className="text-xs text-white/60 mb-4 font-sans">
-              Enter any Instagram-style @username to connect and message on Berozgar instantly.
-            </p>
-
-            <div className="relative mb-4">
-              <input
-                type="text"
-                placeholder="Search @username or name..."
-                value={searchQuery}
-                onChange={(e) => handleSearchNetwork(e.target.value)}
-                autoFocus
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 font-mono focus:outline-none focus:border-[#EF4E22]"
-              />
-            </div>
-
-            <div className="max-h-60 overflow-y-auto divide-y divide-white/5 flex-1 custom-scrollbar">
-              {searchResults.length > 0 ? (
-                searchResults.map((user) => (
-                  <button
-                    key={user.uid}
-                    onClick={() => {
-                      onStartNewDirectChat(user);
-                      setShowNewChatModal(false);
-                      setSearchQuery('');
-                    }}
-                    className="w-full p-2.5 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left cursor-pointer"
-                  >
-                    <div className="shrink-0">
-                      <UserAvatar
-                        name={user.displayName}
-                        username={user.username}
-                        photoURL={user.photoURL}
-                        size="sm"
-                        showStatus
-                        isOnline={user.status === 'online'}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-bold text-white block truncate">{user.displayName}</span>
-                      <span className="text-[10px] font-mono text-[#EF4E22] block truncate">@{user.username}</span>
-                    </div>
-                    <span className="px-2 py-1 rounded bg-[#EF4E22] text-[#FFF9F3] font-mono text-[10px] font-bold shadow-sm">
-                      Message
-                    </span>
-                  </button>
-                ))
-              ) : searchQuery ? (
-                <div className="p-4 text-center text-xs text-white/40 font-mono">
-                  No users found matching "{searchQuery}"
-                </div>
-              ) : (
-                <div className="p-4 text-center text-xs text-white/40 font-mono">
-                  Type a username above to search registered Berozgar users
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {renderNewChatModal()}
     </div>
   );
 };

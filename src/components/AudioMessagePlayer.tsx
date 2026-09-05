@@ -92,12 +92,16 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
 
   return (
     <div className={`flex items-center gap-3 p-2 rounded-xl select-none ${
-      isYou ? 'bg-black/25 text-white' : 'bg-white/10 text-white'
+      isYou ? 'bg-black/25 text-white border border-white/15' : 'bg-white/10 text-white'
     }`}>
       <button
         type="button"
         onClick={togglePlay}
-        className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shrink-0 bg-[#EF4E22] text-[#FFF9F3] hover:bg-[#f3643d] shadow-md cursor-pointer"
+        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shrink-0 shadow-md cursor-pointer ${
+          isYou 
+            ? 'bg-white text-[#EF4E22] hover:bg-[#FFF9F3] shadow-lg' 
+            : 'bg-[#EF4E22] text-[#FFF9F3] hover:bg-[#f3643d]'
+        }`}
         title={isPlaying ? 'Pause' : 'Play voice message'}
       >
         {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
@@ -112,11 +116,13 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
             max={total}
             value={currentTime}
             onChange={handleSeek}
-            className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#EF4E22]"
+            className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer ${
+              isYou ? 'bg-white/30 accent-white' : 'bg-white/20 accent-[#EF4E22]'
+            }`}
           />
         </div>
 
-        <div className="flex items-center justify-between text-[11px] font-mono opacity-70 mt-0.5">
+        <div className="flex items-center justify-between text-[11px] font-mono text-white/90 mt-0.5">
           <span>{formatTime(currentTime)}</span>
           <span className="flex items-center gap-1">
             <Volume2 size={10} />
@@ -128,7 +134,9 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
       <button
         type="button"
         onClick={cycleSpeed}
-        className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-white/15 hover:bg-white/25 text-white/90 shrink-0 transition-colors"
+        className={`px-1.5 py-0.5 text-[10px] font-mono font-bold rounded shrink-0 transition-colors ${
+          isYou ? 'bg-white/25 hover:bg-white/35 text-white' : 'bg-white/15 hover:bg-white/25 text-white/90'
+        }`}
         title="Playback speed"
       >
         {playbackRate}x

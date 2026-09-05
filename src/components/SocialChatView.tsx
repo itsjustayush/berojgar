@@ -16,6 +16,8 @@ import {
   Download,
   X,
   Sparkles,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { Conversation, SocialMessage, UserProfile } from '../types';
 import {
@@ -34,6 +36,8 @@ interface SocialChatViewProps {
   currentUser: UserProfile;
   onBackToSidebar: () => void;
   onStartCall: (type: 'voice' | 'video', targetUser: UserProfile) => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 const QUICK_REACTIONS = ['❤️', '👍', '😂', '😮', '😢', '🔥', '👏', '🚀'];
@@ -48,6 +52,8 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
   currentUser,
   onBackToSidebar,
   onStartCall,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
 }) => {
   const [messages, setMessages] = useState<SocialMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -214,14 +220,28 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
     <div className="flex-1 h-full flex flex-col bg-[#050505] text-white relative select-none">
       {/* Chat Header */}
       <div className="h-16 px-4 border-b border-white/10 bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-between z-10">
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             type="button"
             onClick={onBackToSidebar}
             className="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+            title="Back to chats"
           >
             <ArrowLeft size={18} />
           </button>
+
+          {/* Desktop Sidebar Collapse Toggle */}
+          {onToggleSidebar && (
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              className="hidden md:flex p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isSidebarCollapsed ? <PanelLeftOpen size={18} className="text-[#EF4E22]" /> : <PanelLeftClose size={18} />}
+            </button>
+          )}
 
           {/* User Avatar with status */}
           <div className="shrink-0">
@@ -386,7 +406,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                   <div
                     className={`p-3.5 rounded-2xl text-sm font-sans leading-relaxed break-words shadow-md transition-all ${
                       isYou
-                        ? 'bg-[#EF4E22] text-[#FFF9F3] rounded-tr-none shadow-[0_2px_14px_rgba(239,78,34,0.3)]'
+                        ? 'bg-[#EF4E22] text-white rounded-tr-none shadow-[0_2px_14px_rgba(239,78,34,0.3)] border border-[#ff673d]/30'
                         : 'bg-[#18284c] border border-white/10 text-[#FFF9F3] rounded-tl-none'
                     }`}
                   >
@@ -418,16 +438,22 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
 
                     {/* Media: File / Document */}
                     {msg.type === 'file' && (
-                      <div className="flex items-center justify-between gap-3 p-2.5 bg-black/30 border border-white/10 rounded-xl mb-2">
+                      <div className={`flex items-center justify-between gap-3 p-2.5 rounded-xl mb-2 ${
+                        isYou ? 'bg-black/25 border border-white/20' : 'bg-black/30 border border-white/10'
+                      }`}>
                         <div className="flex items-center gap-2 min-w-0">
-                          <FileText size={18} className="text-[#EF4E22] shrink-0" />
-                          <span className="font-mono text-xs truncate">{msg.mediaName || 'Document'}</span>
+                          <FileText size={18} className={isYou ? "text-white shrink-0" : "text-[#EF4E22] shrink-0"} />
+                          <span className="font-mono text-xs truncate text-white">{msg.mediaName || 'Document'}</span>
                         </div>
                         {msg.mediaUrl && (
                           <a
                             href={msg.mediaUrl}
                             download={msg.mediaName || 'download'}
-                            className="p-1.5 rounded-lg bg-white/10 hover:bg-[#EF4E22] hover:text-[#FFF9F3] text-white transition-colors"
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              isYou
+                                ? 'bg-white/20 hover:bg-white/30 text-white'
+                                : 'bg-white/10 hover:bg-[#EF4E22] hover:text-[#FFF9F3] text-white'
+                            }`}
                           >
                             <Download size={14} />
                           </a>
@@ -437,20 +463,26 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
 
                     {/* Call Log Info Notice */}
                     {msg.type === 'call_log' && (
-                      <div className="flex items-center gap-2 text-xs font-mono text-[#EF4E22]">
-                        <Phone size={14} />
+                      <div className={`flex items-center gap-2 text-xs font-mono ${
+                        isYou
+                          ? 'text-white font-medium bg-black/25 px-2.5 py-1.5 rounded-lg border border-white/20'
+                          : 'text-[#ff9274] font-medium bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/10'
+                      }`}>
+                        <Phone size={14} className={isYou ? 'text-white' : 'text-[#EF4E22]'} />
                         <span>{msg.text}</span>
                       </div>
                     )}
 
                     {/* Text Message */}
                     {msg.type !== 'call_log' && msg.text && (
-                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                      <p className={`whitespace-pre-wrap font-sans text-sm ${isYou ? 'text-white font-normal' : 'text-[#FFF9F3] font-normal'} leading-relaxed`}>
+                        {msg.text}
+                      </p>
                     )}
 
                     {/* Active Reactions list */}
                     {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-white/10">
+                      <div className={`flex flex-wrap gap-1.5 mt-2 pt-2 border-t ${isYou ? 'border-white/25' : 'border-white/10'}`}>
                         {Object.entries(msg.reactions).map(([emoji, reactorsVal]) => {
                           const reactors = (reactorsVal as string[]) || [];
                           const count = reactors.length;
@@ -462,7 +494,11 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                               type="button"
                               onClick={() => toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)}
                               className={`inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                                isMyReaction
+                                isYou
+                                  ? isMyReaction
+                                    ? 'bg-black/40 text-white font-bold border border-white/35 shadow-xs'
+                                    : 'bg-black/20 hover:bg-black/30 text-white/90 border border-white/15'
+                                  : isMyReaction
                                   ? 'bg-[#EF4E22] text-[#FFF9F3] font-bold shadow-sm'
                                   : 'bg-white/10 hover:bg-white/20 text-white'
                               }`}
@@ -477,29 +513,29 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
 
                     {/* Seen Receipts & Delivery Status */}
                     {isYou && (
-                      <div className="mt-1 pt-1 flex items-center justify-end gap-1 text-[10px] font-mono">
+                      <div className="mt-1.5 pt-1 flex items-center justify-end gap-1.5 text-[10px] font-mono">
                         {msg.status === 'sending' && (
-                          <span className="text-white/40 flex items-center gap-1">
-                            <span className="w-2.5 h-2.5 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-white/80 flex items-center gap-1">
+                            <span className="w-2.5 h-2.5 border-2 border-white/80 border-t-transparent rounded-full animate-spin" />
                             <span>Sending</span>
                           </span>
                         )}
                         {msg.status === 'sent' && (
-                          <span className="text-white/50 flex items-center gap-0.5" title="Sent (Single check)">
+                          <span className="text-white/85 flex items-center gap-0.5" title="Sent (Single check)">
                             <Check size={12} />
                             <span>Sent</span>
                           </span>
                         )}
                         {msg.status === 'delivered' && (
-                          <span className="text-white/70 flex items-center gap-0.5" title="Delivered (Double check)">
+                          <span className="text-white/95 flex items-center gap-0.5 font-medium" title="Delivered (Double check)">
                             <CheckCheck size={13} />
                             <span>Delivered</span>
                           </span>
                         )}
                         {msg.status === 'seen' && (
-                          <span className="text-[#EF4E22] font-bold flex items-center gap-0.5" title="Seen (Double check in orange)">
-                            <CheckCheck size={13} />
-                            <span>Seen</span>
+                          <span className="text-white font-semibold flex items-center gap-1 bg-black/25 px-1.5 py-0.5 rounded-md border border-white/20 shadow-xs" title="Seen">
+                            <CheckCheck size={13} className="text-amber-300" />
+                            <span className="text-white">Seen</span>
                           </span>
                         )}
                       </div>

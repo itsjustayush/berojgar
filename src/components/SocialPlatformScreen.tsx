@@ -39,6 +39,23 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   const [activeCall, setActiveCall] = useState<CallSession | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('berozgar_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('berozgar_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // Subscribe to user conversations when logged in
   useEffect(() => {
@@ -204,9 +221,9 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
     <div className="h-[calc(100dvh-72px)] flex bg-[#080f21] overflow-hidden min-h-[500px]">
       {/* Sidebar (List of chats and user search) */}
       <div
-        className={`h-full w-full md:w-80 lg:w-96 shrink-0 ${
-          activeConversationId ? 'hidden md:flex' : 'flex'
-        }`}
+        className={`h-full shrink-0 transition-[width] duration-300 ease-in-out ${
+          isSidebarCollapsed ? 'w-full md:w-[72px] lg:w-[72px]' : 'w-full md:w-80 lg:w-96'
+        } ${activeConversationId ? 'hidden md:flex' : 'flex'}`}
       >
         <ChatListSidebar
           currentUser={currentUser}
@@ -216,6 +233,8 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
           onOpenProfile={() => setShowProfileModal(true)}
           onLogout={onLogout}
           onStartNewDirectChat={handleStartNewChat}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={toggleSidebar}
         />
       </div>
 
@@ -231,6 +250,8 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
             currentUser={currentUser}
             onBackToSidebar={() => setActiveConversationId(null)}
             onStartCall={handleStartCall}
+            isSidebarCollapsed={isSidebarCollapsed}
+            onToggleSidebar={toggleSidebar}
           />
         ) : (
           <div className="flex-1 h-full flex flex-col items-center justify-center p-8 text-center text-white/40 bg-[#080f21]">
@@ -243,6 +264,15 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
             <p className="font-mono text-xs max-w-sm text-white/50 mb-6">
               Pick a contact from the sidebar or search any @username in Berozgar to begin chatting.
             </p>
+            {isSidebarCollapsed && (
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-mono text-xs transition-colors cursor-pointer border border-white/10"
+              >
+                <span>Expand Sidebar</span>
+              </button>
+            )}
           </div>
         )}
       </div>
