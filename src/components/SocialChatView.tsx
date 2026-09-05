@@ -30,6 +30,7 @@ import {
 import { AudioMessagePlayer } from './AudioMessagePlayer';
 import { VoiceRecorder } from './VoiceRecorder';
 import { UserAvatar } from './UserAvatar';
+import { soundEffects } from '../lib/callSoundEffects';
 
 interface SocialChatViewProps {
   conversation: Conversation;
@@ -82,9 +83,19 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
   const isOtherTyping =
     conversation.typing?.[otherUid] && Date.now() - (conversation.typing[otherUid] || 0) < 4000;
 
+  const initialMountTime = useRef(Date.now());
+  const prevMsgCountRef = useRef(0);
+
   // Real-time messages subscription
   useEffect(() => {
     const unsub = subscribeToMessages(conversation.id, (loadedMessages) => {
+      if (prevMsgCountRef.current > 0 && loadedMessages.length > prevMsgCountRef.current) {
+        const latest = loadedMessages[loadedMessages.length - 1];
+        if (latest && latest.senderId !== currentUser.uid && latest.timestamp > initialMountTime.current - 1000) {
+          soundEffects.playMessageDing();
+        }
+      }
+      prevMsgCountRef.current = loadedMessages.length;
       setMessages(loadedMessages);
       markMessagesAsSeen(conversation.id, currentUser.uid);
     });

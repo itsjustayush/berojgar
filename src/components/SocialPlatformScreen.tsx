@@ -19,6 +19,7 @@ import {
 import { ChatListSidebar } from './ChatListSidebar';
 import { SocialChatView } from './SocialChatView';
 import { CallModal } from './CallModal';
+import { GreenRoomModal, GreenRoomReadyConfig } from './GreenRoomModal';
 import { UserProfileModal } from './UserProfileModal';
 import { AuthModal } from './AuthModal';
 import { BerozgarLogo } from './BerozgarLogo';
@@ -37,6 +38,11 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [activeCall, setActiveCall] = useState<CallSession | null>(null);
+  const [callPreConfig, setCallPreConfig] = useState<GreenRoomReadyConfig | null>(null);
+  const [stagingCall, setStagingCall] = useState<{
+    type: 'voice' | 'video';
+    targetUser: UserProfile;
+  } | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
@@ -107,12 +113,18 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
     }
   };
 
-  // Start outgoing call
-  const handleStartCall = async (type: 'voice' | 'video', targetUser: UserProfile) => {
+  // Start outgoing call via Green Room staging
+  const handleStartCall = (type: 'voice' | 'video', targetUser: UserProfile) => {
     if (!currentUser || !activeConversationId) return;
+    setStagingCall({ type, targetUser });
+  };
+
+  const handleJoinFromGreenRoom = async (config: GreenRoomReadyConfig) => {
+    if (!currentUser || !activeConversationId || !stagingCall) return;
+    const { targetUser } = stagingCall;
+    const type = config.callType;
 
     try {
-      // Create temporary offer descriptor to initiate signaling
       const pc = new RTCPeerConnection();
       if (type === 'video') {
         pc.addTransceiver('video', { direction: 'sendrecv' });
@@ -150,7 +162,9 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
         createdAt: Date.now(),
       };
 
+      setCallPreConfig(config);
       setActiveCall(session);
+      setStagingCall(null);
       pc.close();
     } catch (err) {
       console.warn('Call start issue:', err);
@@ -277,12 +291,27 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
         )}
       </div>
 
+      {/* Green Room Pre-Call Staging Modal */}
+      {stagingCall && currentUser && (
+        <GreenRoomModal
+          currentUser={currentUser}
+          targetUser={stagingCall.targetUser}
+          initialCallType={stagingCall.type}
+          onJoinCall={handleJoinFromGreenRoom}
+          onCancel={() => setStagingCall(null)}
+        />
+      )}
+
       {/* Active Call Modal (Voice / Video) */}
       {activeCall && (
         <CallModal
           call={activeCall}
           currentUser={currentUser}
-          onClose={() => setActiveCall(null)}
+          preConfig={callPreConfig}
+          onClose={() => {
+            setActiveCall(null);
+            setCallPreConfig(null);
+          }}
         />
       )}
 

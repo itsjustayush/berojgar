@@ -602,6 +602,63 @@ export async function answerCall(
   });
 }
 
+export async function placeInWaitingRoom(
+  callId: string,
+  guest: { uid: string; name: string; photo?: string }
+): Promise<void> {
+  const callRef = doc(db, 'calls', callId);
+  const snap = await getDoc(callRef);
+  if (!snap.exists()) return;
+  const data = snap.data() as CallSession;
+  const existing = data.waitingGuests || [];
+  const updated = [
+    ...existing.filter((g) => g.uid !== guest.uid),
+    { ...guest, joinedAt: Date.now() },
+  ];
+  await updateDoc(callRef, {
+    status: 'waiting_room',
+    waitingGuests: updated,
+  });
+}
+
+export async function admitGuestToCall(callId: string, guestUid?: string): Promise<void> {
+  const callRef = doc(db, 'calls', callId);
+  const snap = await getDoc(callRef);
+  if (!snap.exists()) return;
+  const data = snap.data() as CallSession;
+  const remaining = guestUid
+    ? (data.waitingGuests || []).filter((g) => g.uid !== guestUid)
+    : [];
+
+  await updateDoc(callRef, {
+    status: 'accepted',
+    waitingGuests: remaining,
+  });
+}
+
+export async function setCallHostMessage(callId: string, hostMessage: string): Promise<void> {
+  const callRef = doc(db, 'calls', callId);
+  await updateDoc(callRef, { hostMessage });
+}
+
+export async function toggleCallHandRaise(
+  callId: string,
+  userId: string,
+  raised: boolean
+): Promise<void> {
+  const callRef = doc(db, 'calls', callId);
+  await updateDoc(callRef, {
+    [`handRaised.${userId}`]: raised,
+  });
+}
+
+export async function recordIceRestart(callId: string, count: number): Promise<void> {
+  try {
+    const callRef = doc(db, 'calls', callId);
+    await updateDoc(callRef, { reconnectCount: count });
+  } catch {}
+}
+
 export async function addCallIceCandidate(
   callId: string,
   role: 'caller' | 'receiver',

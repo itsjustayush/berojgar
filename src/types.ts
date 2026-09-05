@@ -80,7 +80,7 @@ export interface CallSession {
   receiverName: string;
   receiverPhoto?: string;
   type: 'voice' | 'video';
-  status: 'ringing' | 'accepted' | 'declined' | 'ended' | 'missed' | 'busy';
+  status: 'ringing' | 'waiting_room' | 'accepted' | 'declined' | 'ended' | 'missed' | 'busy';
   offer?: RTCSessionDescriptionInit;
   answer?: RTCSessionDescriptionInit;
   callerCandidates?: RTCIceCandidateInit[];
@@ -88,6 +88,10 @@ export interface CallSession {
   createdAt: number;
   endedAt?: number;
   duration?: number;
+  hostMessage?: string;
+  waitingGuests?: Array<{ uid: string; name: string; photo?: string; joinedAt: number }>;
+  handRaised?: Record<string, boolean>;
+  reconnectCount?: number;
 }
 
 export interface Peer {
