@@ -22,11 +22,11 @@ function UploadIllustration({ progress, processing }: { progress: number; proces
   return (
     <motion.div animate={processing ? { scale: [1, 1.04, 1] } : { y: [0, -4, 0] }} transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }} className="relative grid h-20 w-20 place-items-center">
       <svg aria-label={processing ? `Preparing upload: ${progress}%` : 'Upload file'} className="absolute inset-0 h-full w-full" fill="none" viewBox="0 0 100 100" role="img">
-        <circle cx="50" cy="50" r="44" stroke="rgba(214,255,98,.22)" strokeDasharray="4 5" strokeWidth="1.5" />
-        <motion.circle cx="50" cy="50" r="44" stroke="#d6ff62" strokeDasharray="4 5" strokeLinecap="round" strokeWidth="1.5" animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: 'linear' }} style={{ transformOrigin: '50% 50%' }} />
-        {processing && <circle cx="50" cy="50" r="36" stroke="#d6ff62" strokeDasharray={`${(progress / 100) * 226} 226`} strokeLinecap="round" strokeWidth="3" transform="rotate(-90 50 50)" />}
+        <circle cx="50" cy="50" r="44" stroke="rgba(239,78,34,.22)" strokeDasharray="4 5" strokeWidth="1.5" />
+        <motion.circle cx="50" cy="50" r="44" stroke="#EF4E22" strokeDasharray="4 5" strokeLinecap="round" strokeWidth="1.5" animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: 'linear' }} style={{ transformOrigin: '50% 50%' }} />
+        {processing && <circle cx="50" cy="50" r="36" stroke="#EF4E22" strokeDasharray={`${(progress / 100) * 226} 226`} strokeLinecap="round" strokeWidth="3" transform="rotate(-90 50 50)" />}
       </svg>
-      <span className="relative grid h-12 w-12 place-items-center rounded-2xl border border-[#d6ff62]/30 bg-[#d6ff62]/[.1] text-[#d6ff62] shadow-[0_0_28px_rgba(214,255,98,.12)]">
+      <span className="relative grid h-12 w-12 place-items-center rounded-2xl border border-[#EF4E22]/30 bg-[#EF4E22]/[.1] text-[#EF4E22] shadow-[0_0_28px_rgba(239,78,34,.15)]">
         {processing ? <LoaderCircle size={23} className="animate-spin" /> : <UploadCloud size={23} />}
       </span>
     </motion.div>
@@ -80,20 +80,20 @@ export function ThemedFileUpload({ onFiles, isProcessing = false, disabled = fal
         onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); if (!disabled && !isProcessing) setIsDragging(true); }}
         onDragLeave={(event) => { event.preventDefault(); event.stopPropagation(); setIsDragging(false); }}
         onDrop={handleDrop}
-        animate={{ borderColor: isDragging ? 'rgba(214,255,98,.85)' : 'rgba(214,255,98,.25)' }}
-        className={`group relative flex min-h-[236px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[1.75rem] border border-dashed bg-white/[.035] px-6 py-8 text-center transition-colors hover:bg-[#d6ff62]/[.06] ${isDragging ? 'bg-[#d6ff62]/[.1]' : ''} ${disabled || isProcessing ? 'cursor-wait opacity-70' : ''}`}
+        animate={{ borderColor: isDragging ? 'rgba(239,78,34,.85)' : 'rgba(239,78,34,.25)' }}
+        className={`group relative flex min-h-[236px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[1.75rem] border border-dashed bg-white/[.035] px-6 py-8 text-center transition-colors hover:bg-[#EF4E22]/[.06] ${isDragging ? 'bg-[#EF4E22]/[.1]' : ''} ${disabled || isProcessing ? 'cursor-wait opacity-70' : ''}`}
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(214,255,98,.12),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,78,34,.12),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <UploadIllustration progress={progress} processing={isProcessing} />
         <div className="relative mt-3">
           <div className="text-base font-medium tracking-[-.03em] text-white">{isDragging ? 'Release to add files' : isProcessing ? 'Preparing chunked direct transfer…' : 'Drop files or browse'}</div>
           <div className="mt-2 font-mono text-[10px] uppercase tracking-[.16em] text-white/40">WebRTC DTLS · memory only · up to {formatBytes(maxFileSize)}</div>
         </div>
         <AnimatePresence mode="wait">
-          {lastFile && !isProcessing && !error && <motion.div key="success" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="relative mt-4 inline-flex items-center gap-2 rounded-full border border-[#d6ff62]/20 bg-[#d6ff62]/[.08] px-3 py-1.5 font-mono text-[10px] text-[#d6ff62]"><CheckCircle2 size={13} /> {lastFile.name}</motion.div>}
+          {lastFile && !isProcessing && !error && <motion.div key="success" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="relative mt-4 inline-flex items-center gap-2 rounded-full border border-[#EF4E22]/20 bg-[#EF4E22]/[.08] px-3 py-1.5 font-mono text-[10px] text-[#EF4E22]"><CheckCircle2 size={13} /> {lastFile.name}</motion.div>}
           {error && <motion.div key="error" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="relative mt-4 inline-flex items-center gap-2 rounded-full border border-[#ff8e8e]/30 bg-[#ff8e8e]/[.08] px-3 py-1.5 font-mono text-[10px] text-[#ffb2b2]"><AlertCircle size={13} /> {error}<button type="button" onClick={(event) => { event.stopPropagation(); setError(null); }} aria-label="Dismiss upload error"><X size={13} /></button></motion.div>}
         </AnimatePresence>
-        <span className="relative mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-4 py-2 font-mono text-[10px] uppercase tracking-[.14em] text-white/65 transition-colors group-hover:border-[#d6ff62]/35 group-hover:text-[#d6ff62]"><FileUp size={13} /> Select files</span>
+        <span className="relative mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-4 py-2 font-mono text-[10px] uppercase tracking-[.14em] text-white/65 transition-colors group-hover:border-[#EF4E22]/35 group-hover:text-[#EF4E22]"><FileUp size={13} /> Select files</span>
       </motion.div>
     </div>
   );

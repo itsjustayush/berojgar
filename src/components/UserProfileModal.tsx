@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Sparkles, Check, X, Shield, Calendar, Edit3 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { updateUserProfile, setUserPresence } from '../lib/socialChatService';
+import { UserAvatar } from './UserAvatar';
 
 interface UserProfileModalProps {
   user: UserProfile;
@@ -9,23 +10,13 @@ interface UserProfileModalProps {
   onClose: () => void;
 }
 
-const AVATAR_PRESETS = [
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Atlas&backgroundColor=0d0d0d',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Echo&backgroundColor=141414',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Nova&backgroundColor=1f1f1f',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Cipher&backgroundColor=050505',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Pulse&backgroundColor=111827',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Quantum&backgroundColor=1a1a1a',
-];
-
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   user,
   onUpdate,
   onClose,
 }) => {
   const [displayName, setDisplayName] = useState(user.displayName);
-  const [bio, setBio] = useState(user.bio || 'Available on Ciao');
-  const [photoURL, setPhotoURL] = useState(user.photoURL || AVATAR_PRESETS[0]);
+  const [bio, setBio] = useState(user.bio || 'Available on Berozgar');
   const [status, setStatus] = useState<'online' | 'offline'>(user.status);
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -37,7 +28,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       const updates = {
         displayName: displayName.trim() || user.username,
         bio: bio.trim(),
-        photoURL,
+        photoURL: '',
         status,
       };
 
@@ -60,44 +51,34 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-md bg-[#0e0e0e] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-md bg-[#0e1933] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl overflow-y-auto max-h-[92vh]">
+        <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <h2 className="font-serif italic text-xl font-bold text-white">Your Ciao Profile</h2>
+            <h2 className="text-xl font-bold text-white" style={{ fontFamily: 'Mukta, sans-serif' }}>
+              Your Berozgar Profile
+            </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSave} className="space-y-4">
-          {/* Avatar Showcase & Presets */}
-          <div className="flex flex-col items-center">
-            <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-[#d6ff62] mb-3 shadow-lg">
-              <img src={photoURL} alt={displayName} className="w-full h-full object-cover" />
-            </div>
-
-            <span className="font-mono text-[10px] text-white/40 uppercase tracking-widest mb-2">
-              Choose Avatar Preset
-            </span>
-            <div className="flex items-center gap-2 mb-4">
-              {AVATAR_PRESETS.map((p, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setPhotoURL(p)}
-                  className={`w-7 h-7 rounded-lg overflow-hidden border transition-transform ${
-                    photoURL === p ? 'border-[#d6ff62] scale-110' : 'border-white/20 opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  <img src={p} alt={`Avatar ${idx}`} className="w-full h-full" />
-                </button>
-              ))}
-            </div>
+          {/* Simple Minimal Avatar */}
+          <div className="flex flex-col items-center py-2">
+            <UserAvatar
+              name={displayName || user.username}
+              username={user.username}
+              size="2xl"
+              showStatus
+              isOnline={status === 'online'}
+              className="mb-2 shadow-xl"
+            />
+            <span className="font-mono text-xs text-[#EF4E22]">@{user.username}</span>
           </div>
 
           {/* Username (Immutable identity) */}
@@ -105,7 +86,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <label className="block font-mono text-[11px] text-white/50 uppercase tracking-wider mb-1">
               Username (Unique ID)
             </label>
-            <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-[#d6ff62] flex items-center justify-between">
+            <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-[#EF4E22] flex items-center justify-between">
               <span>@{user.username}</span>
               <span className="text-[10px] text-white/40 font-mono">Permanent</span>
             </div>
@@ -120,7 +101,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#d6ff62]"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22]"
             />
           </div>
 
@@ -133,8 +114,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               type="text"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder="e.g. Chatting on Ciao"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#d6ff62]"
+              placeholder="e.g. Chatting on Berozgar"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22]"
             />
           </div>
 
@@ -149,11 +130,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 onClick={() => setStatus('online')}
                 className={`py-2 px-3 rounded-xl border font-mono text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
                   status === 'online'
-                    ? 'bg-[#d6ff62]/10 border-[#d6ff62] text-[#d6ff62]'
+                    ? 'bg-[#EF4E22]/15 border-[#EF4E22] text-[#EF4E22]'
                     : 'border-white/10 text-white/60 hover:text-white'
                 }`}
               >
-                <span className="w-2 h-2 rounded-full bg-[#d6ff62]" />
+                <span className="w-2 h-2 rounded-full bg-[#EF4E22]" />
                 <span>Online</span>
               </button>
               <button
@@ -174,8 +155,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {/* Meta details */}
           <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-white/40">
             <span className="flex items-center gap-1">
-              <Shield size={12} className="text-[#d6ff62]" />
-              <span>Firebase Cloud Auth</span>
+              <Shield size={12} className="text-[#EF4E22]" />
+              <span>Berozgar Network</span>
             </span>
             <span>Created {new Date(user.createdAt).toLocaleDateString()}</span>
           </div>
@@ -185,7 +166,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2.5 bg-[#d6ff62] text-black font-mono font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#e4ff8f] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
+              className="flex-1 py-2.5 bg-[#EF4E22] text-[#FFF9F3] font-mono font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#f3643d] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
             >
               {saving ? (
                 <span>Saving...</span>

@@ -20,6 +20,7 @@ import {
   updateProfile,
 } from './firebase';
 import { UserProfile, Conversation, SocialMessage, CallSession } from '../types';
+import { generateSvgAvatar } from './avatarGenerator';
 
 // Converts any username to standard format: lowercase alphanumeric and underscore only
 export function sanitizeUsername(username: string): string {
@@ -29,13 +30,12 @@ export function sanitizeUsername(username: string): string {
 // Map username to synthetic internal auth email for Firebase Auth
 function usernameToEmail(username: string): string {
   const clean = sanitizeUsername(username);
-  return `${clean}@ciao.internal`;
+  return `${clean}@berozgar-app.io`;
 }
 
-// Generate default avatar if user doesn't provide one
-export function generateDefaultAvatar(name: string, username: string): string {
-  const seed = encodeURIComponent(username || name || 'ciao');
-  return `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${seed}&backgroundColor=0d0d0d,141414,1f1f1f`;
+// Generate default avatar if user doesn't provide one (returns empty string so UserAvatar component renders standard minimal avatar)
+export function generateDefaultAvatar(_name?: string, _username?: string): string {
+  return '';
 }
 
 /**
@@ -61,7 +61,7 @@ export async function signUpWithUsername(
   rawUsername: string,
   displayName: string,
   password: string,
-  bio = 'Available on Ciao',
+  bio = 'Available on Berozgar',
   avatarUrl?: string
 ): Promise<UserProfile> {
   const cleanUsername = sanitizeUsername(rawUsername);
@@ -76,23 +76,24 @@ export async function signUpWithUsername(
   }
 
   const email = usernameToEmail(cleanUsername);
-  const photoURL = avatarUrl || generateDefaultAvatar(displayName, cleanUsername);
+  // Clean safe photoURL: never pass oversized data strings to Firebase Auth updateProfile
+  const safePhoto = (avatarUrl && avatarUrl.startsWith('http') && avatarUrl.length < 500) ? avatarUrl : '';
 
   // Create Firebase Auth user
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const uid = userCredential.user.uid;
 
+  // Firebase Auth updateProfile only requires valid short attributes
   await updateProfile(userCredential.user, {
     displayName: displayName.trim() || `@${cleanUsername}`,
-    photoURL,
   });
 
   const profile: UserProfile = {
     uid,
     username: cleanUsername,
     displayName: displayName.trim() || `@${cleanUsername}`,
-    photoURL,
-    bio: bio.trim() || 'Available on Ciao',
+    photoURL: safePhoto,
+    bio: bio.trim() || 'Available on Berozgar',
     status: 'online',
     lastSeen: Date.now(),
     createdAt: Date.now(),
@@ -134,8 +135,8 @@ export async function signInWithUsername(
       uid,
       username: cleanUsername,
       displayName: userCredential.user.displayName || `@${cleanUsername}`,
-      photoURL: userCredential.user.photoURL || generateDefaultAvatar(cleanUsername, cleanUsername),
-      bio: 'Available on Ciao',
+      photoURL: '',
+      bio: 'Available on Berozgar',
       status: 'online',
       lastSeen: Date.now(),
       createdAt: Date.now(),
@@ -550,7 +551,7 @@ export async function initiateCall(
 }
 
 function targetAvatar(user: UserProfile): string {
-  return user.photoURL || generateDefaultAvatar(user.displayName, user.username);
+  return user.photoURL || '';
 }
 
 export function subscribeToIncomingCalls(

@@ -1,6 +1,6 @@
 {
-  "name": "Ciao",
-  "description": "Real-time social messaging platform with Instagram-style username auth, live typing indicators, seen receipts, media sharing, voice notes, and voice & video calling.",
+  "name": "Berozgar",
+  "description": "Berozgar Chat (बेरोजगार चैट एप) - Real-time messaging, voice notes, audio and video calls. बस गपशप, बस बिला।",
   "requestFramePermissions": [
     "camera",
     "microphone"

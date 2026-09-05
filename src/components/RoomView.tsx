@@ -1384,16 +1384,16 @@ export const RoomView: React.FC<RoomViewProps> = ({
           />
 
           {transfer && (
-            <div className="rounded-2xl border border-[#d6ff62]/25 bg-[#d6ff62]/[.06] p-4 shadow-[0_0_24px_rgba(214,255,98,.06)]">
+            <div className="rounded-2xl border border-[#EF4E22]/25 bg-[#EF4E22]/[.06] p-4 shadow-[0_0_24px_rgba(239,78,34,.06)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="font-mono text-[10px] font-bold uppercase tracking-[.16em] text-[#d6ff62]">Chunked direct transfer</div>
+                  <div className="font-mono text-[10px] font-bold uppercase tracking-[.16em] text-[#EF4E22]">Chunked direct transfer</div>
                   <div className="mt-1 truncate text-xs text-white/75">{transfer.fileName}</div>
                 </div>
-                <div className="font-mono text-xs font-bold text-[#d6ff62]">{transfer.progressPercent}%</div>
+                <div className="font-mono text-xs font-bold text-[#EF4E22]">{transfer.progressPercent}%</div>
               </div>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full rounded-full bg-[#d6ff62] transition-[width] duration-150" style={{ width: `${transfer.progressPercent}%` }} />
+                <div className="h-full rounded-full bg-[#EF4E22] transition-[width] duration-150" style={{ width: `${transfer.progressPercent}%` }} />
               </div>
               <div className="mt-2 flex justify-between gap-3 font-mono text-[10px] uppercase tracking-wider text-white/45">
                 <span>{formatBytes(transfer.transferredBytes)} / {formatBytes(transfer.fileSize)}</span>

@@ -13,6 +13,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { ViewMode, UserSession, UserProfile } from '../types';
+import { UserAvatar } from './UserAvatar';
+import { BerozgarLogo } from './BerozgarLogo';
 
 interface NavbarProps {
   currentView: ViewMode;
@@ -67,68 +69,47 @@ export function Navbar({
   };
 
   const navItems: Array<{ view: ViewMode; label: string; icon: typeof MessageSquare }> = [
-    { view: 'CHATS', label: 'Ciao Chats', icon: MessageSquare },
+    { view: 'CHATS', label: 'Berozgar Chats', icon: MessageSquare },
     { view: 'DASHBOARD', label: 'Vault Rooms', icon: Activity },
     { view: 'HISTORY', label: 'History', icon: FolderClock },
   ];
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050505]/85 backdrop-blur-2xl">
+      <header className="sticky top-0 z-40 border-b border-[#FFF9F3]/10 bg-[#0b1326]/90 backdrop-blur-2xl">
         <div className="mx-auto flex min-h-[72px] w-full max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
           {/* Logo & Brand */}
           <button
             onClick={() => navigate('CHATS')}
             className="group flex items-center gap-3 text-left cursor-pointer"
-            aria-label="Go to Ciao Chats"
+            aria-label="Go to Berozgar Chats"
           >
-            <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/[.08] shadow-[0_0_24px_rgba(214,255,98,.12)] transition-transform duration-200 group-hover:scale-105">
-              <span className="font-serif italic text-lg font-bold text-[#d6ff62]">C</span>
-            </span>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-serif italic text-xl font-bold tracking-tight text-white">Ciao</span>
-                <span className="font-mono text-[9px] text-[#d6ff62] px-1.5 py-0.2 rounded bg-[#d6ff62]/10 border border-[#d6ff62]/20 font-bold uppercase tracking-wider">
-                  Social
-                </span>
-              </div>
-              <span className="hidden sm:block font-mono text-[9px] uppercase tracking-[.22em] text-white/40">
-                Real-time & private
-              </span>
-            </div>
+            <BerozgarLogo variant="horizontal" size="md" showTagline />
           </button>
 
           {/* Right Header Status & Account */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Realtime link latency badge */}
-            <div
-              className="hidden items-center gap-2 rounded-full border border-[#d6ff62]/20 bg-[#d6ff62]/[.06] px-3 py-1.5 lg:flex"
-              title="Firebase real-time synchronization link"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-[#d6ff62] shadow-[0_0_10px_#d6ff62] animate-pulse" />
-              <span className="font-mono text-[10px] uppercase tracking-[.16em] text-[#d6ff62]">
-                Firebase Live
-              </span>
-            </div>
-
             {/* Profile / Auth Button */}
             {currentUser ? (
               <button
                 onClick={onOpenProfile}
-                className="group flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-1.5 transition-colors hover:border-[#d6ff62]/40 hover:bg-white/[.1] cursor-pointer"
-                title="Your Ciao Profile"
+                className="group flex items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-2.5 py-1 transition-colors hover:border-[#EF4E22]/50 hover:bg-white/[.1] cursor-pointer"
+                title="Your Berozgar Profile"
               >
-                <div className="relative w-6 h-6 rounded-full overflow-hidden border border-[#d6ff62]">
-                  <img src={currentUser.photoURL} alt={currentUser.displayName} className="w-full h-full object-cover" />
-                </div>
-                <span className="text-xs font-mono text-white/90 group-hover:text-[#d6ff62] max-w-[100px] truncate hidden sm:inline">
+                <UserAvatar
+                  name={currentUser.displayName}
+                  username={currentUser.username}
+                  photoURL={currentUser.photoURL}
+                  size="xs"
+                />
+                <span className="text-xs font-mono text-[#FFF9F3]/90 group-hover:text-[#EF4E22] max-w-[100px] truncate hidden sm:inline">
                   @{currentUser.username}
                 </span>
               </button>
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 rounded-full bg-[#d6ff62] text-black px-4 py-1.5 text-xs font-mono font-bold hover:bg-[#e4ff8f] transition-all cursor-pointer shadow-md"
+                className="flex items-center gap-1.5 rounded-full bg-[#EF4E22] text-[#FFF9F3] px-4 py-1.5 text-xs font-mono font-bold hover:bg-[#f3643d] transition-all cursor-pointer shadow-[0_0_20px_rgba(239,78,34,0.35)]"
               >
                 <UserIcon size={13} />
                 <span>Sign In</span>
@@ -138,7 +119,7 @@ export function Navbar({
             {/* Mobile hamburger menu toggle */}
             <button
               onClick={() => setMenuOpen((open) => !open)}
-              className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white md:hidden"
+              className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white md:hidden cursor-pointer"
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -151,7 +132,7 @@ export function Navbar({
         {/* Mobile Navigation Drawer */}
         <div
           id="mobile-nav"
-          className={`border-t border-white/10 bg-[#080808] px-5 py-4 md:hidden ${
+          className={`border-t border-white/10 bg-[#0e1933] px-5 py-4 md:hidden ${
             menuOpen ? 'block' : 'hidden'
           }`}
         >
@@ -160,9 +141,9 @@ export function Navbar({
               <button
                 key={view}
                 onClick={() => navigate(view)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm ${
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm cursor-pointer ${
                   currentView === view
-                    ? 'bg-[#d6ff62] text-black font-bold'
+                    ? 'bg-[#EF4E22] text-[#FFF9F3] font-bold shadow-md'
                     : 'text-white/65 hover:bg-white/[.08] hover:text-white'
                 }`}
               >
@@ -173,11 +154,11 @@ export function Navbar({
           </nav>
           <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4 font-mono text-[10px] text-white/45">
             <span className="flex items-center gap-2">
-              <ShieldCheck size={14} className="text-[#d6ff62]" />
-              <span>Ciao Social Platform • Firebase</span>
+              <ShieldCheck size={14} className="text-[#EF4E22]" />
+              <span>Berozgar • Chat</span>
             </span>
             {currentUser && (
-              <span className="text-[#d6ff62]">@{currentUser.username}</span>
+              <span className="text-[#EF4E22]">@{currentUser.username}</span>
             )}
           </div>
         </div>

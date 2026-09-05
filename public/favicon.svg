@@ -1,6 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
-  <title>UltronChat</title>
-  <rect width="64" height="64" rx="16" fill="#050505"/>
-  <rect x="20" y="20" width="24" height="24" rx="6" transform="rotate(45 32 32)" fill="#d6ff62"/>
-  <circle cx="32" cy="32" r="5" fill="#050505" opacity=".18"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title">
+  <title>Berozgar Favicon</title>
+  <path
+    d="M 50 8 
+       C 73 8, 92 25, 92 47 
+       C 92 69, 73 86, 50 86 
+       C 42 86, 35 84, 28 80 
+       L 12 92 
+       C 15 84, 15 76, 13 72 
+       C 9 65, 8 56, 8 47 
+       C 8 25, 27 8, 50 8 Z"
+    fill="#EF4E22"
+  />
+  <rect x="22" y="64" width="56" height="3" rx="1.5" fill="#FFF9F3" />
+  <rect x="25" y="67" width="2.5" height="12" rx="1" fill="#FFF9F3" />
+  <rect x="49" y="67" width="2" height="12" rx="1" fill="#FFF9F3" opacity="0.85" />
+  <rect x="72.5" y="67" width="2.5" height="12" rx="1" fill="#FFF9F3" />
+  <circle cx="34" cy="27" r="5.5" stroke="#FFF9F3" strokeWidth="2.5" fill="none" />
+  <path d="M 30 24 C 32 21, 37 21, 39 24" stroke="#FFF9F3" strokeWidth="2" strokeLinecap="round" />
+  <path d="M 34 33.5 L 34 49 L 29 49 C 27.5 49, 27 46, 27 42 L 27 37 C 27 34, 30 33.5, 34 33.5 Z" stroke="#FFF9F3" strokeWidth="2.2" strokeLinejoin="round" fill="none" />
+  <path d="M 34 38 L 41 42 L 41 47" stroke="#FFF9F3" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+  <rect x="40" y="44" width="4.5" height="5.5" rx="1" fill="#FFF9F3" />
+  <path d="M 30 49 L 30 64 L 38 64 L 39 74 L 35 74" stroke="#FFF9F3" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+  <circle cx="66" cy="27" r="5.5" stroke="#FFF9F3" strokeWidth="2.5" fill="none" />
+  <path d="M 62 24 C 64 21, 69 21, 71 24" stroke="#FFF9F3" strokeWidth="2" strokeLinecap="round" />
+  <path d="M 66 33.5 L 66 49 L 71 49 C 72.5 49, 73 46, 73 42 L 73 37 C 73 34, 70 33.5, 66 33.5 Z" stroke="#FFF9F3" strokeWidth="2.2" strokeLinejoin="round" fill="none" />
+  <path d="M 66 38 L 59 42 L 59 47" stroke="#FFF9F3" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+  <rect x="55.5" y="44" width="4.5" height="5.5" rx="1" fill="#FFF9F3" />
+  <path d="M 70 49 L 70 64 L 62 64 L 61 74 L 65 74" stroke="#FFF9F3" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+  <rect x="44.5" y="21" width="11" height="8" rx="3.5" fill="#FFF9F3" />
+  <path d="M 47 29 L 45 32 L 49 29 Z" fill="#FFF9F3" />
+  <circle cx="47.5" cy="25" r="0.9" fill="#EF4E22" />
+  <circle cx="50" cy="25" r="0.9" fill="#EF4E22" />
+  <circle cx="52.5" cy="25" r="0.9" fill="#EF4E22" />
 </svg>

@@ -97,11 +97,7 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
       <button
         type="button"
         onClick={togglePlay}
-        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shrink-0 ${
-          isYou
-            ? 'bg-[#d6ff62] text-black hover:bg-[#e4ff8f]'
-            : 'bg-[#d6ff62] text-black hover:bg-[#e4ff8f]'
-        }`}
+        className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shrink-0 bg-[#EF4E22] text-[#FFF9F3] hover:bg-[#f3643d] shadow-md cursor-pointer"
         title={isPlaying ? 'Pause' : 'Play voice message'}
       >
         {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
@@ -116,7 +112,7 @@ export const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({
             max={total}
             value={currentTime}
             onChange={handleSeek}
-            className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#d6ff62]"
+            className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#EF4E22]"
           />
         </div>
 

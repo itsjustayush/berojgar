@@ -15,30 +15,22 @@ import {
   signInWithUsername,
   checkUsernameAvailable,
   sanitizeUsername,
-  generateDefaultAvatar,
 } from '../lib/socialChatService';
+import { UserAvatar } from './UserAvatar';
 import { UserProfile } from '../types';
+import { BerozgarLogo } from './BerozgarLogo';
 
 interface AuthModalProps {
   onSuccess: (user: UserProfile) => void;
   onCancel?: () => void;
 }
 
-const AVATAR_PRESETS = [
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Atlas&backgroundColor=0d0d0d',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Echo&backgroundColor=141414',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Nova&backgroundColor=1f1f1f',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Cipher&backgroundColor=050505',
-  'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Pulse&backgroundColor=111827',
-];
-
 export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signup');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
-  const [bio, setBio] = useState('Available on Ciao');
-  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_PRESETS[0]);
+  const [bio, setBio] = useState('Available on Berozgar');
   const [showPassword, setShowPassword] = useState(false);
 
   // Validation & async availability states
@@ -102,7 +94,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
           displayName.trim() || clean,
           password,
           bio,
-          selectedAvatar
+          ''
         );
         onSuccess(profile);
       } else {
@@ -114,7 +106,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
       }
     } catch (err: any) {
       console.error('Auth error:', err);
-      setErrorMessage(err.message || 'Authentication failed. Please check credentials.');
+      let msg = err.message || 'Authentication failed. Please check credentials.';
+      if (err.code === 'auth/network-request-failed' || msg.includes('network-request-failed')) {
+        msg = 'Connection to Firebase Identity service was blocked or offline. Please check your internet connection.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        msg = 'This username is already registered. Switch to Sign In.';
+      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found') {
+        msg = 'Invalid username or password. Please verify your credentials.';
+      } else if (err.code === 'auth/invalid-profile-attribute') {
+        msg = 'Profile configuration error. Please try again with simple credentials.';
+      }
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -122,32 +124,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
 
   const fillDemoAccount = (demoUser: string, demoName: string) => {
     setUsername(demoUser);
-    setPassword('ciao1234');
+    setPassword('berozgar1234');
     if (mode === 'signup') {
       setDisplayName(demoName);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md bg-[#0e1933] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl overflow-y-auto max-h-[92vh]">
         {/* Glowing aura */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-[#d6ff62]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-[#7342E2]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-[#EF4E22]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-[#EF4E22]/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Brand header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#d6ff62] text-black flex items-center justify-center font-bold font-mono text-base shadow-[0_0_20px_rgba(214,255,98,0.3)]">
-              C
-            </div>
-            <div>
-              <span className="font-serif italic text-2xl font-bold text-white tracking-tight">Ciao</span>
-              <span className="ml-2 font-mono text-[10px] text-[#d6ff62] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#d6ff62]/10 border border-[#d6ff62]/20">
-                Social
-              </span>
-            </div>
-          </div>
+        <div className="flex items-center justify-between mb-5">
+          <BerozgarLogo variant="horizontal" size="md" />
 
           {onCancel && (
             <button
@@ -160,16 +152,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div className="grid grid-cols-2 p-1 bg-white/5 border border-white/10 rounded-xl mb-6">
+        <div className="grid grid-cols-2 p-1 bg-white/5 border border-white/10 rounded-xl mb-5">
           <button
             type="button"
             onClick={() => {
               setMode('signup');
               setErrorMessage(null);
             }}
-            className={`py-2 text-xs font-mono uppercase tracking-wider rounded-lg font-bold transition-all ${
+            className={`py-2 text-xs font-mono uppercase tracking-wider rounded-lg font-bold transition-all cursor-pointer ${
               mode === 'signup'
-                ? 'bg-[#d6ff62] text-black shadow-md'
+                ? 'bg-[#EF4E22] text-[#FFF9F3] shadow-md'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -181,9 +173,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
               setMode('signin');
               setErrorMessage(null);
             }}
-            className={`py-2 text-xs font-mono uppercase tracking-wider rounded-lg font-bold transition-all ${
+            className={`py-2 text-xs font-mono uppercase tracking-wider rounded-lg font-bold transition-all cursor-pointer ${
               mode === 'signin'
-                ? 'bg-[#d6ff62] text-black shadow-md'
+                ? 'bg-[#EF4E22] text-[#FFF9F3] shadow-md'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -192,27 +184,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Avatar Selector (Signup only) */}
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          {/* Avatar Preview (Signup only) */}
           {mode === 'signup' && (
-            <div className="flex flex-col items-center mb-4">
-              <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-[#d6ff62] mb-2 shadow-lg">
-                <img src={selectedAvatar} alt="Selected avatar" className="w-full h-full object-cover" />
-              </div>
-              <div className="flex items-center gap-2">
-                {AVATAR_PRESETS.map((preset, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setSelectedAvatar(preset)}
-                    className={`w-7 h-7 rounded-lg overflow-hidden border transition-transform ${
-                      selectedAvatar === preset ? 'border-[#d6ff62] scale-110' : 'border-white/20 opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={preset} alt={`Preset ${idx}`} className="w-full h-full" />
-                  </button>
-                ))}
-              </div>
+            <div className="flex flex-col items-center justify-center py-2 mb-1">
+              <UserAvatar
+                name={displayName || username || 'Berozgar'}
+                username={username}
+                size="xl"
+                className="mb-1.5 shadow-md"
+              />
+              <span className="font-mono text-[11px] text-white/40 tracking-wide">
+                @{username || 'username'}
+              </span>
             </div>
           )}
 
@@ -231,15 +215,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
                 onChange={(e) => setUsername(sanitizeUsername(e.target.value))}
                 placeholder="username (e.g. ayush)"
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-10 py-2.5 text-sm text-white font-mono placeholder:text-white/25 focus:outline-none focus:border-[#d6ff62] transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-10 py-2.5 text-sm text-white font-mono placeholder:text-white/25 focus:outline-none focus:border-[#EF4E22] transition-colors"
               />
 
               {mode === 'signup' && username.length >= 3 && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   {isCheckingUsername ? (
-                    <div className="w-4 h-4 border-2 border-[#d6ff62] border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-[#EF4E22] border-t-transparent rounded-full animate-spin" />
                   ) : isUsernameAvailable ? (
-                    <CheckCircle2 size={16} className="text-[#d6ff62]" />
+                    <CheckCircle2 size={16} className="text-[#EF4E22]" />
                   ) : (
                     <XCircle size={16} className="text-red-400" />
                   )}
@@ -247,7 +231,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
               )}
             </div>
             {mode === 'signup' && username.length >= 3 && (
-              <p className={`font-mono text-[10px] mt-1 ${isUsernameAvailable ? 'text-[#d6ff62]' : 'text-red-400'}`}>
+              <p className={`font-mono text-[10px] mt-1 ${isUsernameAvailable ? 'text-[#EF4E22]' : 'text-red-400'}`}>
                 {isCheckingUsername
                   ? 'Checking availability...'
                   : isUsernameAvailable
@@ -272,7 +256,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Ayush Sharma"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#d6ff62] transition-colors"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#EF4E22] transition-colors"
                 />
               </div>
             </div>
@@ -293,7 +277,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white font-mono placeholder:text-white/25 focus:outline-none focus:border-[#d6ff62] transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white font-mono placeholder:text-white/25 focus:outline-none focus:border-[#EF4E22] transition-colors"
               />
               <button
                 type="button"
@@ -317,13 +301,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
           <button
             type="submit"
             disabled={loading || (mode === 'signup' && isUsernameAvailable === false)}
-            className="w-full py-3 bg-[#d6ff62] text-black font-mono font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#e4ff8f] transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(214,255,98,0.2)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98"
+            className="w-full py-3 bg-[#EF4E22] text-[#FFF9F3] font-mono font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#f3643d] transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(239,78,34,0.3)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98"
           >
             {loading ? (
-              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-[#FFF9F3] border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <span>{mode === 'signup' ? 'Create Ciao Account' : 'Sign In to Ciao'}</span>
+                <span>{mode === 'signup' ? 'Create Berozgar Account' : 'Sign In to Berozgar'}</span>
                 <ArrowRight size={16} />
               </>
             )}
@@ -338,19 +322,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => 
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => fillDemoAccount('alex_ciao', 'Alex Rivera')}
+              onClick={() => fillDemoAccount('ayush_berozgar', 'Ayush Sharma')}
               className="py-1.5 px-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/80 font-mono text-xs flex items-center justify-center gap-1.5 transition-colors"
             >
-              <UserCheck size={12} className="text-[#d6ff62]" />
-              <span>@alex_ciao</span>
+              <UserCheck size={12} className="text-[#EF4E22]" />
+              <span>@ayush_berozgar</span>
             </button>
             <button
               type="button"
-              onClick={() => fillDemoAccount('sarah_tech', 'Sarah Connor')}
+              onClick={() => fillDemoAccount('priya_chat', 'Priya Patel')}
               className="py-1.5 px-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/80 font-mono text-xs flex items-center justify-center gap-1.5 transition-colors"
             >
-              <UserCheck size={12} className="text-[#d6ff62]" />
-              <span>@sarah_tech</span>
+              <UserCheck size={12} className="text-[#EF4E22]" />
+              <span>@priya_chat</span>
             </button>
           </div>
         </div>

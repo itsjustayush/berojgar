@@ -27,6 +27,7 @@ import {
 } from '../lib/socialChatService';
 import { AudioMessagePlayer } from './AudioMessagePlayer';
 import { VoiceRecorder } from './VoiceRecorder';
+import { UserAvatar } from './UserAvatar';
 
 interface SocialChatViewProps {
   conversation: Conversation;
@@ -66,7 +67,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
   const otherUser = conversation.participantDetails?.[otherUid] || {
     uid: otherUid,
     username: 'user',
-    displayName: 'Ciao User',
+    displayName: 'Berozgar User',
     photoURL: '',
     status: 'offline' as const,
     lastSeen: 0,
@@ -223,15 +224,15 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
           </button>
 
           {/* User Avatar with status */}
-          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 shrink-0 bg-neutral-900">
-            <img
-              src={otherUser.photoURL || 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=ciao'}
-              alt={otherUser.displayName}
-              className="w-full h-full object-cover"
+          <div className="shrink-0">
+            <UserAvatar
+              name={otherUser.displayName || otherUser.username}
+              username={otherUser.username}
+              photoURL={otherUser.photoURL}
+              size="md"
+              showStatus
+              isOnline={otherUser.status === 'online'}
             />
-            {otherUser.status === 'online' && (
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#d6ff62] border-2 border-black shadow-[0_0_8px_#d6ff62]" />
-            )}
           </div>
 
           {/* User Identity & Active Status */}
@@ -242,13 +243,13 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             </h2>
             <div className="text-[11px] font-mono flex items-center gap-1.5">
               {isOtherTyping ? (
-                <span className="text-[#d6ff62] font-bold animate-pulse flex items-center gap-1">
+                <span className="text-[#EF4E22] font-bold animate-pulse flex items-center gap-1">
                   <span>typing</span>
                   <span className="animate-bounce">...</span>
                 </span>
               ) : otherUser.status === 'online' ? (
-                <span className="text-[#d6ff62] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d6ff62] animate-pulse" />
+                <span className="text-[#EF4E22] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-pulse" />
                   <span>Active now</span>
                 </span>
               ) : (
@@ -263,7 +264,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
           <button
             type="button"
             onClick={() => onStartCall('voice', otherUser as UserProfile)}
-            className="p-2 rounded-xl text-white/70 hover:text-[#d6ff62] hover:bg-white/5 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
             title="Start Voice Call"
           >
             <Phone size={18} />
@@ -272,7 +273,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
           <button
             type="button"
             onClick={() => onStartCall('video', otherUser as UserProfile)}
-            className="p-2 rounded-xl text-white/70 hover:text-[#d6ff62] hover:bg-white/5 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
             title="Start Video Call"
           >
             <Video size={18} />
@@ -282,7 +283,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             type="button"
             onClick={() => setShowInChatSearch(!showInChatSearch)}
             className={`p-2 rounded-xl transition-colors cursor-pointer ${
-              showInChatSearch ? 'text-[#d6ff62] bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
+              showInChatSearch ? 'text-[#EF4E22] bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
             }`}
             title="Search in conversation"
           >
@@ -293,7 +294,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
 
       {/* In-chat Search Bar Drawer */}
       {showInChatSearch && (
-        <div className="p-2.5 bg-[#0f0f0f] border-b border-white/10 flex items-center gap-2 animate-in slide-in-from-top-2">
+        <div className="p-2.5 bg-[#101c36] border-b border-white/10 flex items-center gap-2 animate-in slide-in-from-top-2">
           <Search size={14} className="text-white/40 ml-2" />
           <input
             type="text"
@@ -325,14 +326,14 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
         {displayedMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8 text-white/40">
-            <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-3">
-              <Sparkles size={24} className="text-[#d6ff62]" />
+            <div className="w-16 h-16 rounded-3xl bg-[#EF4E22]/10 border border-[#EF4E22]/20 flex items-center justify-center mb-3">
+              <Sparkles size={24} className="text-[#EF4E22]" />
             </div>
-            <h3 className="font-serif italic text-lg text-white font-bold mb-1">
-              End-to-End Chat with {otherUser.displayName}
+            <h3 className="font-extrabold text-lg text-white mb-1" style={{ fontFamily: 'Mukta, sans-serif' }}>
+              Chat with {otherUser.displayName}
             </h3>
             <p className="font-mono text-xs max-w-sm text-white/50">
-              Real-time messaging, seen receipts, photos, voice notes, and audio/video calls. Say ciao!
+              Real-time messaging, seen receipts, photos, voice notes, and calls on Berozgar.
             </p>
           </div>
         ) : (
@@ -371,7 +372,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                           type="button"
                           onClick={() => toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)}
                           className={`text-sm hover:scale-125 transition-transform p-0.5 rounded-full cursor-pointer ${
-                            hasReacted ? 'bg-[#d6ff62]/30 scale-110' : 'hover:bg-white/10'
+                            hasReacted ? 'bg-[#EF4E22]/30 scale-110' : 'hover:bg-white/10'
                           }`}
                           title={`React ${emoji}`}
                         >
@@ -385,8 +386,8 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                   <div
                     className={`p-3.5 rounded-2xl text-sm font-sans leading-relaxed break-words shadow-md transition-all ${
                       isYou
-                        ? 'bg-[#181818] border border-white/15 text-white rounded-tr-none'
-                        : 'bg-[#121212] border border-white/10 text-white rounded-tl-none'
+                        ? 'bg-[#EF4E22] text-[#FFF9F3] rounded-tr-none shadow-[0_2px_14px_rgba(239,78,34,0.3)]'
+                        : 'bg-[#18284c] border border-white/10 text-[#FFF9F3] rounded-tl-none'
                     }`}
                   >
                     {/* Media: Image */}
@@ -419,14 +420,14 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                     {msg.type === 'file' && (
                       <div className="flex items-center justify-between gap-3 p-2.5 bg-black/30 border border-white/10 rounded-xl mb-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <FileText size={18} className="text-[#d6ff62] shrink-0" />
+                          <FileText size={18} className="text-[#EF4E22] shrink-0" />
                           <span className="font-mono text-xs truncate">{msg.mediaName || 'Document'}</span>
                         </div>
                         {msg.mediaUrl && (
                           <a
                             href={msg.mediaUrl}
                             download={msg.mediaName || 'download'}
-                            className="p-1.5 rounded-lg bg-white/10 hover:bg-[#d6ff62] hover:text-black text-white transition-colors"
+                            className="p-1.5 rounded-lg bg-white/10 hover:bg-[#EF4E22] hover:text-[#FFF9F3] text-white transition-colors"
                           >
                             <Download size={14} />
                           </a>
@@ -436,7 +437,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
 
                     {/* Call Log Info Notice */}
                     {msg.type === 'call_log' && (
-                      <div className="flex items-center gap-2 text-xs font-mono text-[#d6ff62]">
+                      <div className="flex items-center gap-2 text-xs font-mono text-[#EF4E22]">
                         <Phone size={14} />
                         <span>{msg.text}</span>
                       </div>
@@ -462,7 +463,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                               onClick={() => toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)}
                               className={`inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                                 isMyReaction
-                                  ? 'bg-[#d6ff62] text-black font-bold shadow-sm'
+                                  ? 'bg-[#EF4E22] text-[#FFF9F3] font-bold shadow-sm'
                                   : 'bg-white/10 hover:bg-white/20 text-white'
                               }`}
                             >
@@ -496,7 +497,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                           </span>
                         )}
                         {msg.status === 'seen' && (
-                          <span className="text-[#d6ff62] font-bold flex items-center gap-0.5" title="Seen (Double check in neon lime)">
+                          <span className="text-[#EF4E22] font-bold flex items-center gap-0.5" title="Seen (Double check in orange)">
                             <CheckCheck size={13} />
                             <span>Seen</span>
                           </span>
@@ -534,7 +535,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
       )}
 
       {/* Bottom Chat Input Bar */}
-      <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0a0a0a]/90 backdrop-blur-md">
+      <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0b1326]/95 backdrop-blur-md">
         {isRecordingVoice ? (
           <VoiceRecorder
             onSendVoice={handleSendVoiceNote}
@@ -577,7 +578,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                 value={inputText}
                 onChange={handleInputChange}
                 placeholder={`Message ${otherUser.displayName}...`}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#d6ff62] transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22] transition-colors"
               />
             </div>
 
@@ -585,7 +586,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             {inputText.trim() ? (
               <button
                 type="submit"
-                className="p-2.5 rounded-xl bg-[#d6ff62] text-black hover:bg-[#e4ff8f] transition-all shadow-[0_0_15px_rgba(214,255,98,0.2)] active:scale-95 cursor-pointer"
+                className="p-2.5 rounded-xl bg-[#EF4E22] text-[#FFF9F3] hover:bg-[#f3643d] transition-all shadow-[0_0_15px_rgba(239,78,34,0.3)] active:scale-95 cursor-pointer"
                 title="Send Message"
               >
                 <Send size={18} />
@@ -594,7 +595,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRecordingVoice(true)}
-                className="p-2.5 rounded-xl bg-white/5 hover:bg-[#d6ff62] text-white hover:text-black transition-all cursor-pointer"
+                className="p-2.5 rounded-xl bg-white/5 hover:bg-[#EF4E22] text-white hover:text-[#FFF9F3] transition-all cursor-pointer"
                 title="Record Voice Note"
               >
                 <Mic size={18} />
@@ -623,7 +624,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             <a
               href={activeMediaPreview.url}
               download={activeMediaPreview.name}
-              className="px-3 py-1.5 rounded-xl bg-[#d6ff62] text-black font-mono text-xs font-bold hover:bg-[#e4ff8f] transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl bg-[#EF4E22] text-[#FFF9F3] font-mono text-xs font-bold hover:bg-[#f3643d] transition-colors flex items-center gap-1.5"
             >
               <Download size={14} />
               <span>Download</span>

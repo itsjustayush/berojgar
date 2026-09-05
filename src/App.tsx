@@ -101,7 +101,7 @@ export default function App() {
     try {
       const registry = await callRoomRegistry('create', { roomCode: newOtp, peerId: session.id, peerName: session.identifier });
       if (!registry.active || registry.room_code !== newOtp) throw new Error('The shared room registry did not confirm room creation.');
-      setRoom({ ...createInitialRoom(session, newOtp, registry.host_peer_id || session.id), messages: [{ id: `sys-${Date.now()}`, senderId: 'SYSTEM', senderName: 'CIAO SYSTEM', text: `Private room ${newOtp} created. This room is now shared across active instances.`, timestamp: Date.now(), type: 'system' }] });
+      setRoom({ ...createInitialRoom(session, newOtp, registry.host_peer_id || session.id), messages: [{ id: `sys-${Date.now()}`, senderId: 'SYSTEM', senderName: 'BEROZGAR SYSTEM', text: `Private room ${newOtp} created. This room is now shared across active instances.`, timestamp: Date.now(), type: 'system' }] });
       setCurrentView('ROOM');
     } catch {
       setJoinError('Could not create a shared room right now. Please try again.');
@@ -116,7 +116,7 @@ export default function App() {
     try {
       const activeRoom = await findActiveRoom(cleanOtp);
       const registry = await callRoomRegistry('join', { roomCode: cleanOtp, peerId: session.id, peerName: session.identifier });
-      setRoom({ ...createInitialRoom(session, cleanOtp, registry.host_peer_id || activeRoom.hostPeerId || 'HOST_NODE'), messages: [{ id: `sys-${Date.now()}`, senderId: 'SYSTEM', senderName: 'CIAO SYSTEM', text: `Joined room ${cleanOtp}. This instance is mapped to the shared active room.`, timestamp: Date.now(), type: 'system' }] });
+      setRoom({ ...createInitialRoom(session, cleanOtp, registry.host_peer_id || activeRoom.hostPeerId || 'HOST_NODE'), messages: [{ id: `sys-${Date.now()}`, senderId: 'SYSTEM', senderName: 'BEROZGAR SYSTEM', text: `Joined room ${cleanOtp}. This instance is mapped to the shared active room.`, timestamp: Date.now(), type: 'system' }] });
       clearRoomQuery();
       setCurrentView('ROOM');
     } catch {
@@ -144,7 +144,7 @@ export default function App() {
 
   const handleWipeSession = () => {
     if (!window.confirm('Wipe this tab’s in-memory files and messages? This cannot be undone.')) return;
-    setRoom((prev) => ({ ...prev, bundleItems: [], messages: [{ id: `sys-${Date.now()}`, senderId: 'SYSTEM', senderName: 'CIAO SYSTEM', text: 'Local session memory wiped.', timestamp: Date.now(), type: 'system' }] }));
+    setRoom((prev) => ({ ...prev, bundleItems: [], messages: [{ id: `sys-${Date.now()}`, senderId: 'SYSTEM', senderName: 'BEROZGAR SYSTEM', text: 'Local session memory wiped.', timestamp: Date.now(), type: 'system' }] }));
   };
 
   const handleLogout = async () => {
@@ -225,18 +225,20 @@ export default function App() {
         />
       )}
 
-      <footer className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col gap-4 border-t border-white/10 px-5 py-5 font-mono text-[10px] uppercase tracking-[.16em] text-white/35 sm:px-8 lg:px-12">
-        <div className="flex flex-wrap items-center justify-between gap-y-2">
-          <span>Ciao / Social Messaging Platform</span>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span className="inline-flex items-center gap-2">
-              <ShieldCheck size={13} className="text-[#d6ff62]" />
-              <span>Firebase Cloud Backend</span>
-            </span>
-            <span className="text-white/45">Realtime • Audio/Video WebRTC • Instagram-style Auth</span>
+      {currentView !== 'CHATS' && (
+        <footer className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col gap-4 border-t border-white/10 px-5 py-5 font-mono text-[10px] uppercase tracking-[.16em] text-white/35 sm:px-8 lg:px-12">
+          <div className="flex flex-wrap items-center justify-between gap-y-2">
+            <span>Berozgar / Social Messaging Platform</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="inline-flex items-center gap-2">
+                <ShieldCheck size={13} className="text-[#EF4E22]" />
+                <span>Berozgar Network</span>
+              </span>
+              <span className="text-white/45">Realtime • Audio/Video WebRTC • Instagram-style Auth</span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }

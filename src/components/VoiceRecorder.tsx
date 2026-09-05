@@ -100,7 +100,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSendVoice, onCan
   };
 
   return (
-    <div className="flex items-center justify-between w-full bg-[#141414] border border-[#2a2a2a] rounded-2xl px-4 py-2 text-white">
+    <div className="flex items-center justify-between w-full bg-[#0e1933] border border-white/10 rounded-2xl px-4 py-2 text-white">
       <div className="flex items-center gap-3">
         <div className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
         <span className="font-mono text-sm text-red-400 font-bold">REC</span>
@@ -111,7 +111,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSendVoice, onCan
           {[40, 70, 30, 90, 60, 80, 45, 100, 50, 75].map((height, i) => (
             <div
               key={i}
-              className="w-1 bg-[#d6ff62] rounded-full animate-pulse"
+              className="w-1 bg-[#EF4E22] rounded-full animate-pulse"
               style={{
                 height: `${Math.max(6, (height * (1 + (recordingTime % 3) * 0.2)) / 4)}px`,
                 animationDelay: `${i * 80}ms`,
@@ -138,7 +138,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSendVoice, onCan
         <button
           type="button"
           onClick={handleStopAndSend}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d6ff62] text-black font-mono text-xs font-bold rounded-xl hover:bg-[#e4ff8f] transition-all active:scale-95 shadow-lg"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#EF4E22] text-[#FFF9F3] font-mono text-xs font-bold rounded-xl hover:bg-[#f3643d] transition-all active:scale-95 shadow-lg cursor-pointer"
           title="Send voice note"
         >
           <Send size={14} />

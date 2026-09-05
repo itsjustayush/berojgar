@@ -17,6 +17,7 @@ import {
   endCallSession,
   subscribeToCallSession,
 } from '../lib/socialChatService';
+import { UserAvatar } from './UserAvatar';
 
 interface CallModalProps {
   call: CallSession;
@@ -223,14 +224,14 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0d0d0d] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-[#0e1933] border border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center max-h-[95vh]">
         {/* Call Header */}
-        <div className="w-full p-4 flex items-center justify-between border-b border-white/10 bg-black/40">
+        <div className="w-full p-3.5 sm:p-4 flex items-center justify-between border-b border-white/10 bg-[#0a1224]/70">
           <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#d6ff62] animate-pulse" />
-            <span className="font-mono text-xs uppercase tracking-widest text-[#d6ff62] font-bold">
-              {call.type === 'video' ? 'Ciao Video Call' : 'Ciao Voice Call'}
+            <div className="w-2.5 h-2.5 rounded-full bg-[#EF4E22] animate-pulse" />
+            <span className="font-mono text-xs uppercase tracking-widest text-[#EF4E22] font-bold">
+              {call.type === 'video' ? 'Berozgar Video Call' : 'Berozgar Voice Call'}
             </span>
           </div>
           <span className="font-mono text-xs text-white/70">
@@ -239,7 +240,7 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
         </div>
 
         {/* Video / Audio Stage */}
-        <div className="relative w-full aspect-video sm:aspect-16/10 bg-[#050505] flex items-center justify-center overflow-hidden">
+        <div className="relative w-full aspect-video sm:aspect-16/10 bg-[#080f21] flex items-center justify-center overflow-hidden">
           {call.type === 'video' ? (
             <>
               {/* Remote Video Stream */}
@@ -251,7 +252,7 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
               />
 
               {/* Local Video Picture-in-Picture */}
-              <div className="absolute top-4 right-4 w-32 h-24 sm:w-44 sm:h-32 bg-[#1a1a1a] rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl z-20">
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-28 h-20 sm:w-44 sm:h-32 bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl z-20">
                 <video
                   ref={localVideoRef}
                   autoPlay
@@ -269,22 +270,21 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
             </>
           ) : (
             /* Voice Audio Visualizer View */
-            <div className="flex flex-col items-center justify-center p-8 text-center z-10">
-              <div className="relative mb-6">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-[#d6ff62] shadow-[0_0_40px_rgba(214,255,98,0.25)]">
-                  <img
-                    src={targetPhoto || 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=ciao'}
-                    alt={targetName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+            <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center z-10">
+              <div className="relative mb-4 sm:mb-6">
+                <UserAvatar
+                  name={targetName}
+                  photoURL={targetPhoto}
+                  size="2xl"
+                  className="shadow-[0_0_40px_rgba(239,78,34,0.3)]"
+                />
                 {callStatus === 'accepted' && (
-                  <div className="absolute -inset-3 rounded-full border-2 border-[#d6ff62]/40 animate-ping" />
+                  <div className="absolute -inset-3 rounded-full border-2 border-[#EF4E22]/40 animate-ping pointer-events-none" />
                 )}
               </div>
 
               <h2 className="text-xl font-bold text-white font-sans">{targetName}</h2>
-              <p className="font-mono text-xs text-[#d6ff62] mt-1">
+              <p className="font-mono text-xs text-[#EF4E22] mt-1">
                 {callStatus === 'accepted' ? 'Call in progress' : 'Ringing...'}
               </p>
             </div>
@@ -293,15 +293,16 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
           {/* Incoming Ringing Prompt for receiver */}
           {!isCaller && callStatus === 'ringing' && (
             <div className="absolute inset-0 bg-black/80 z-30 flex flex-col items-center justify-center p-6 text-center">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#d6ff62] mb-4 animate-bounce">
-                <img
-                  src={targetPhoto || 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=ciao'}
-                  alt={targetName}
-                  className="w-full h-full object-cover"
+              <div className="mb-4 animate-bounce">
+                <UserAvatar
+                  name={targetName}
+                  photoURL={targetPhoto}
+                  size="2xl"
+                  className="shadow-xl"
                 />
               </div>
               <h3 className="text-xl font-bold text-white mb-1">{targetName}</h3>
-              <p className="font-mono text-sm text-[#d6ff62] mb-8">
+              <p className="font-mono text-sm text-[#EF4E22] mb-8">
                 Incoming {call.type} call...
               </p>
 
@@ -309,7 +310,7 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
                 <button
                   type="button"
                   onClick={handleDeclineIncoming}
-                  className="w-14 h-14 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg transition-transform active:scale-95"
+                  className="w-14 h-14 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
                   title="Decline"
                 >
                   <PhoneOff size={24} />
@@ -317,7 +318,7 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
                 <button
                   type="button"
                   onClick={handleAcceptIncoming}
-                  className="w-14 h-14 rounded-full bg-[#d6ff62] hover:bg-[#e4ff8f] text-black flex items-center justify-center shadow-lg transition-transform active:scale-95"
+                  className="w-14 h-14 rounded-full bg-[#EF4E22] hover:bg-[#f3643d] text-[#FFF9F3] flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
                   title="Accept"
                 >
                   <Phone size={24} />
@@ -328,7 +329,7 @@ export const CallModal: React.FC<CallModalProps> = ({ call, currentUser, onClose
         </div>
 
         {/* Call Controls Bar */}
-        <div className="w-full p-4 bg-black/60 border-t border-white/10 flex items-center justify-center gap-4 sm:gap-6">
+        <div className="w-full p-3.5 sm:p-4 bg-black/60 border-t border-white/10 flex items-center justify-center gap-3 sm:gap-6">
           <button
             type="button"
             onClick={toggleMute}

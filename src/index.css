@@ -1,22 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Mukta:wght@400;600;700;800&family=Rozha+One&family=Instrument+Serif:ital@1&display=swap');
 @import "tailwindcss";
 
 :root {
-  --bg: #050505;
-  --surface: #0d0d0d;
-  --surface-raised: #141414;
-  --surface-soft: rgba(255, 255, 255, 0.055);
-  --text: #f6f4ef;
-  --muted: #989898;
-  --muted-strong: #c9c6be;
-  --line: rgba(255, 255, 255, 0.12);
-  --line-strong: rgba(255, 255, 255, 0.22);
-  --accent: #d6ff62;
-  --accent-soft: rgba(214, 255, 98, 0.12);
-  --danger: #ff8e8e;
-  --font-sans: 'DM Sans', Inter, ui-sans-serif, system-ui, sans-serif;
+  --bg: #0b1326;
+  --surface: #101c36;
+  --surface-raised: #18284c;
+  --surface-soft: rgba(255, 249, 243, 0.06);
+  --text: #FFF9F3;
+  --cream: #FFF9F3;
+  --sand: #F7F3E8;
+  --navy: #192A56;
+  --muted: #94a3b8;
+  --muted-strong: #cbd5e1;
+  --line: rgba(255, 249, 243, 0.12);
+  --line-strong: rgba(255, 249, 243, 0.22);
+  --accent: #EF4E22;
+  --accent-soft: rgba(239, 78, 34, 0.16);
+  --accent-hover: #f3643d;
+  --danger: #ff6b6b;
+  --font-sans: 'DM Sans', 'Mukta', Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-devanagari: 'Mukta', 'Rozha One', sans-serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-display: 'Rozha One', 'Instrument Serif', Georgia, serif;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -36,7 +41,7 @@ button, input { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
 a { color: inherit; text-decoration: none; }
-::selection { background: var(--accent); color: #101010; }
+::selection { background: var(--accent); color: #FFF9F3; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 @layer base {
@@ -49,8 +54,9 @@ a { color: inherit; text-decoration: none; }
   overflow-x: clip;
   isolation: isolate;
   background:
-    radial-gradient(circle at 75% -10%, rgba(214, 255, 98, 0.08), transparent 30rem),
-    radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.045), transparent 28rem),
+    radial-gradient(circle at 75% -10%, rgba(239, 78, 34, 0.12), transparent 32rem),
+    radial-gradient(circle at 15% 85%, rgba(25, 42, 86, 0.65), transparent 35rem),
+    radial-gradient(circle at 50% 50%, rgba(15, 26, 54, 0.9), transparent 50rem),
     var(--bg);
 }
 
@@ -110,8 +116,8 @@ a { color: inherit; text-decoration: none; }
 .liquid-button:hover { border-color: rgba(255,255,255,.62); background: rgba(255,255,255,.12); box-shadow: 0 0 24px rgba(255,255,255,.08); }
 .liquid-button:hover::after { transform: translateX(120%); }
 .liquid-button:active { transform: scale(.97); }
-.liquid-button--solid { border-color: var(--accent); color: #101010; background: var(--accent); box-shadow: 0 0 30px rgba(214,255,98,.16); }
-.liquid-button--solid:hover { border-color: #edffb0; background: #e6ff8e; box-shadow: 0 0 34px rgba(214,255,98,.28); }
+.liquid-button--solid { border-color: var(--accent); color: #FFF9F3; background: var(--accent); box-shadow: 0 0 30px rgba(239,78,34,.25); }
+.liquid-button--solid:hover { border-color: #f77a54; background: #f3643d; box-shadow: 0 0 34px rgba(239,78,34,.4); }
 
 .page-reveal { animation: page-reveal 700ms var(--ease-out) both; }
 .stagger-reveal { animation: stagger-reveal 700ms var(--ease-out) both; animation-delay: var(--delay, 80ms); }
@@ -120,18 +126,18 @@ a { color: inherit; text-decoration: none; }
 
 .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(255,255,255,.16); }
+.custom-scrollbar::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(255,249,243,.18); }
 
-/* Keep the existing feature screens on the new design language while their layouts are incrementally migrated. */
+/* Room shell styling */
 .room-shell, .history-shell, .network-shell {
   color: var(--text);
   background: transparent !important;
 }
-.room-shell [class*="bg-[#F2F2EE]"], .room-shell [class*="bg-white"], .history-shell [class*="bg-white"], .network-shell [class*="bg-white"] { background-color: rgba(255,255,255,.055) !important; }
+.room-shell [class*="bg-[#F2F2EE]"], .room-shell [class*="bg-white"], .history-shell [class*="bg-white"], .network-shell [class*="bg-white"] { background-color: rgba(255,249,243,.055) !important; }
 .room-shell [class*="text-[#192837]"], .history-shell [class*="text-[#192837]"], .network-shell [class*="text-[#192837]"] { color: var(--text) !important; }
 .room-shell [class*="border-[#192837]"], .history-shell [class*="border-[#192837]"], .network-shell [class*="border-[#192837]"] { border-color: var(--line) !important; }
-.room-shell input { color: var(--text); background: rgba(255,255,255,.055); }
-.room-shell input::placeholder { color: rgba(255,255,255,.42); }
+.room-shell input { color: var(--text); background: rgba(255,249,243,.055); }
+.room-shell input::placeholder { color: rgba(255,249,243,.42); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
@@ -141,15 +147,13 @@ a { color: inherit; text-decoration: none; }
   .app-shell::before { background-size: 38px 38px; }
 }
 
-/* Active room migration layer: keep the existing workflow, but make every surface
-   read as part of the same UltronChat visual system. */
-.room-shell [class*="bg-[#7342E2]"] { background-color: var(--accent) !important; color: #101010 !important; }
+.room-shell [class*="bg-[#7342E2]"] { background-color: var(--accent) !important; color: #FFF9F3 !important; }
 .room-shell [class*="bg-[#7342E2]/10"], .room-shell [class*="bg-[#7342E2]/20"] { background-color: var(--accent-soft) !important; color: var(--accent) !important; }
 .room-shell [class*="text-[#7342E2]"] { color: var(--accent) !important; }
-.room-shell [class*="border-[#7342E2]"] { border-color: rgba(214,255,98,.35) !important; }
-.room-shell [class*="bg-emerald-500/10"] { background-color: rgba(214,255,98,.08) !important; }
+.room-shell [class*="border-[#7342E2]"] { border-color: rgba(239,78,34,.35) !important; }
+.room-shell [class*="bg-emerald-500/10"] { background-color: rgba(239,78,34,.1) !important; }
 .room-shell [class*="text-emerald-700"], .room-shell [class*="text-emerald-600"] { color: var(--accent) !important; }
-.room-shell [class*="border-emerald-500"] { border-color: rgba(214,255,98,.3) !important; }
-.room-shell [class*="bg-red-600"] { background-color: rgba(255,142,142,.12) !important; border: 1px solid rgba(255,142,142,.3); }
-.room-shell [class*="text-red-600"] { color: #ffb2b2 !important; }
-.room-shell [class*="bg-[#7342E2]"][class*="text-white"] { color: #101010 !important; }
+.room-shell [class*="border-emerald-500"] { border-color: rgba(239,78,34,.3) !important; }
+.room-shell [class*="bg-red-600"] { background-color: rgba(255,107,107,.15) !important; border: 1px solid rgba(255,107,107,.3); }
+.room-shell [class*="text-red-600"] { color: #ff9b9b !important; }
+.room-shell [class*="bg-[#7342E2]"][class*="text-white"] { color: #FFF9F3 !important; }

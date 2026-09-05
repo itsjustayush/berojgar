@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { Conversation, UserProfile } from '../types';
 import { searchUsers, getOrCreateDirectConversation } from '../lib/socialChatService';
+import { UserAvatar } from './UserAvatar';
+import { BerozgarLogo } from './BerozgarLogo';
 
 interface ChatListSidebarProps {
   currentUser: UserProfile;
@@ -107,24 +109,18 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
   };
 
   return (
-    <div className="w-full md:w-80 lg:w-96 h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 select-none">
+    <div className="w-full md:w-80 lg:w-96 h-full flex flex-col bg-[#0b1326] border-r border-white/10 select-none">
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-white/10 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[#d6ff62] text-black flex items-center justify-center font-bold font-mono text-sm shadow-[0_0_15px_rgba(214,255,98,0.25)]">
-            C
-          </div>
-          <div>
-            <h1 className="font-serif italic text-xl font-bold text-white tracking-tight">Ciao</h1>
-            <span className="font-mono text-[10px] text-white/50 block -mt-1">Social Messenger</span>
-          </div>
+      <div className="p-4 border-b border-white/10 flex items-center justify-between bg-[#101c36]/70">
+        <div className="flex items-center gap-2">
+          <BerozgarLogo variant="compact" size="sm" />
         </div>
 
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => setShowNewChatModal(true)}
-            className="w-8 h-8 rounded-lg bg-[#d6ff62]/10 hover:bg-[#d6ff62]/20 text-[#d6ff62] border border-[#d6ff62]/20 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg bg-[#EF4E22]/15 hover:bg-[#EF4E22]/25 text-[#EF4E22] border border-[#EF4E22]/30 flex items-center justify-center transition-colors cursor-pointer shadow-sm"
             title="Start new chat with @username"
           >
             <Plus size={16} />
@@ -143,7 +139,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
             value={searchQuery}
             onChange={(e) => handleSearchNetwork(e.target.value)}
             placeholder="Search chats or @username..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#d6ff62] font-mono transition-colors"
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22] font-mono transition-colors"
           />
           {searchQuery && (
             <button
@@ -164,7 +160,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
         {/* Network User Search Results */}
         {searchQuery.trim() && searchResults.length > 0 && (
           <div className="p-2 bg-white/2 border-b border-white/10">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#d6ff62] px-2 py-1 block">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#EF4E22] px-2 py-1 block">
               Global Users ({searchResults.length})
             </span>
             {searchResults.map((user) => (
@@ -177,17 +173,21 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                 }}
                 className="w-full p-2 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left group"
               >
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 shrink-0">
-                  <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
-                  {user.status === 'online' && (
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#d6ff62] border-2 border-black" />
-                  )}
+                <div className="shrink-0">
+                  <UserAvatar
+                    name={user.displayName}
+                    username={user.username}
+                    photoURL={user.photoURL}
+                    size="md"
+                    showStatus
+                    isOnline={user.status === 'online'}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-xs font-bold text-white block truncate">{user.displayName}</span>
-                  <span className="text-[11px] font-mono text-[#d6ff62]/80 block truncate">@{user.username}</span>
+                  <span className="text-[11px] font-mono text-[#EF4E22]/90 block truncate">@{user.username}</span>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-1 rounded bg-[#d6ff62]/10 text-[#d6ff62] border border-[#d6ff62]/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] font-mono px-2 py-1 rounded bg-[#EF4E22]/15 text-[#EF4E22] border border-[#EF4E22]/30 opacity-0 group-hover:opacity-100 transition-opacity">
                   Chat
                 </span>
               </button>
@@ -210,20 +210,20 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                 onClick={() => onSelectConversation(conv.id)}
                 className={`w-full p-3.5 flex items-center gap-3 transition-colors text-left cursor-pointer ${
                   isActive
-                    ? 'bg-white/10 border-l-2 border-[#d6ff62]'
+                    ? 'bg-[#18284c]/70 border-l-2 border-[#EF4E22]'
                     : 'hover:bg-white/5'
                 }`}
               >
                 {/* Avatar with live status dot */}
-                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-neutral-900">
-                  <img
-                    src={other.photoURL || 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=ciao'}
-                    alt={other.displayName}
-                    className="w-full h-full object-cover"
+                <div className="shrink-0">
+                  <UserAvatar
+                    name={other.displayName || other.username}
+                    username={other.username}
+                    photoURL={other.photoURL}
+                    size="lg"
+                    showStatus
+                    isOnline={other.status === 'online'}
                   />
-                  {other.status === 'online' && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#d6ff62] border-2 border-black shadow-[0_0_8px_#d6ff62]" />
-                  )}
                 </div>
 
                 {/* Info & Last message */}
@@ -237,7 +237,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
 
                   <div className="flex items-center justify-between">
                     {isTyping ? (
-                      <span className="text-xs text-[#d6ff62] font-mono animate-pulse flex items-center gap-1">
+                      <span className="text-xs text-[#EF4E22] font-mono animate-pulse flex items-center gap-1">
                         <span>typing</span>
                         <span className="animate-bounce">...</span>
                       </span>
@@ -248,7 +248,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                     )}
 
                     {unreadCount > 0 && (
-                      <span className="ml-2 w-5 h-5 rounded-full bg-[#d6ff62] text-black font-mono text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm">
+                      <span className="ml-2 w-5 h-5 rounded-full bg-[#EF4E22] text-[#FFF9F3] font-mono text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm">
                         {unreadCount}
                       </span>
                     )}
@@ -259,12 +259,12 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
           })
         ) : (
           <div className="p-8 text-center text-white/40">
-            <MessageSquare size={32} className="mx-auto mb-2 opacity-30" />
-            <p className="font-mono text-xs mb-1">No chats yet</p>
-            <p className="text-[11px] text-white/30 mb-4">Search users above to start a conversation</p>
+            <MessageSquare size={32} className="mx-auto mb-2 opacity-30 text-[#EF4E22]" />
+            <p className="font-mono text-xs mb-1 text-white/70">No chats yet</p>
+            <p className="text-[11px] text-white/40 mb-4">Search users above to start a conversation</p>
             <button
               onClick={() => setShowNewChatModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#d6ff62] text-black font-mono text-xs font-bold hover:bg-[#e4ff8f] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#EF4E22] text-[#FFF9F3] font-mono text-xs font-bold hover:bg-[#f3643d] transition-colors shadow-md"
             >
               <Plus size={14} />
               <span>Find People</span>
@@ -274,17 +274,23 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
       </div>
 
       {/* User Profile Bar at Bottom */}
-      <div className="p-3 border-t border-white/10 bg-black/40 flex items-center justify-between">
+      <div className="p-3 border-t border-white/10 bg-[#0c162b] flex items-center justify-between">
         <button
           onClick={onOpenProfile}
-          className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-colors text-left flex-1 min-w-0 group"
+          className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-colors text-left flex-1 min-w-0 group cursor-pointer"
         >
-          <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#d6ff62]/40 shrink-0">
-            <img src={currentUser.photoURL} alt={currentUser.displayName} className="w-full h-full object-cover" />
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#d6ff62] border-2 border-black" />
+          <div className="shrink-0">
+            <UserAvatar
+              name={currentUser.displayName}
+              username={currentUser.username}
+              photoURL={currentUser.photoURL}
+              size="sm"
+              showStatus
+              isOnline={currentUser.status === 'online'}
+            />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="text-xs font-bold text-white block truncate group-hover:text-[#d6ff62] transition-colors">
+            <span className="text-xs font-bold text-white block truncate group-hover:text-[#EF4E22] transition-colors">
               {currentUser.displayName}
             </span>
             <span className="text-[10px] font-mono text-white/50 block truncate">@{currentUser.username}</span>
@@ -295,7 +301,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
           <button
             type="button"
             onClick={onOpenProfile}
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
             title="Profile & Settings"
           >
             <Settings size={16} />
@@ -303,7 +309,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
           <button
             type="button"
             onClick={onLogout}
-            className="p-2 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            className="p-2 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
             title="Sign Out"
           >
             <LogOut size={16} />
@@ -313,20 +319,25 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
 
       {/* New Chat Dialog / Discover Modal */}
       {showNewChatModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-[#0e0e0e] border border-white/10 rounded-3xl p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
+          <div className="w-full max-w-md bg-[#101c36] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif italic text-lg font-bold text-white">Start a New Chat</h3>
+              <div className="flex items-center gap-2">
+                <BerozgarLogo variant="icon" size="sm" />
+                <h3 className="font-extrabold text-lg text-white" style={{ fontFamily: 'Mukta, sans-serif' }}>
+                  Start a New Chat
+                </h3>
+              </div>
               <button
                 onClick={() => setShowNewChatModal(false)}
-                className="text-white/40 hover:text-white font-mono text-xs"
+                className="text-white/40 hover:text-white font-mono text-xs cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             <p className="text-xs text-white/60 mb-4 font-sans">
-              Enter any Instagram-style @username to connect and message instantly.
+              Enter any Instagram-style @username to connect and message on Berozgar instantly.
             </p>
 
             <div className="relative mb-4">
@@ -336,11 +347,11 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                 value={searchQuery}
                 onChange={(e) => handleSearchNetwork(e.target.value)}
                 autoFocus
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 font-mono focus:outline-none focus:border-[#d6ff62]"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 font-mono focus:outline-none focus:border-[#EF4E22]"
               />
             </div>
 
-            <div className="max-h-60 overflow-y-auto divide-y divide-white/5">
+            <div className="max-h-60 overflow-y-auto divide-y divide-white/5 flex-1 custom-scrollbar">
               {searchResults.length > 0 ? (
                 searchResults.map((user) => (
                   <button
@@ -350,16 +361,23 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                       setShowNewChatModal(false);
                       setSearchQuery('');
                     }}
-                    className="w-full p-2.5 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left"
+                    className="w-full p-2.5 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left cursor-pointer"
                   >
-                    <div className="w-9 h-9 rounded-full overflow-hidden border border-white/20 shrink-0">
-                      <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
+                    <div className="shrink-0">
+                      <UserAvatar
+                        name={user.displayName}
+                        username={user.username}
+                        photoURL={user.photoURL}
+                        size="sm"
+                        showStatus
+                        isOnline={user.status === 'online'}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-xs font-bold text-white block truncate">{user.displayName}</span>
-                      <span className="text-[10px] font-mono text-[#d6ff62] block truncate">@{user.username}</span>
+                      <span className="text-[10px] font-mono text-[#EF4E22] block truncate">@{user.username}</span>
                     </div>
-                    <span className="px-2 py-1 rounded bg-[#d6ff62] text-black font-mono text-[10px] font-bold">
+                    <span className="px-2 py-1 rounded bg-[#EF4E22] text-[#FFF9F3] font-mono text-[10px] font-bold shadow-sm">
                       Message
                     </span>
                   </button>
@@ -370,7 +388,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                 </div>
               ) : (
                 <div className="p-4 text-center text-xs text-white/40 font-mono">
-                  Type a username above to search registered Ciao users
+                  Type a username above to search registered Berozgar users
                 </div>
               )}
             </div>

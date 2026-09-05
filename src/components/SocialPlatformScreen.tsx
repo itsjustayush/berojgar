@@ -21,6 +21,7 @@ import { SocialChatView } from './SocialChatView';
 import { CallModal } from './CallModal';
 import { UserProfileModal } from './UserProfileModal';
 import { AuthModal } from './AuthModal';
+import { BerozgarLogo } from './BerozgarLogo';
 
 interface SocialPlatformScreenProps {
   currentUser: UserProfile | null;
@@ -144,34 +145,45 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   // If user is not logged in, prompt Auth modal or show guest preview
   if (!currentUser) {
     return (
-      <div className="min-h-[calc(100vh-76px)] flex flex-col items-center justify-center p-6 bg-[#050505] text-center relative overflow-hidden">
+      <div className="min-h-[calc(100vh-76px)] flex flex-col items-center justify-center p-6 bg-[#080f21] text-center relative overflow-hidden">
         {/* Glowing background */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#d6ff62]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#EF4E22]/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-lg z-10 flex flex-col items-center">
-          <div className="w-16 h-16 rounded-3xl bg-[#d6ff62] text-black flex items-center justify-center font-serif italic text-3xl font-bold mb-6 shadow-[0_0_30px_rgba(214,255,98,0.35)]">
-            C
+          <div className="mb-6 shadow-[0_0_35px_rgba(239,78,34,0.35)] rounded-full">
+            <BerozgarLogo variant="icon" size="xl" />
           </div>
 
-          <h1 className="font-serif italic text-4xl sm:text-5xl font-bold text-white mb-3 tracking-tight">
-            Welcome to Ciao
-          </h1>
+          <div className="flex flex-col items-center mb-3">
+            <h1
+              className="text-4xl sm:text-5xl font-extrabold text-[#EF4E22] tracking-tight leading-none"
+              style={{ fontFamily: 'Rozha One, Mukta, sans-serif' }}
+            >
+              बेरोजगार
+            </h1>
+            <span
+              className="text-base sm:text-lg font-bold text-[#FFF9F3]/90 mt-1"
+              style={{ fontFamily: 'Mukta, sans-serif' }}
+            >
+              चैट एप • BEROJGAR CHAT
+            </span>
+          </div>
 
-          <p className="font-sans text-sm text-white/70 max-w-md mb-8 leading-relaxed">
-            The next-generation social messenger with real-time chatting, seen receipts, typing indicators, voice messages, reactions, and direct audio/video calling.
+          <p className="font-sans text-sm text-[#FFF9F3]/80 max-w-md mb-8 leading-relaxed">
+            बस गपशप, बस बिला। Real-time messaging, photos, voice notes, seen receipts, and instant voice & video calls.
           </p>
 
           <button
             type="button"
             onClick={() => setShowAuthModal(true)}
-            className="px-8 py-3.5 rounded-2xl bg-[#d6ff62] text-black font-mono text-sm font-bold uppercase tracking-wider hover:bg-[#e4ff8f] transition-all shadow-[0_0_25px_rgba(214,255,98,0.3)] active:scale-95 cursor-pointer flex items-center gap-2"
+            className="px-8 py-3.5 rounded-2xl bg-[#EF4E22] text-[#FFF9F3] font-mono text-sm font-bold uppercase tracking-wider hover:bg-[#f3643d] transition-all shadow-[0_0_25px_rgba(239,78,34,0.4)] active:scale-95 cursor-pointer flex items-center gap-2"
           >
             <Sparkles size={16} />
             <span>Create Account or Sign In</span>
           </button>
 
-          <span className="font-mono text-xs text-white/40 mt-4 block">
-            Instagram-style username • No phone number required
+          <span className="font-mono text-xs text-white/50 mt-4 block">
+            Instagram-style @username • No phone number required
           </span>
         </div>
 
@@ -189,7 +201,7 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   }
 
   return (
-    <div className="h-[calc(100vh-76px)] flex bg-[#050505] overflow-hidden">
+    <div className="h-[calc(100dvh-72px)] flex bg-[#080f21] overflow-hidden min-h-[500px]">
       {/* Sidebar (List of chats and user search) */}
       <div
         className={`h-full w-full md:w-80 lg:w-96 shrink-0 ${
@@ -221,15 +233,15 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
             onStartCall={handleStartCall}
           />
         ) : (
-          <div className="flex-1 h-full flex flex-col items-center justify-center p-8 text-center text-white/40 bg-[#050505]">
-            <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-[#d6ff62]">
+          <div className="flex-1 h-full flex flex-col items-center justify-center p-8 text-center text-white/40 bg-[#080f21]">
+            <div className="w-16 h-16 rounded-3xl bg-[#EF4E22]/10 border border-[#EF4E22]/20 flex items-center justify-center mb-4 text-[#EF4E22]">
               <MessageSquare size={28} />
             </div>
-            <h2 className="font-serif italic text-2xl font-bold text-white mb-2">
+            <h2 className="font-extrabold text-2xl text-white mb-2" style={{ fontFamily: 'Mukta, sans-serif' }}>
               Select or Start a Chat
             </h2>
             <p className="font-mono text-xs max-w-sm text-white/50 mb-6">
-              Pick a contact from the sidebar or search any @username in the network to begin messaging.
+              Pick a contact from the sidebar or search any @username in Berozgar to begin chatting.
             </p>
           </div>
         )}
