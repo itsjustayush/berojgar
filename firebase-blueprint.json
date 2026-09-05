@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account details with Instagram-style username",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "username": { "type": "string", "description": "Unique username (e.g. ayush)" },
+        "displayName": { "type": "string", "description": "Display name" },
+        "photoURL": { "type": "string", "description": "Profile picture URL or avatar data" },
+        "bio": { "type": "string", "description": "Short bio or status" },
+        "status": { "type": "string", "description": "online or offline" },
+        "lastSeen": { "type": "number", "description": "Timestamp of last activity" },
+        "createdAt": { "type": "number", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "username", "displayName"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct message or group chat channel",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Conversation ID" },
+        "type": { "type": "string", "description": "direct or group" },
+        "participants": { "type": "array", "description": "Array of participant UIDs" },
+        "updatedAt": { "type": "number", "description": "Last updated timestamp" }
+      },
+      "required": ["id", "type", "participants", "updatedAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Chat message with receipts, media, voice, and reactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["id", "conversationId", "senderId", "text", "type", "timestamp"]
+    },
+    "Call": {
+      "title": "Call",
+      "description": "WebRTC voice or video call signaling session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "callerId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "callerId", "receiverId", "type", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile collection"
+    },
+    "/usernames/{username}": {
+      "schema": {
+        "title": "UsernameIndex",
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "createdAt": { "type": "number" }
+        }
+      },
+      "description": "Unique username registry lookup"
+    },
+    "/conversations/{conversationId}": {
+      "schema": { "$ref": "#/entities/Conversation" },
+      "description": "Conversations list"
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Chat messages within a conversation"
+    },
+    "/calls/{callId}": {
+      "schema": { "$ref": "#/entities/Call" },
+      "description": "Audio/video call signaling sessions"
+    }
+  }
+}

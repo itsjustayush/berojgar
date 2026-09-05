@@ -1,0 +1,382 @@
+import React, { useState } from 'react';
+import {
+  Search,
+  Plus,
+  MessageSquare,
+  Check,
+  CheckCheck,
+  User,
+  LogOut,
+  Sparkles,
+  Phone,
+  Video,
+  Settings,
+  Circle,
+} from 'lucide-react';
+import { Conversation, UserProfile } from '../types';
+import { searchUsers, getOrCreateDirectConversation } from '../lib/socialChatService';
+
+interface ChatListSidebarProps {
+  currentUser: UserProfile;
+  conversations: Conversation[];
+  activeConversationId: string | null;
+  onSelectConversation: (conversationId: string) => void;
+  onOpenProfile: () => void;
+  onLogout: () => void;
+  onStartNewDirectChat: (targetUser: UserProfile) => void;
+}
+
+export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
+  currentUser,
+  conversations,
+  activeConversationId,
+  onSelectConversation,
+  onOpenProfile,
+  onLogout,
+  onStartNewDirectChat,
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
+  const [isSearchingNetwork, setIsSearchingNetwork] = useState(false);
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+
+  // Filter conversations
+  const filteredConversations = conversations.filter((conv) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+
+    // Check other participant
+    const otherUid = conv.participants.find((p) => p !== currentUser.uid) || '';
+    const other = conv.participantDetails?.[otherUid];
+    if (other) {
+      if (
+        other.displayName.toLowerCase().includes(q) ||
+        other.username.toLowerCase().includes(q)
+      ) {
+        return true;
+      }
+    }
+
+    if (conv.lastMessage?.text.toLowerCase().includes(q)) {
+      return true;
+    }
+
+    return false;
+  });
+
+  const handleSearchNetwork = async (queryText: string) => {
+    setSearchQuery(queryText);
+    if (!queryText.trim()) {
+      setSearchResults([]);
+      setIsSearchingNetwork(false);
+      return;
+    }
+
+    setIsSearchingNetwork(true);
+    try {
+      const results = await searchUsers(queryText, currentUser.uid);
+      setSearchResults(results);
+    } catch {
+      setSearchResults([]);
+    }
+  };
+
+  const getOtherParticipant = (conv: Conversation) => {
+    const otherUid = conv.participants.find((p) => p !== currentUser.uid) || '';
+    return (
+      conv.participantDetails?.[otherUid] || {
+        uid: otherUid,
+        username: 'unknown',
+        displayName: 'User',
+        photoURL: '',
+        status: 'offline' as const,
+      }
+    );
+  };
+
+  const formatTimestamp = (ts?: number) => {
+    if (!ts) return '';
+    const date = new Date(ts);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+
+    if (isToday) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div className="w-full md:w-80 lg:w-96 h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 select-none">
+      {/* Sidebar Header */}
+      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#d6ff62] text-black flex items-center justify-center font-bold font-mono text-sm shadow-[0_0_15px_rgba(214,255,98,0.25)]">
+            C
+          </div>
+          <div>
+            <h1 className="font-serif italic text-xl font-bold text-white tracking-tight">Ciao</h1>
+            <span className="font-mono text-[10px] text-white/50 block -mt-1">Social Messenger</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setShowNewChatModal(true)}
+            className="w-8 h-8 rounded-lg bg-[#d6ff62]/10 hover:bg-[#d6ff62]/20 text-[#d6ff62] border border-[#d6ff62]/20 flex items-center justify-center transition-colors cursor-pointer"
+            title="Start new chat with @username"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="p-3 border-b border-white/5">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-white/40">
+            <Search size={14} />
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearchNetwork(e.target.value)}
+            placeholder="Search chats or @username..."
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#d6ff62] font-mono transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSearchResults([]);
+              }}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/40 hover:text-white text-xs font-mono"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Conversations / Search Results list */}
+      <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+        {/* Network User Search Results */}
+        {searchQuery.trim() && searchResults.length > 0 && (
+          <div className="p-2 bg-white/2 border-b border-white/10">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#d6ff62] px-2 py-1 block">
+              Global Users ({searchResults.length})
+            </span>
+            {searchResults.map((user) => (
+              <button
+                key={user.uid}
+                onClick={() => {
+                  onStartNewDirectChat(user);
+                  setSearchQuery('');
+                  setSearchResults([]);
+                }}
+                className="w-full p-2 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left group"
+              >
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 shrink-0">
+                  <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
+                  {user.status === 'online' && (
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#d6ff62] border-2 border-black" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-bold text-white block truncate">{user.displayName}</span>
+                  <span className="text-[11px] font-mono text-[#d6ff62]/80 block truncate">@{user.username}</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-1 rounded bg-[#d6ff62]/10 text-[#d6ff62] border border-[#d6ff62]/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Chat
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Existing Conversations */}
+        {filteredConversations.length > 0 ? (
+          filteredConversations.map((conv) => {
+            const other = getOtherParticipant(conv);
+            const isActive = conv.id === activeConversationId;
+            const unreadCount = conv.unreadCounts?.[currentUser.uid] || 0;
+            const otherUid = other.uid;
+            const isTyping = conv.typing?.[otherUid] && Date.now() - conv.typing[otherUid] < 4000;
+
+            return (
+              <button
+                key={conv.id}
+                onClick={() => onSelectConversation(conv.id)}
+                className={`w-full p-3.5 flex items-center gap-3 transition-colors text-left cursor-pointer ${
+                  isActive
+                    ? 'bg-white/10 border-l-2 border-[#d6ff62]'
+                    : 'hover:bg-white/5'
+                }`}
+              >
+                {/* Avatar with live status dot */}
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-neutral-900">
+                  <img
+                    src={other.photoURL || 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=ciao'}
+                    alt={other.displayName}
+                    className="w-full h-full object-cover"
+                  />
+                  {other.status === 'online' && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#d6ff62] border-2 border-black shadow-[0_0_8px_#d6ff62]" />
+                  )}
+                </div>
+
+                {/* Info & Last message */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-xs font-bold text-white truncate">{other.displayName}</span>
+                    <span className="text-[10px] font-mono text-white/40 shrink-0">
+                      {formatTimestamp(conv.lastMessage?.timestamp || conv.updatedAt)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    {isTyping ? (
+                      <span className="text-xs text-[#d6ff62] font-mono animate-pulse flex items-center gap-1">
+                        <span>typing</span>
+                        <span className="animate-bounce">...</span>
+                      </span>
+                    ) : (
+                      <p className="text-xs text-white/60 truncate max-w-[180px]">
+                        {conv.lastMessage?.text || 'No messages yet'}
+                      </p>
+                    )}
+
+                    {unreadCount > 0 && (
+                      <span className="ml-2 w-5 h-5 rounded-full bg-[#d6ff62] text-black font-mono text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })
+        ) : (
+          <div className="p-8 text-center text-white/40">
+            <MessageSquare size={32} className="mx-auto mb-2 opacity-30" />
+            <p className="font-mono text-xs mb-1">No chats yet</p>
+            <p className="text-[11px] text-white/30 mb-4">Search users above to start a conversation</p>
+            <button
+              onClick={() => setShowNewChatModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#d6ff62] text-black font-mono text-xs font-bold hover:bg-[#e4ff8f] transition-colors"
+            >
+              <Plus size={14} />
+              <span>Find People</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* User Profile Bar at Bottom */}
+      <div className="p-3 border-t border-white/10 bg-black/40 flex items-center justify-between">
+        <button
+          onClick={onOpenProfile}
+          className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-colors text-left flex-1 min-w-0 group"
+        >
+          <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#d6ff62]/40 shrink-0">
+            <img src={currentUser.photoURL} alt={currentUser.displayName} className="w-full h-full object-cover" />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#d6ff62] border-2 border-black" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="text-xs font-bold text-white block truncate group-hover:text-[#d6ff62] transition-colors">
+              {currentUser.displayName}
+            </span>
+            <span className="text-[10px] font-mono text-white/50 block truncate">@{currentUser.username}</span>
+          </div>
+        </button>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+            title="Profile & Settings"
+          >
+            <Settings size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="p-2 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Sign Out"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* New Chat Dialog / Discover Modal */}
+      {showNewChatModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-[#0e0e0e] border border-white/10 rounded-3xl p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-serif italic text-lg font-bold text-white">Start a New Chat</h3>
+              <button
+                onClick={() => setShowNewChatModal(false)}
+                className="text-white/40 hover:text-white font-mono text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-white/60 mb-4 font-sans">
+              Enter any Instagram-style @username to connect and message instantly.
+            </p>
+
+            <div className="relative mb-4">
+              <input
+                type="text"
+                placeholder="Search @username or name..."
+                value={searchQuery}
+                onChange={(e) => handleSearchNetwork(e.target.value)}
+                autoFocus
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 font-mono focus:outline-none focus:border-[#d6ff62]"
+              />
+            </div>
+
+            <div className="max-h-60 overflow-y-auto divide-y divide-white/5">
+              {searchResults.length > 0 ? (
+                searchResults.map((user) => (
+                  <button
+                    key={user.uid}
+                    onClick={() => {
+                      onStartNewDirectChat(user);
+                      setShowNewChatModal(false);
+                      setSearchQuery('');
+                    }}
+                    className="w-full p-2.5 rounded-xl flex items-center gap-3 hover:bg-white/5 transition-colors text-left"
+                  >
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-white/20 shrink-0">
+                      <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-white block truncate">{user.displayName}</span>
+                      <span className="text-[10px] font-mono text-[#d6ff62] block truncate">@{user.username}</span>
+                    </div>
+                    <span className="px-2 py-1 rounded bg-[#d6ff62] text-black font-mono text-[10px] font-bold">
+                      Message
+                    </span>
+                  </button>
+                ))
+              ) : searchQuery ? (
+                <div className="p-4 text-center text-xs text-white/40 font-mono">
+                  No users found matching "{searchQuery}"
+                </div>
+              ) : (
+                <div className="p-4 text-center text-xs text-white/40 font-mono">
+                  Type a username above to search registered Ciao users
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
