@@ -3,6 +3,7 @@ import {
   Search,
   Plus,
   MessageSquare,
+  MessageSquarePlus,
   Check,
   CheckCheck,
   User,
@@ -17,7 +18,6 @@ import {
   Coffee,
   Globe,
   Lock,
-  Compass,
   Info,
 } from 'lucide-react';
 import { Conversation, UserProfile } from '../types';
@@ -64,8 +64,6 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
   const [isSearchingNetwork, setIsSearchingNetwork] = useState(false);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [showCreateTapriModal, setShowCreateTapriModal] = useState(false);
-  const [showJoinTapriModal, setShowJoinTapriModal] = useState(false);
-  const [joinTapriCode, setJoinTapriCode] = useState('');
   const [activeTab, setActiveTab] = useState<'ALL' | 'TAPRIS' | 'DMS'>('ALL');
 
   // Filter conversations
@@ -149,21 +147,6 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
-  const handleJoinTapriSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = sanitizeTapriName(joinTapriCode);
-    if (!clean) return;
-
-    if (onJoinTapri) {
-      onJoinTapri(clean);
-    } else {
-      const tapri = await getOrCreateTapri(clean, currentUser);
-      onSelectConversation(tapri.id);
-    }
-    setShowJoinTapriModal(false);
-    setJoinTapriCode('');
-  };
-
   const renderNewChatModal = () => {
     if (!showNewChatModal) return null;
     return (
@@ -239,65 +222,6 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
               </div>
             )}
           </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderJoinTapriModal = () => {
-    if (!showJoinTapriModal) return null;
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-        <div className="w-full max-w-md bg-[#0d1c2d] border border-white/10 rounded-2xl p-6 shadow-2xl text-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#ff5722]/15 text-[#ff5722] flex items-center justify-center">
-                <Coffee size={18} />
-              </div>
-              <h3 className="font-bold text-base text-white">Join a Tapri (Group Chat)</h3>
-            </div>
-            <button
-              onClick={() => setShowJoinTapriModal(false)}
-              className="text-white/40 hover:text-white font-mono text-xs cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-
-          <p className="text-xs text-[#CBD5E1] mb-4 font-sans">
-            Enter a Tapri name or paste a link like <span className="text-[#ff5722] font-mono">berojgarchat.vercel.app/tapri=chai_n_code</span>
-          </p>
-
-          <form onSubmit={handleJoinTapriSubmit} className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 bg-[#051424] border border-white/10 rounded-xl px-3 py-2.5 focus-within:border-[#ff5722]">
-              <span className="text-[#ff5722] font-mono font-bold">#</span>
-              <input
-                type="text"
-                value={joinTapriCode}
-                onChange={(e) => setJoinTapriCode(e.target.value)}
-                placeholder="e.g. chai_n_code or tapri=startup_fumbles"
-                className="bg-transparent flex-1 text-sm text-white placeholder:text-white/30 focus:outline-none font-mono"
-                autoFocus
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowJoinTapriModal(false)}
-                className="px-3.5 py-1.5 rounded-xl text-xs text-[#64748B] hover:text-white transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={!joinTapriCode.trim()}
-                className="px-4 py-2 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white font-bold text-xs transition-all disabled:opacity-40 cursor-pointer shadow-md"
-              >
-                Join Tapri
-              </button>
-            </div>
-          </form>
         </div>
       </div>
     );
@@ -403,35 +327,31 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
   return (
     <div className="w-full md:w-80 lg:w-96 h-full flex flex-col bg-[#0b1326] border-r border-white/10 select-none">
       {/* Sidebar Header */}
-      <div className="p-3.5 border-b border-white/10 flex items-center justify-end bg-[#101c36]/70">
-        <div className="flex items-center gap-1">
+      <div className="px-3.5 py-2.5 border-b border-white/10 flex items-center justify-between bg-[#101c36]/70">
+        <span className="text-xs font-bold font-mono tracking-wider text-white/90 uppercase select-none">
+          Chats
+        </span>
+
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => setShowCreateTapriModal(true)}
-            className="px-2.5 py-1.5 rounded-lg bg-[#ff5722]/15 hover:bg-[#ff5722]/25 text-[#ff5722] border border-[#ff5722]/30 flex items-center gap-1 transition-colors cursor-pointer text-xs font-semibold shadow-xs"
+            className="h-8 px-2.5 rounded-lg bg-[#ff5722]/15 hover:bg-[#ff5722]/25 active:scale-95 text-[#ff5722] hover:text-[#ff784e] border border-[#ff5722]/30 hover:border-[#ff5722]/50 flex items-center gap-1.5 transition-all cursor-pointer text-xs font-semibold shadow-xs"
             title="Open new Tapri group chat"
           >
-            <Coffee size={14} />
+            <Coffee size={14} className="shrink-0" />
             <span className="hidden sm:inline font-mono">Tapri</span>
-            <Plus size={12} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowJoinTapriModal(true)}
-            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-colors cursor-pointer"
-            title="Join Tapri by handle / link"
-          >
-            <Compass size={15} />
+            <Plus size={12} className="shrink-0 opacity-80" />
           </button>
 
           <button
             type="button"
             onClick={() => setShowNewChatModal(true)}
-            className="w-8 h-8 rounded-lg bg-[#EF4E22]/15 hover:bg-[#EF4E22]/25 text-[#EF4E22] border border-[#EF4E22]/30 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+            className="h-8 px-2.5 rounded-lg bg-[#ff5722]/15 hover:bg-[#ff5722]/25 active:scale-95 text-[#ff5722] hover:text-[#ff784e] border border-[#ff5722]/30 hover:border-[#ff5722]/50 flex items-center gap-1.5 transition-all cursor-pointer text-xs font-semibold shadow-xs"
             title="Start new DM with @username"
           >
-            <Plus size={15} />
+            <MessageSquarePlus size={14} className="shrink-0" />
+            <span className="hidden sm:inline font-mono">DM</span>
           </button>
 
           {onToggleCollapse && (
