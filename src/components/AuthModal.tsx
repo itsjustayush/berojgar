@@ -19,6 +19,7 @@ import {
 import { UserAvatar } from './UserAvatar';
 import { UserProfile } from '../types';
 import { BerozgarLogo } from './BerozgarLogo';
+import { detectUserGeoLocation } from '../lib/locationService';
 
 interface AuthModalProps {
   onSuccess: (user: UserProfile) => void;
@@ -96,12 +97,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           throw new Error('This username is already taken. Choose another.');
         }
 
+        // Detect accurate fixed geographic location on signup
+        let detectedLocation = '';
+        let detectedTimezone = '';
+        try {
+          const geo = await detectUserGeoLocation();
+          detectedLocation = geo.locationString;
+          detectedTimezone = geo.timezone;
+        } catch {
+          // Fallback handled within signUpWithUsername
+        }
+
         const profile = await signUpWithUsername(
           clean,
           displayName.trim() || clean,
           password,
           bio,
-          ''
+          '',
+          detectedLocation,
+          detectedTimezone
         );
         onSuccess(profile);
       } else {
@@ -262,7 +276,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Ayush Sharma"
+                  placeholder="e.g. Ayush Bhattacharya"
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#EF4E22] transition-colors"
                 />
               </div>
@@ -329,7 +343,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => fillDemoAccount('ayush_berozgar', 'Ayush Sharma')}
+              onClick={() => fillDemoAccount('ayush_berozgar', 'Ayush Bhattacharya')}
               className="py-1.5 px-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/80 font-mono text-xs flex items-center justify-center gap-1.5 transition-colors"
             >
               <UserCheck size={12} className="text-[#EF4E22]" />

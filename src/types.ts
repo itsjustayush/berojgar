@@ -1,4 +1,4 @@
-export type ViewMode = 'CHATS' | 'ROOM' | 'PROFILE' | 'SETTINGS' | 'AUTH' | 'DASHBOARD' | 'HISTORY' | 'LANDING' | 'USER_PROFILE';
+export type ViewMode = 'CHATS' | 'ROOM' | 'PROFILE' | 'SETTINGS' | 'AUTH' | 'DASHBOARD' | 'HISTORY' | 'LANDING' | 'USER_PROFILE' | 'TAPRI_PAGE';
 
 export interface GuestbookNote {
   id: string;
@@ -25,6 +25,9 @@ export interface UserProfile {
   customVibeTag?: string;
   customStatusEmoji?: string;
   customLocation?: string;
+  timezone?: string;
+  city?: string;
+  countryCode?: string;
   customAudioSnippetTitle?: string;
   customAudioSnippetDate?: string;
   customAudioSnippetDuration?: string;
@@ -82,6 +85,9 @@ export interface Conversation {
   tapriTag?: string; // e.g. "#chai_n_code"
   tapriAvatar?: string;
   creatorId?: string;
+  creatorUsername?: string;
+  creatorDisplayName?: string;
+  creatorPhotoURL?: string;
   activeChillersCount?: number;
   participants: string[];
   participantDetails: Record<string, {

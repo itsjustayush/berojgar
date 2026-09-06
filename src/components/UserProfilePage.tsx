@@ -1,15 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import {
   UserProfile,
-  GuestbookNote,
   Conversation,
 } from '../types';
 import {
   getUserProfileByUsername,
   saveUserProfileCustomization,
-  addGuestbookNote,
   incrementChaiCount,
+  DEFAULT_AYUSH_PROFILE,
 } from '../lib/socialChatService';
+import {
+  detectUserGeoLocation,
+  getFormattedRealtimeTime,
+  formatLocationWithCurrentTime,
+  extractPlaceName,
+} from '../lib/locationService';
+
+export const AVATAR_PRESETS = [
+  {
+    name: 'Ayush Original',
+    url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBJe3nbFkQtKoCqm58K9RWFUmmJDmwlBWkKle2F7gG78lnABk7MgwBG-dT0ouL8iX_khyY95fEomvvG-Mav-viTSqG8xkGPTYmOgehmiBnAexGhUB-7p_AcfOQctOvefLN5YW0533nD1VkTSwDECqOtUD_T2elfvO72IfGYaTdk5sjMUb81TbZPmDKaVEX8CKuwhtEARdIeC0riHD1iFEnL5iYurlWarMCXcEm14KOdmmxtWoAZAXWV',
+    vibe: 'Original',
+  },
+  {
+    name: 'Night Coder',
+    url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
+    vibe: 'Dev Mode',
+  },
+  {
+    name: 'Cyber Chai',
+    url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&auto=format&fit=crop&q=80',
+    vibe: 'Chai Head',
+  },
+  {
+    name: 'Lofi Chiller',
+    url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
+    vibe: 'Lofi Chill',
+  },
+  {
+    name: '3 AM Owl',
+    url: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200&auto=format&fit=crop&q=80',
+    vibe: 'Nocturne',
+  },
+  {
+    name: 'Philosopher',
+    url: 'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=200&auto=format&fit=crop&q=80',
+    vibe: 'Thinker',
+  },
+];
 
 interface UserProfilePageProps {
   username: string;
@@ -30,38 +68,64 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'public' | 'customizer'>('public');
 
-  // Customization Form State
+  // Customization & Profile Editing State
+  const [customDisplayName, setCustomDisplayName] = useState('');
+  const [customAvatarUrl, setCustomAvatarUrl] = useState('');
+  const [customBio, setCustomBio] = useState('');
+  const [customHindiName, setCustomHindiName] = useState('');
+  const [customLocation, setCustomLocation] = useState('');
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [customTheme, setCustomTheme] = useState<'aurora' | 'sunset' | 'indigo' | 'sage'>('aurora');
   const [customVibeTag, setCustomVibeTag] = useState('Late-night coder');
   const [customStatus, setCustomStatus] = useState('React 19 & Chai');
   const [broadcastLounge, setBroadcastLounge] = useState(true);
-  const [allowVoicePings, setAllowVoicePings] = useState(true);
-  const [saveButtonText, setSaveButtonText] = useState('Save My Tapri');
+  const [saveButtonText, setSaveButtonText] = useState('Save Changes');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Interactive Guestbook & Chai Clinks
+  // Realtime Live Clock & Chai Clinks
   const [chaiCount, setChaiCount] = useState(1280);
   const [isChaiClinked, setIsChaiClinked] = useState(false);
-  const [guestbookNotes, setGuestbookNotes] = useState<GuestbookNote[]>([]);
-  const [newNoteText, setNewNoteText] = useState('');
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [isSimulatingRecord, setIsSimulatingRecord] = useState(false);
+  const [liveTime, setLiveTime] = useState(() => getFormattedRealtimeTime(new Date()));
+
+  // Keep live time ticking accurately every second for the user's timezone
+  useEffect(() => {
+    const updateLiveClock = () => {
+      setLiveTime(getFormattedRealtimeTime(new Date(), profile?.timezone));
+    };
+    updateLiveClock();
+    const timer = setInterval(updateLiveClock, 1000);
+    return () => clearInterval(timer);
+  }, [profile?.timezone]);
 
   // Fetch or synthesize profile for username
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
 
-    getUserProfileByUsername(username).then((data) => {
+    getUserProfileByUsername(username).then(async (data) => {
       if (!isMounted) return;
       setProfile(data);
+      const initialDisplayName = data.displayName || (username === 'itsjustayush' ? 'Ayush Bhattacharya' : username);
+      setCustomDisplayName(initialDisplayName);
+      setCustomAvatarUrl(data.photoURL || '');
+      setCustomBio(
+        data.bio ||
+          'Building late-night side-projects & breaking state engines. Chai > Coffee ☕ | Rust, React, and Valorant at 3 AM. If my lounge mic is green, feel free to hop in and talk philosophy or bugs.'
+      );
+      setCustomHindiName(data.customHindiName || (username === 'itsjustayush' ? 'आयुष' : ''));
+      
+      // The user's geographic location is strictly fixed for their profile
+      const userFixedLocation = extractPlaceName(
+        data.customLocation || (data.city && data.countryCode ? `${data.city}, ${data.countryCode}` : 'Delhi, IN'),
+        data.timezone
+      );
+      setCustomLocation(userFixedLocation);
+
       setCustomTheme(data.customThemeAura || 'aurora');
       setCustomVibeTag(data.customVibeTag || 'Late-night coder');
       setCustomStatus(data.customStatusEmoji || 'React 19 & Chai');
       setBroadcastLounge(data.broadcastCurrentLounge !== false);
-      setAllowVoicePings(data.allowVoicePings !== false);
       setChaiCount(data.chaiCount || (username === 'itsjustayush' ? 1280 : 18));
-      setGuestbookNotes(data.guestbookNotes || []);
       setLoading(false);
     });
 
@@ -69,6 +133,22 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
       isMounted = false;
     };
   }, [username]);
+
+  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      alert('Please choose an image under 3MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setCustomAvatarUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Is this the logged-in user's own profile?
   const isOwnProfile = currentUser && currentUser.username.toLowerCase() === username.toLowerCase();
@@ -104,55 +184,54 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const handleAddGuestbookNote = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!newNoteText.trim()) return;
-
-    const senderName = currentUser?.displayName || 'Guest Chiller';
-    const senderUsername = currentUser?.username || 'guest';
-    const initials = senderName
-      .split(' ')
-      .map((p) => p[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-
-    const note: GuestbookNote = {
-      id: `note_${Date.now()}`,
-      senderName,
-      senderUsername,
-      text: newNoteText.trim(),
-      timestamp: Date.now(),
-      avatarInitials: initials || 'GC',
-    };
-
-    setGuestbookNotes((prev) => [note, ...prev]);
-    setNewNoteText('');
-    await addGuestbookNote(username, note);
+  const handleDetectCurrentLocation = async () => {
+    setIsDetectingLocation(true);
+    try {
+      const geo = await detectUserGeoLocation();
+      setCustomLocation(geo.locationString);
+    } catch {
+      setCustomLocation('Delhi, IN');
+    } finally {
+      setIsDetectingLocation(false);
+    }
   };
 
   const handleSaveCustomSpace = async () => {
+    const finalDisplayName = customDisplayName.trim() || (username === 'itsjustayush' ? 'Ayush Bhattacharya' : username);
+    const fixedLocationToSave = extractPlaceName(customLocation.trim(), profile?.timezone) || 'Delhi, IN';
     const updates: Partial<UserProfile> = {
+      displayName: finalDisplayName,
+      photoURL: customAvatarUrl.trim(),
+      bio: customBio.trim(),
+      customHindiName: customHindiName.trim(),
+      customLocation: fixedLocationToSave,
       customThemeAura: customTheme,
       customVibeTag: customVibeTag,
       customStatusEmoji: customStatus,
       broadcastCurrentLounge: broadcastLounge,
-      allowVoicePings: allowVoicePings,
     };
 
     await saveUserProfileCustomization(username, updates, currentUser?.uid);
+    setProfile((prev) => (prev ? { ...prev, ...updates } : null));
     setSaveButtonText('Saved to Tapri!');
     setTimeout(() => {
-      setSaveButtonText('Save My Tapri');
+      setSaveButtonText('Save Changes');
     }, 2000);
   };
 
   const handleResetCustomSpace = () => {
+    const defaultName = username === 'itsjustayush' ? 'Ayush Bhattacharya' : username;
+    setCustomDisplayName(defaultName);
+    setCustomAvatarUrl(DEFAULT_AYUSH_PROFILE.photoURL || '');
+    setCustomBio(
+      'Building late-night side-projects & breaking state engines. Chai > Coffee ☕ | Rust, React, and Valorant at 3 AM. If my lounge mic is green, feel free to hop in and talk philosophy or bugs.'
+    );
+    setCustomHindiName(username === 'itsjustayush' ? 'आयुष' : '');
+    setCustomLocation('Delhi, IN');
     setCustomTheme('aurora');
     setCustomVibeTag('Late-night coder');
     setCustomStatus('React 19 & Chai');
     setBroadcastLounge(true);
-    setAllowVoicePings(true);
   };
 
   const getBannerGradient = (theme: 'aurora' | 'sunset' | 'indigo' | 'sage') => {
@@ -169,21 +248,6 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
     }
   };
 
-  const formatTimeRemaining = (timestamp: number) => {
-    const hoursElapsed = (Date.now() - timestamp) / (1000 * 60 * 60);
-    const hoursRemaining = Math.max(1, Math.round(24 - hoursElapsed));
-    return `${hoursRemaining}h`;
-  };
-
-  const formatTimeAgo = (timestamp: number) => {
-    const minutes = Math.floor((Date.now() - timestamp) / (1000 * 60));
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return '1d ago';
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#070E18] text-white flex flex-col items-center justify-center">
@@ -193,9 +257,24 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
     );
   }
 
-  const displayName = profile?.displayName || username;
-  const avatarUrl = profile?.photoURL;
-  const bio = profile?.bio || 'Building late-night side-projects & breaking state engines. Chai > Coffee ☕';
+  const displayName =
+    customDisplayName.trim() ||
+    profile?.displayName ||
+    (username === 'itsjustayush' ? 'Ayush Bhattacharya' : username);
+  const avatarUrl = customAvatarUrl !== '' ? customAvatarUrl : profile?.photoURL;
+  const bio =
+    customBio ||
+    profile?.bio ||
+    'Building late-night side-projects & breaking state engines. Chai > Coffee ☕ | Rust, React, and Valorant at 3 AM.';
+  const hindiName =
+    customHindiName !== ''
+      ? customHindiName
+      : profile?.customHindiName || (username === 'itsjustayush' ? 'आयुष' : '');
+  const locationTag = formatLocationWithCurrentTime(
+    customLocation !== '' ? customLocation : profile?.customLocation,
+    profile?.timezone,
+    liveTime
+  );
 
   return (
     <div className="bg-[#070E18] text-[#d4e4fa] font-sans min-h-screen flex flex-col selection:bg-[#ff5722]/30">
@@ -291,15 +370,19 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               <span>Public View</span>
             </button>
             <button
-              onClick={() => setViewMode('customizer')}
+              onClick={() => {
+                setViewMode('customizer');
+                const panel = document.getElementById('customizerPanel');
+                panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === 'customizer'
-                  ? 'bg-[#ff5722] text-white shadow-[0_2px_12px_rgba(255,87,34,0.35)]'
-                  : 'text-[#64748B] hover:text-white'
+                  ? 'bg-[#ff5722] text-white shadow-[0_2px_12px_rgba(255,87,34,0.35)] ring-1 ring-[#ff5722]/50'
+                  : 'text-[#CBD5E1] hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">tune</span>
-              <span>Customize Space</span>
+              <span className="material-symbols-outlined text-[15px]">edit_note</span>
+              <span>Customize & Edit Profile</span>
             </button>
           </div>
         </div>
@@ -328,7 +411,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <div className="absolute top-4 right-4 flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-[#070E18]/60 backdrop-blur-md text-[11px] text-[#CBD5E1] font-mono flex items-center gap-1.5 border border-white/10">
                     <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-ping" />
-                    <span>{profile?.customLocation || 'Delhi, IN • 02:45 AM'}</span>
+                    <span>{locationTag}</span>
                   </span>
                 </div>
               </div>
@@ -339,7 +422,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-4">
                   {/* Avatar Stack */}
                   <div className="relative group w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
-                    <div className="w-full h-full rounded-full overflow-hidden bg-[#1C2D46] p-1 shadow-2xl border border-white/10">
+                    <div className="w-full h-full rounded-full overflow-hidden bg-[#1C2D46] p-1 shadow-2xl border border-white/10 relative">
                       {avatarUrl ? (
                         <img
                           className="w-full h-full object-cover rounded-full"
@@ -351,9 +434,23 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                           {displayName.charAt(0).toUpperCase()}
                         </div>
                       )}
+                      {/* Avatar Edit Quick Trigger */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setViewMode('customizer');
+                          const el = document.getElementById('avatarEditorSection');
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }}
+                        className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity cursor-pointer text-white z-10"
+                        title="Change Avatar"
+                      >
+                        <span className="material-symbols-outlined text-[22px]">photo_camera</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Change</span>
+                      </button>
                     </div>
                     {/* Status Badge Dot */}
-                    <div className="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-[#070E18] flex items-center justify-center shadow-md">
+                    <div className="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-[#070E18] flex items-center justify-center shadow-md z-20">
                       <span className="w-3.5 h-3.5 rounded-full bg-[#22C55E] ring-2 ring-[#070E18]" />
                     </div>
                   </div>
@@ -367,7 +464,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white font-bold text-xs transition-all shadow-[0_4px_20px_rgba(255,87,34,0.4)] cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[18px]">headphones</span>
-                      <span>Join {profile?.displayName?.split(' ')[0] || username}'s Tapri</span>
+                      <span>Join {displayName.split(' ')[0] || username}'s Tapri</span>
                     </button>
                     {onStartDirectChat && !isOwnProfile && (
                       <button
@@ -388,9 +485,9 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     <h1 className="text-2xl sm:text-3xl text-white font-extrabold tracking-tight">
                       {displayName}
                     </h1>
-                    {profile?.customHindiName && (
+                    {hindiName && (
                       <span className="text-lg text-[#e4beb4] font-medium">
-                        ({profile.customHindiName})
+                        ({hindiName})
                       </span>
                     )}
                     <span
@@ -402,6 +499,18 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     <span className="ml-1 px-3 py-0.5 rounded-full bg-[#1c2b3c] text-[#ffb5a0] text-[11px] font-mono tracking-wide uppercase">
                       {customVibeTag}
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setViewMode('customizer');
+                        const el = document.getElementById('displayNameEditorSection');
+                        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }}
+                      className="text-[#64748B] hover:text-[#ff5722] p-1 transition-colors cursor-pointer rounded-full hover:bg-white/5"
+                      title="Edit Profile Information"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                    </button>
                   </div>
                   <p className="text-xs text-[#64748B]">
                     @{username} • <span className="text-[#CBD5E1]">बस सुकून, बस कोड।</span>
@@ -414,19 +523,12 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 </p>
 
                 {/* Metrics Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-xl bg-[#0C1929]/80 mb-5 border border-white/5 shadow-inner">
+                <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-[#0C1929]/80 mb-5 border border-white/5 shadow-inner">
                   <div className="flex flex-col px-3 py-1">
                     <span className="text-[11px] text-[#64748B] font-mono">Lounge Time</span>
                     <span className="text-base text-white font-semibold flex items-center gap-1">
                       {profile?.loungeHours || 142}
                       <span className="text-[#ff5722] text-xs font-normal">hrs</span>
-                    </span>
-                  </div>
-                  <div className="flex flex-col px-3 py-1">
-                    <span className="text-[11px] text-[#64748B] font-mono">Audio Snippets</span>
-                    <span className="text-base text-white font-semibold flex items-center gap-1">
-                      {profile?.audioSnippetsCount || 48}
-                      <span className="text-[#86cfff] text-xs font-normal">notes</span>
                     </span>
                   </div>
                   <div className="flex flex-col px-3 py-1">
@@ -445,19 +547,6 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
 
                 {/* Action Buttons Row */}
                 <div className="flex items-center flex-wrap gap-2.5">
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById('guestbookDock');
-                      el?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-white text-xs font-medium transition-colors cursor-pointer border border-white/5"
-                  >
-                    <span className="material-symbols-outlined text-[17px] text-[#ff5722]">
-                      mic
-                    </span>
-                    <span>Send Vanishing Voice Note</span>
-                  </button>
-
                   <button
                     id="chaiClinkBtn"
                     onClick={handleClinkChai}
@@ -492,7 +581,6 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <span className="text-xs font-mono uppercase tracking-wider text-[#64748B]">
                   Frequented Quiet Lounges & Tapris
                 </span>
-                <span className="text-[11px] text-[#ff5722] font-mono">Live Audio Active</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Room 1 */}
@@ -569,112 +657,16 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               </div>
             </div>
 
-            {/* Vanishing Guestbook / Wall of Chai */}
-            <div
-              id="guestbookDock"
-              className="rounded-2xl bg-[#13233A]/70 p-5 backdrop-blur-md border border-white/10 shadow-md flex flex-col gap-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#ff5722]/20 flex items-center justify-center text-[#ff5722]">
-                    <span className="material-symbols-outlined text-[18px]">timer</span>
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white">
-                      Vanishing Guestbook • Wall of Chai
-                    </h3>
-                    <p className="text-[11px] text-[#64748B] font-mono">
-                      Notes vanish after 24h • zero tracking • purely late-night vibes
-                    </p>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-[#0C1929] text-[11px] font-mono text-[#CBD5E1] border border-white/5">
-                  {guestbookNotes.length} active notes
-                </span>
-              </div>
-
-              {/* Input Dock */}
-              <form
-                onSubmit={handleAddGuestbookNote}
-                className="flex items-center gap-2 bg-[#0C1929] p-1.5 rounded-full border border-white/10 shadow-inner"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSimulatingRecord(true);
-                    setTimeout(() => {
-                      setIsSimulatingRecord(false);
-                      setNewNoteText('🎙️ [Vanishing Voice Note 0:08 - "Suno yaar, kya scene kal ka?"]');
-                    }, 1200);
-                  }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-                    isSimulatingRecord
-                      ? 'bg-red-500/30 text-red-400 animate-pulse'
-                      : 'bg-[#1C2D46] hover:bg-[#273647] text-[#ff5722]'
-                  }`}
-                  title="Record vanishing voice ping"
-                >
-                  <span className="material-symbols-outlined text-[18px]">mic</span>
-                </button>
-                <input
-                  type="text"
-                  value={newNoteText}
-                  onChange={(e) => setNewNoteText(e.target.value)}
-                  placeholder="Bolo bhai, kya scene hai... (Leave a quick note)"
-                  className="bg-transparent flex-1 px-3 py-1.5 text-white placeholder:text-[#64748B] text-xs focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={!newNoteText.trim()}
-                  className="px-4 py-1.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] disabled:opacity-40 disabled:hover:bg-[#ff5722] text-white text-xs font-semibold transition-all shadow-[0_2px_12px_rgba(255,87,34,0.3)] flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Send</span>
-                  <span className="material-symbols-outlined text-[14px]">send</span>
-                </button>
-              </form>
-
-              {/* Notes Feed */}
-              <div className="flex flex-col gap-2.5">
-                {guestbookNotes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="p-3 rounded-xl bg-[#0C1929]/70 border border-white/5 flex items-start justify-between gap-3"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#273647] flex items-center justify-center text-xs font-bold text-[#86cfff] flex-shrink-0">
-                        {note.avatarInitials}
-                      </div>
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-white">
-                            @{note.senderUsername}
-                          </span>
-                          <span className="text-[11px] text-[#64748B] font-mono">
-                            • {formatTimeAgo(note.timestamp)}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#CBD5E1] mt-0.5">{note.text}</p>
-                      </div>
-                    </div>
-                    <span className="text-[11px] text-[#64748B] font-mono flex items-center gap-1 flex-shrink-0">
-                      <span className="material-symbols-outlined text-[13px]">
-                        hourglass_top
-                      </span>{' '}
-                      {formatTimeRemaining(note.timestamp)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* RIGHT COLUMN: Profile Customization Panel (Live Preview Dock) */}
           <div
+            id="customizerPanel"
             className={`lg:col-span-4 flex flex-col gap-4 sticky top-20 transition-all ${
               viewMode === 'customizer' ? 'ring-2 ring-[#ff5722]/60 rounded-2xl' : ''
             }`}
           >
-            <div className="rounded-2xl bg-[#13233A]/90 backdrop-blur-xl p-5 border border-white/10 shadow-xl flex flex-col gap-4">
+            <div className="rounded-2xl bg-[#13233A]/90 backdrop-blur-xl p-5 border border-white/10 shadow-xl flex flex-col gap-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
               {/* Customizer Header */}
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
                 <div className="flex items-center gap-2.5">
@@ -682,7 +674,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     <span className="material-symbols-outlined text-[18px]">brush</span>
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">Customize Tapri Space</h3>
+                    <h3 className="text-sm font-bold text-white">Edit Profile & Tapri Space</h3>
                     <p className="text-[11px] text-[#64748B] font-mono">
                       Changes preview live in real-time
                     </p>
@@ -693,8 +685,187 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 </span>
               </div>
 
+              {/* Section: Display Name */}
+              <div id="displayNameEditorSection" className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#ff5722]">badge</span>
+                    <span>Display Name</span>
+                  </label>
+                  <span className="text-[10px] text-[#64748B] font-mono">Real-time preview</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#0C1929] px-3 py-2 rounded-xl border border-white/10 focus-within:border-[#ff5722] transition-colors">
+                  <input
+                    type="text"
+                    value={customDisplayName}
+                    onChange={(e) => setCustomDisplayName(e.target.value)}
+                    placeholder="e.g. Ayush Bhattacharya"
+                    className="bg-transparent flex-1 text-white text-xs font-medium focus:outline-none placeholder:text-[#64748B]"
+                  />
+                  {customDisplayName && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomDisplayName('')}
+                      className="text-[#64748B] hover:text-white"
+                      title="Clear display name"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Section: Avatar & Photo */}
+              <div id="avatarEditorSection" className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#ff5722]">account_circle</span>
+                    <span>Avatar & Photo</span>
+                  </label>
+                  <span className="text-[10px] text-[#ffb5a0] font-mono">Instant Presets</span>
+                </div>
+
+                {/* Current Avatar Preview & Upload */}
+                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#0C1929] border border-white/5">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-[#1C2D46] border border-white/10 flex-shrink-0">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center font-bold text-white text-sm bg-gradient-to-br from-[#ff5722] to-[#3a0d1f]">
+                        {displayName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <label className="px-2.5 py-1 rounded-lg bg-[#1C2D46] hover:bg-[#273647] text-white text-[11px] font-medium cursor-pointer transition-colors flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px]">upload</span>
+                        <span>Upload Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {customAvatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setCustomAvatarUrl('')}
+                          className="text-[10px] text-[#ff5722] hover:underline cursor-pointer"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-[#64748B] truncate">PNG, JPG or WebP</span>
+                  </div>
+                </div>
+
+                {/* Avatar Presets Grid */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] text-[#64748B] font-mono">Or pick an aesthetic vibe avatar:</span>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {AVATAR_PRESETS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => setCustomAvatarUrl(preset.url)}
+                        className={`flex items-center gap-1.5 p-1.5 rounded-xl bg-[#0C1929] hover:bg-[#1C2D46] border transition-all text-left cursor-pointer ${
+                          avatarUrl === preset.url
+                            ? 'border-[#ff5722] ring-1 ring-[#ff5722]/50'
+                            : 'border-white/5'
+                        }`}
+                        title={preset.name}
+                      >
+                        <img
+                          src={preset.url}
+                          alt={preset.name}
+                          className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                        />
+                        <span className="text-[10px] text-[#CBD5E1] truncate font-mono">{preset.vibe}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Avatar URL Input */}
+                <div className="flex items-center gap-2 bg-[#0C1929] px-2.5 py-1.5 rounded-xl border border-white/5 text-[11px]">
+                  <span className="material-symbols-outlined text-[#64748B] text-[14px]">link</span>
+                  <input
+                    type="url"
+                    value={customAvatarUrl}
+                    onChange={(e) => setCustomAvatarUrl(e.target.value)}
+                    placeholder="Or paste image URL..."
+                    className="bg-transparent flex-1 text-white text-[11px] focus:outline-none placeholder:text-[#64748B]"
+                  />
+                </div>
+              </div>
+
+              {/* Section: Bio & About You */}
+              <div id="bioEditorSection" className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#ff5722]">edit_note</span>
+                    <span>Bio & Late-night Note</span>
+                  </label>
+                  <span className="text-[10px] text-[#64748B] font-mono">
+                    {customBio.length}/280
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  maxLength={280}
+                  value={customBio}
+                  onChange={(e) => setCustomBio(e.target.value)}
+                  placeholder="Write a late-night thought, bio or what you're working on..."
+                  className="w-full bg-[#0C1929] text-white text-xs p-3 rounded-xl border border-white/10 focus:outline-none focus:border-[#ff5722] resize-none leading-relaxed placeholder:text-[#64748B]"
+                />
+              </div>
+
+              {/* Section: Hindi Tag & Location / Time */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-medium text-[#CBD5E1]">Hindi Name Tag</label>
+                  <input
+                    type="text"
+                    value={customHindiName}
+                    onChange={(e) => setCustomHindiName(e.target.value)}
+                    placeholder="e.g. आयुष"
+                    className="bg-[#0C1929] px-2.5 py-2 rounded-xl border border-white/10 text-white text-xs focus:outline-none focus:border-[#ff5722] placeholder:text-[#64748B]"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-medium text-[#CBD5E1]">Fixed Location</label>
+                    <button
+                      type="button"
+                      onClick={handleDetectCurrentLocation}
+                      disabled={isDetectingLocation}
+                      className="text-[10px] text-[#ff5722] hover:text-[#ff784e] flex items-center gap-1 font-mono transition-colors cursor-pointer"
+                      title="Auto-detect current GPS/IP location & set as fixed location"
+                    >
+                      <span className={`material-symbols-outlined text-[13px] ${isDetectingLocation ? 'animate-spin' : ''}`}>
+                        my_location
+                      </span>
+                      <span>{isDetectingLocation ? '...' : 'Detect'}</span>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={customLocation}
+                    onChange={(e) => setCustomLocation(e.target.value)}
+                    placeholder="e.g. Delhi, IN"
+                    className="bg-[#0C1929] px-2.5 py-2 rounded-xl border border-white/10 text-white text-xs focus:outline-none focus:border-[#ff5722] placeholder:text-[#64748B]"
+                  />
+                  <span className="text-[9px] text-[#64748B] font-mono">
+                    Location is fixed • Clock updates live
+                  </span>
+                </div>
+              </div>
+
               {/* Section 1: Ambient Banner Aura Picker */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
                 <label className="text-xs font-medium text-[#CBD5E1]">Ambient Banner Aura</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -782,46 +953,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 </div>
               </div>
 
-              {/* Section 4: 15s Audio Intro Recorder */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-[#CBD5E1]">
-                    15s Audio Intro Snippet
-                  </label>
-                  <span className="text-[11px] font-mono text-[#22C55E]">Active (0:14)</span>
-                </div>
-                <div className="p-3 rounded-xl bg-[#0C1929] border border-white/5 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-                      className="w-8 h-8 rounded-full bg-[#EF4444]/20 text-[#EF4444] flex items-center justify-center hover:bg-[#EF4444]/30 transition-colors cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">
-                        {isPlayingAudio ? 'pause' : 'play_arrow'}
-                      </span>
-                    </button>
-                    <div className="flex flex-col">
-                      <span className="text-[11px] font-mono text-white">vibe_snip_3am.wav</span>
-                      <span className="text-[10px] text-[#64748B] font-mono">
-                        {isPlayingAudio ? 'Playing loop...' : 'Recorded yesterday'}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSimulatingRecord(true);
-                      setTimeout(() => setIsSimulatingRecord(false), 1500);
-                    }}
-                    className="px-3 py-1 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-[#CBD5E1] text-[11px] font-medium transition-colors cursor-pointer"
-                  >
-                    Re-record
-                  </button>
-                </div>
-              </div>
-
-              {/* Section 5: Privacy & Vanishing Controls */}
+              {/* Section 4: Privacy & Ambient Rules */}
               <div className="flex flex-col gap-2 pt-1 border-t border-white/5">
                 <label className="text-xs font-medium text-[#CBD5E1]">Privacy & Ambient Rules</label>
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0C1929] border border-white/5">
@@ -835,22 +967,6 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     type="checkbox"
                     checked={broadcastLounge}
                     onChange={(e) => setBroadcastLounge(e.target.checked)}
-                    className="accent-[#ff5722] cursor-pointer w-4 h-4"
-                  />
-                </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0C1929] border border-white/5">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-white font-medium">
-                      Allow Anonymous Voice Pings
-                    </span>
-                    <span className="text-[10px] text-[#64748B] font-mono">
-                      In the vanishing 24h guestbook
-                    </span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={allowVoicePings}
-                    onChange={(e) => setAllowVoicePings(e.target.checked)}
                     className="accent-[#ff5722] cursor-pointer w-4 h-4"
                   />
                 </div>
@@ -886,9 +1002,6 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
             <div className="w-6 h-6 rounded-full bg-[#ff5722] flex items-center justify-center">
               <span className="material-symbols-outlined text-white text-[14px]">nightlight</span>
             </div>
-            <span className="text-xs text-[#64748B]">
-              © 2026 बेरोजगार चैट (Berojgar Chat). Late-night safe haven for idle thinkers.
-            </span>
           </div>
           <div className="flex items-center gap-5 text-xs text-[#CBD5E1]">
             <button onClick={onNavigateHome} className="hover:text-white transition-colors cursor-pointer">

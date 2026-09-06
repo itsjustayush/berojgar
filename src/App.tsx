@@ -10,6 +10,7 @@ import { HistoryScreen } from './components/HistoryScreen';
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
 import { UserProfilePage } from './components/UserProfilePage';
+import { TapriPage } from './components/TapriPage';
 import { generateRoomOTP, normalizeRoomId } from './lib/p2pEngine';
 import { getOrCreateGuestSession, updateGuestNickname } from './lib/session';
 import { callRoomRegistry } from './lib/roomRegistry';
@@ -50,7 +51,7 @@ function parseRouteFromLocation(): {
 
   if (tapriMatch && tapriMatch[1]) {
     const tapriName = decodeURIComponent(tapriMatch[1]).trim().toLowerCase().replace(/^#/, '');
-    return { view: 'CHATS', tapriName };
+    return { view: 'TAPRI_PAGE', tapriName };
   }
 
   // 2. Check for Username profile page in URL:
@@ -91,6 +92,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(initialRoute.view);
   const [profileUsername, setProfileUsername] = useState<string>(initialRoute.profileUsername || 'itsjustayush');
+  const [tapriPageName, setTapriPageName] = useState<string>(initialRoute.tapriName || 'chai_n_code');
   const [targetTapri, setTargetTapri] = useState<string | null>(initialRoute.tapriName || null);
   const [pendingDirectChatUser, setPendingDirectChatUser] = useState<UserProfile | null>(null);
   const [latencyMs] = useState(12);
@@ -105,9 +107,12 @@ export default function App() {
     if (view === 'USER_PROFILE' && options?.username) {
       setProfileUsername(options.username);
       window.history.pushState({}, '', `/${options.username}`);
+    } else if (view === 'TAPRI_PAGE' && options?.tapri) {
+      setTapriPageName(options.tapri);
+      window.history.pushState({}, '', `/tapri=${options.tapri}`);
     } else if (view === 'CHATS' && options?.tapri) {
       setTargetTapri(options.tapri);
-      window.history.pushState({}, '', `/tapri=${options.tapri}`);
+      window.history.pushState({}, '', `/`);
     } else if (view === 'CHATS') {
       window.history.pushState({}, '', '/');
     } else if (view === 'LANDING') {
@@ -125,7 +130,10 @@ export default function App() {
       const route = parseRouteFromLocation();
       setCurrentView(route.view);
       if (route.profileUsername) setProfileUsername(route.profileUsername);
-      if (route.tapriName) setTargetTapri(route.tapriName);
+      if (route.tapriName) {
+        setTapriPageName(route.tapriName);
+        setTargetTapri(route.tapriName);
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -291,6 +299,13 @@ export default function App() {
             onJoinRoom={(roomId) => {
               handleJoinRoom(roomId);
             }}
+            onOpenTapri={(tapriName) => {
+              setTargetTapri(tapriName);
+              navigateToView('CHATS', { tapri: tapriName });
+            }}
+            onNavigateToTapriPage={(tapriName) => {
+              navigateToView('TAPRI_PAGE', { tapri: tapriName });
+            }}
           />
         )}
 
@@ -307,6 +322,24 @@ export default function App() {
             pendingDirectChatUser={pendingDirectChatUser}
             onClearPendingDirectChatUser={() => setPendingDirectChatUser(null)}
             onNavigateToProfile={(username) => {
+              navigateToView('USER_PROFILE', { username });
+            }}
+            onNavigateToTapriPage={(tapriName) => {
+              navigateToView('TAPRI_PAGE', { tapri: tapriName });
+            }}
+          />
+        )}
+
+        {currentView === 'TAPRI_PAGE' && (
+          <TapriPage
+            tapriName={tapriPageName}
+            currentUser={currentUser}
+            onEnterTapriChat={(name) => {
+              setTargetTapri(name);
+              navigateToView('CHATS', { tapri: name });
+            }}
+            onNavigateHome={() => navigateToView('CHATS')}
+            onViewUserProfile={(username) => {
               navigateToView('USER_PROFILE', { username });
             }}
           />

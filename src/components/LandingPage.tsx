@@ -1,12 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { soundEffects } from '../lib/callSoundEffects';
+import {
+  subscribeToGlobalLandingData,
+  RealtimeLandingMetrics,
+  RealtimeGlobalTapriItem,
+} from '../lib/socialChatService';
 
 interface LandingPageProps {
   currentUser?: UserProfile | null;
   onEnterLounge: () => void;
   onOpenAuth: (prefilledUsername?: string) => void;
   onJoinRoom?: (roomId: string) => void;
+  onOpenTapri?: (tapriName: string) => void;
+  onNavigateToTapriPage?: (tapriName: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -14,7 +21,137 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onEnterLounge,
   onOpenAuth,
   onJoinRoom,
+  onOpenTapri,
+  onNavigateToTapriPage,
 }) => {
+  const [metrics, setMetrics] = useState<RealtimeLandingMetrics>({
+    onlineChillers: 154820,
+    totalRegisteredUsers: 8420,
+    totalMessagesToday: 24891,
+    realtimeLatencyMs: 11.4,
+    calmScore: '4.9 / 5',
+    tapris: [
+      {
+        id: 'tapri_chai_n_code',
+        name: 'chai_n_code',
+        title: 'Chai & Code',
+        tag: '#chai_n_code',
+        description: 'Late Night Coding & Lofi. Debugging silent sessions with gentle background sitar beats and occasional PR venting.',
+        isPublic: true,
+        onlineChillers: 82,
+        totalUsers: 82,
+        speakersCount: 4,
+        tags: ['Rust & Go', 'Lofi Rain', 'Zero Video'],
+        icon: 'code',
+        category: 'Coding & Lofi',
+        themeColor: '#22C55E',
+        creatorUsername: 'itsjustayush',
+        creatorDisplayName: 'Ayush Bhattacharya',
+        badgeLabel: 'chillers online',
+      },
+      {
+        id: 'tapri_startup_fumbles',
+        name: 'startup_fumbles',
+        title: 'Startup Fumbles',
+        tag: '#startup_fumbles',
+        description: 'Honest pivoting stories & career rants. Failed pitches, hiring freezes, resume reviews, and unvarnished truth without LinkedIn fluff.',
+        isPublic: true,
+        onlineChillers: 114,
+        totalUsers: 114,
+        speakersCount: 7,
+        tags: ['Anti-Hustle', 'Career Therapy', 'Anonymous'],
+        icon: 'psychology',
+        category: 'Career & Pivots',
+        themeColor: '#ff5722',
+        creatorUsername: 'itsjustayush',
+        creatorDisplayName: 'Ayush Bhattacharya',
+        badgeLabel: 'venting',
+      },
+      {
+        id: 'tapri_ambient_reading',
+        name: 'ambient_reading',
+        title: 'Ambient Reading',
+        tag: '#ambient_reading',
+        description: 'Silent co-working & study lo-fi. Muted microphones with periodic 25-minute Pomodoro chime. Pure focused presence.',
+        isPublic: true,
+        onlineChillers: 63,
+        totalUsers: 63,
+        speakersCount: 0,
+        tags: ['Deep Focus', 'Pomodoro', 'Calm Tone'],
+        icon: 'auto_stories',
+        category: 'Deep Focus',
+        themeColor: '#86cfff',
+        creatorUsername: 'tanmay_d',
+        creatorDisplayName: 'Tanmay Deshmukh',
+        badgeLabel: 'co-studying',
+      },
+    ],
+  });
+
+  useEffect(() => {
+    const unsub = subscribeToGlobalLandingData((liveMetrics) => {
+      setMetrics(liveMetrics);
+    }, currentUser);
+    return () => unsub();
+  }, [currentUser]);
+
+  const tapri1: RealtimeGlobalTapriItem = metrics.tapris[0] || {
+    id: 'tapri_chai_n_code',
+    name: 'chai_n_code',
+    title: 'Chai & Code',
+    tag: '#chai_n_code',
+    description: 'Late Night Coding & Lofi. Debugging silent sessions with gentle background sitar beats and occasional PR venting.',
+    isPublic: true,
+    onlineChillers: 82,
+    totalUsers: 82,
+    speakersCount: 4,
+    tags: ['Rust & Go', 'Lofi Rain', 'Zero Video'],
+    icon: 'code',
+    category: 'Coding & Lofi',
+    themeColor: '#22C55E',
+    creatorUsername: 'itsjustayush',
+    creatorDisplayName: 'Ayush Bhattacharya',
+    badgeLabel: 'chillers online',
+  };
+
+  const tapri2: RealtimeGlobalTapriItem = metrics.tapris[1] || {
+    id: 'tapri_startup_fumbles',
+    name: 'startup_fumbles',
+    title: 'Startup Fumbles',
+    tag: '#startup_fumbles',
+    description: 'Honest pivoting stories & career rants. Failed pitches, hiring freezes, resume reviews, and unvarnished truth without LinkedIn fluff.',
+    isPublic: true,
+    onlineChillers: 114,
+    totalUsers: 114,
+    speakersCount: 7,
+    tags: ['Anti-Hustle', 'Career Therapy', 'Anonymous'],
+    icon: 'psychology',
+    category: 'Career & Pivots',
+    themeColor: '#ff5722',
+    creatorUsername: 'itsjustayush',
+    creatorDisplayName: 'Ayush Bhattacharya',
+    badgeLabel: 'venting',
+  };
+
+  const tapri3: RealtimeGlobalTapriItem = metrics.tapris[2] || {
+    id: 'tapri_ambient_reading',
+    name: 'ambient_reading',
+    title: 'Ambient Reading',
+    tag: '#ambient_reading',
+    description: 'Silent co-working & study lo-fi. Muted microphones with periodic 25-minute Pomodoro chime. Pure focused presence.',
+    isPublic: true,
+    onlineChillers: 63,
+    totalUsers: 63,
+    speakersCount: 0,
+    tags: ['Deep Focus', 'Pomodoro', 'Calm Tone'],
+    icon: 'auto_stories',
+    category: 'Deep Focus',
+    themeColor: '#86cfff',
+    creatorUsername: 'tanmay_d',
+    creatorDisplayName: 'Tanmay Deshmukh',
+    badgeLabel: 'co-studying',
+  };
+
   const [handleInput, setHandleInput] = useState('');
   const [handleStatus, setHandleStatus] = useState<{
     type: 'idle' | 'success' | 'error';
@@ -114,7 +251,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="hidden xl:flex items-center gap-2 bg-[#13233A]/60 border border-white/10 backdrop-blur-md px-3 py-1.5 rounded-full">
               <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse"></span>
               <span className="text-xs text-[#CBD5E1] font-mono">
-                <strong className="text-[#F8FAFC] font-semibold">3,412</strong> chillers talking
+                <strong className="text-[#F8FAFC] font-semibold">{metrics.onlineChillers.toLocaleString()}</strong> chillers talking
               </span>
             </div>
           </div>
@@ -285,9 +422,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
 
                   {/* Micro-metric Live Tracker */}
-                  <div className="flex items-center gap-2 text-[#64748B] text-xs font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-ping" />
-                    <span className="text-[#F8FAFC] font-semibold">154,820 night chillers active right now</span>
+                  <div className="flex items-center gap-2 text-[#64748B] text-xs font-mono py-1.5 px-3.5 rounded-full bg-[#13233A]/70 border border-white/10 w-fit backdrop-blur-md shadow-sm">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E] animate-ping" />
+                    <span className="text-[#F8FAFC] font-semibold tracking-wide flex items-center gap-1.5">
+                      <strong className="text-[#22C55E] font-bold font-mono">{metrics.onlineChillers.toLocaleString()}</strong>
+                      <span>night chillers active right now</span>
+                      <span className="text-[#64748B]">•</span>
+                      <span className="text-[#86cfff] font-mono">({metrics.totalRegisteredUsers.toLocaleString()} registered)</span>
+                    </span>
                     <span>•</span>
                     <span>Zero tracking logs kept</span>
                   </div>
@@ -385,10 +527,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-base text-[#F8FAFC] font-bold">#chai_n_code</span>
-                            <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
+                            <span className="text-base text-[#F8FAFC] font-bold">{tapri1.tag}</span>
+                            <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
                           </div>
-                          <span className="text-[11px] text-[#64748B] font-mono">82 chillers listening quietly</span>
+                          <span className="text-[11px] text-[#22C55E] font-mono font-medium flex items-center gap-1.5 bg-[#0C1929]/70 px-2 py-0.5 rounded-full border border-[#22C55E]/20 w-fit">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+                            <span>{tapri1.onlineChillers} chillers listening quietly</span>
+                            <span className="text-[#64748B]">•</span>
+                            <span className="text-[#86cfff]">{tapri1.totalUsers} members</span>
+                          </span>
                         </div>
                       </div>
 
@@ -581,43 +728,50 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="flex flex-col justify-between bg-[#13233A]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-md hover:bg-[#13233A] hover:border-white/20 transition-all group">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-white/10 text-xs text-[#22C55E] font-mono font-semibold flex items-center gap-1.5">
+                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#22C55E]/40 text-xs text-[#22C55E] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(34,197,94,0.18)]">
                         <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                        82 chillers online
+                        {tapri1.onlineChillers} {tapri1.badgeLabel || 'chillers online'}
                       </span>
                       <span className="material-symbols-outlined text-[#64748B] group-hover:text-[#ff5722] transition-colors text-[20px]">
-                        code
+                        {tapri1.icon || 'code'}
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <h3 className="text-xl text-[#F8FAFC] font-bold">#chai_n_code</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl text-[#F8FAFC] font-bold">{tapri1.tag}</h3>
+                        {onNavigateToTapriPage && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateToTapriPage(tapri1.name)}
+                            className="text-xs text-[#86cfff] hover:underline font-mono"
+                          >
+                            page ↗
+                          </button>
+                        )}
+                      </div>
                       <p className="text-sm text-[#CBD5E1] leading-relaxed">
-                        Late Night Coding & Lofi. Debugging silent sessions with gentle background sitar beats and
-                        occasional PR venting.
+                        {tapri1.description}
                       </p>
                     </div>
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1.5">
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Rust & Go
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Lofi Rain
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Zero Video
-                      </span>
+                      {tapri1.tags.map((tagItem) => (
+                        <span key={tagItem} className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
+                          {tagItem}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div className="pt-6 mt-4 border-t border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-1 text-[#64748B] text-xs font-mono">
-                      <span className="material-symbols-outlined text-[16px] text-[#86cfff]">mic</span>
-                      <span>4 speakers</span>
+                      <span className="material-symbols-outlined text-[16px] text-[#22C55E]">mic</span>
+                      <span className="text-[#22C55E] font-semibold text-xs font-mono">{tapri1.speakersCount} live speakers</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
-                        if (onJoinRoom) onJoinRoom('CHAI26');
+                        if (onOpenTapri) onOpenTapri(tapri1.name);
+                        else if (onJoinRoom) onJoinRoom('CHAI26');
                         else onEnterLounge();
                       }}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-[#ff5722] hover:bg-[#F4511E] shadow-sm transition-all cursor-pointer"
@@ -628,46 +782,53 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
 
                 {/* Card 2: #startup_fumbles */}
-                <div className="flex flex-col justify-between bg-[#13233A]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-md hover:bg-[#13233A] hover:border-white/20 transition-all group">
+                <div className="flex flex-col justify-between bg-gradient-to-b from-[#13233A]/90 to-[#0c1929]/95 border border-white/15 backdrop-blur-xl p-6 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:border-[#ff5722]/50 hover:shadow-[0_8px_32px_rgba(255,87,34,0.2)] transition-all group duration-300">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-white/10 text-xs text-[#ffb5a0] font-mono font-semibold flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#ff5722]" />
-                        114 venting
+                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#ff5722]/40 text-xs text-[#ffb5a0] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(255,87,34,0.18)]">
+                        <span className="w-2 h-2 rounded-full bg-[#ff5722] animate-pulse" />
+                        {tapri2.onlineChillers} {tapri2.badgeLabel || 'venting'}
                       </span>
                       <span className="material-symbols-outlined text-[#64748B] group-hover:text-[#ff5722] transition-colors text-[20px]">
-                        psychology
+                        {tapri2.icon || 'psychology'}
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <h3 className="text-xl text-[#F8FAFC] font-bold">#startup_fumbles</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl text-[#F8FAFC] font-bold">{tapri2.tag}</h3>
+                        {onNavigateToTapriPage && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateToTapriPage(tapri2.name)}
+                            className="text-xs text-[#ffb5a0] hover:underline font-mono"
+                          >
+                            page ↗
+                          </button>
+                        )}
+                      </div>
                       <p className="text-sm text-[#CBD5E1] leading-relaxed">
-                        Honest pivoting stories & career rants. Failed pitches, hiring freezes, resume reviews, and
-                        unvarnished truth without LinkedIn fluff.
+                        {tapri2.description}
                       </p>
                     </div>
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1.5">
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Anti-Hustle
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Career Therapy
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Anonymous
-                      </span>
+                      {tapri2.tags.map((tagItem) => (
+                        <span key={tagItem} className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
+                          {tagItem}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div className="pt-6 mt-4 border-t border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-1 text-[#64748B] text-xs font-mono">
-                      <span className="material-symbols-outlined text-[16px] text-[#86cfff]">mic</span>
-                      <span>7 speakers</span>
+                      <span className="material-symbols-outlined text-[16px] text-[#ff5722]">mic</span>
+                      <span className="text-[#ffb5a0] font-semibold text-xs font-mono">{tapri2.speakersCount} live speakers</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
-                        if (onJoinRoom) onJoinRoom('FUMBLE');
+                        if (onOpenTapri) onOpenTapri(tapri2.name);
+                        else if (onJoinRoom) onJoinRoom('FUMBLE');
                         else onEnterLounge();
                       }}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-[#ff5722] hover:bg-[#F4511E] shadow-sm transition-all cursor-pointer"
@@ -678,46 +839,57 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
 
                 {/* Card 3: #ambient_reading */}
-                <div className="flex flex-col justify-between bg-[#13233A]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-md hover:bg-[#13233A] hover:border-white/20 transition-all group">
+                <div className="flex flex-col justify-between bg-gradient-to-b from-[#13233A]/90 to-[#0c1929]/95 border border-white/15 backdrop-blur-xl p-6 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:border-[#86cfff]/50 hover:shadow-[0_8px_32px_rgba(134,207,255,0.2)] transition-all group duration-300">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-white/10 text-xs text-[#86cfff] font-mono font-semibold flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#86cfff]" />
-                        63 co-studying
+                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#86cfff]/40 text-xs text-[#86cfff] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(134,207,255,0.18)]">
+                        <span className="w-2 h-2 rounded-full bg-[#86cfff] animate-pulse" />
+                        {tapri3.onlineChillers} {tapri3.badgeLabel || 'co-studying'}
                       </span>
                       <span className="material-symbols-outlined text-[#64748B] group-hover:text-[#ff5722] transition-colors text-[20px]">
-                        auto_stories
+                        {tapri3.icon || 'auto_stories'}
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <h3 className="text-xl text-[#F8FAFC] font-bold">#ambient_reading</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl text-[#F8FAFC] font-bold">{tapri3.tag}</h3>
+                        {onNavigateToTapriPage && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateToTapriPage(tapri3.name)}
+                            className="text-xs text-[#86cfff] hover:underline font-mono"
+                          >
+                            page ↗
+                          </button>
+                        )}
+                      </div>
                       <p className="text-sm text-[#CBD5E1] leading-relaxed">
-                        Silent co-working & study lo-fi. Muted microphones with periodic 25-minute Pomodoro chime. Pure
-                        focused presence.
+                        {tapri3.description}
                       </p>
                     </div>
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1.5">
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Deep Focus
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Pomodoro
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
-                        Calm Tone
-                      </span>
+                      {tapri3.tags.map((tagItem) => (
+                        <span key={tagItem} className="px-2 py-0.5 rounded-md bg-[#1C2D46] text-xs font-mono text-[#CBD5E1]">
+                          {tagItem}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div className="pt-6 mt-4 border-t border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-1 text-[#64748B] text-xs font-mono">
-                      <span className="material-symbols-outlined text-[16px] text-[#64748B]">mic_off</span>
-                      <span>Audio Muted</span>
+                      <span className="material-symbols-outlined text-[16px] text-[#86cfff]">
+                        {tapri3.speakersCount > 0 ? 'mic' : 'mic_off'}
+                      </span>
+                      <span className="text-[#86cfff] font-semibold text-xs font-mono">
+                        {tapri3.speakersCount > 0 ? `${tapri3.speakersCount} live speakers` : 'Silent / Audio Muted'}
+                      </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
-                        if (onJoinRoom) onJoinRoom('CALM99');
+                        if (onOpenTapri) onOpenTapri(tapri3.name);
+                        else if (onJoinRoom) onJoinRoom('CALM99');
                         else onEnterLounge();
                       }}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-[#F8FAFC] bg-[#1C2D46] hover:bg-[#273647] border border-white/10 transition-all cursor-pointer"
@@ -842,7 +1014,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="w-full lg:w-96 flex flex-col gap-2">
                   <div className="flex items-center justify-between text-[#64748B] text-xs font-mono">
                     <span>Packet Delay Variance (Jitter)</span>
-                    <span className="text-[#22C55E] font-semibold">11.4 ms avg</span>
+                    <span className="text-[#22C55E] font-semibold font-mono flex items-center gap-1.5 bg-[#07111c] border border-[#22C55E]/30 px-2.5 py-0.5 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.2)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+                      {metrics.realtimeLatencyMs} ms live jitter
+                    </span>
                   </div>
                   <div className="bg-[#0d1c2d] border border-white/10 p-3 rounded-xl">
                     <svg
@@ -876,15 +1051,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Key Stat Counters Banner */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#13233A]/40 border border-white/10 p-6 rounded-2xl shadow-sm text-center">
                 <div className="flex flex-col gap-1">
-                  <span className="text-3xl sm:text-4xl text-[#ff5722] font-extrabold tracking-tight">24,891</span>
+                  <span className="text-3xl sm:text-4xl text-[#ff5722] font-extrabold tracking-tight font-mono drop-shadow-[0_0_16px_rgba(255,87,34,0.35)]">
+                    {metrics.totalMessagesToday.toLocaleString()}
+                  </span>
                   <span className="text-sm text-[#CBD5E1] font-medium font-mono">Messages shared today</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-3xl sm:text-4xl text-[#86cfff] font-extrabold tracking-tight">&lt;35ms</span>
+                  <span className="text-3xl sm:text-4xl text-[#86cfff] font-extrabold tracking-tight font-mono drop-shadow-[0_0_16px_rgba(134,207,255,0.35)]">
+                    &lt;{Math.round(metrics.realtimeLatencyMs * 2.5)}ms
+                  </span>
                   <span className="text-sm text-[#CBD5E1] font-medium font-mono">Audio lag across India</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-3xl sm:text-4xl text-[#22C55E] font-extrabold tracking-tight">4.9 / 5</span>
+                  <span className="text-3xl sm:text-4xl text-[#22C55E] font-extrabold tracking-tight font-mono drop-shadow-[0_0_16px_rgba(34,197,94,0.35)]">
+                    {metrics.calmScore}
+                  </span>
                   <span className="text-sm text-[#CBD5E1] font-medium font-mono">Night chiller calm score</span>
                 </div>
               </div>

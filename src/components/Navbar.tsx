@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
 import {
-  Activity,
   ChevronDown,
-  Edit3,
-  FolderClock,
   MessageSquare,
-  Save,
   ShieldCheck,
   X,
   User as UserIcon,
-  Sparkles,
 } from 'lucide-react';
 import { ViewMode, UserSession, UserProfile } from '../types';
 import { UserAvatar } from './UserAvatar';
@@ -30,15 +24,10 @@ interface NavbarProps {
 export function Navbar({
   currentView,
   setView,
-  session,
   currentUser,
   onOpenProfile,
   onOpenAuth,
-  onUpdateNickname,
-  latencyMs,
 }: NavbarProps) {
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [nameInput, setNameInput] = useState(session.identifier);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -56,13 +45,6 @@ export function Navbar({
     };
   }, [menuOpen]);
 
-  const handleSaveName = (event: FormEvent) => {
-    event.preventDefault();
-    const cleanName = nameInput.trim().replace(/[^a-zA-Z0-9 _-]/g, '').slice(0, 18);
-    if (cleanName) onUpdateNickname(cleanName);
-    setIsEditingName(false);
-  };
-
   const navigate = (view: ViewMode) => {
     setView(view);
     setMenuOpen(false);
@@ -70,9 +52,6 @@ export function Navbar({
 
   const navItems: Array<{ view: ViewMode; label: string; icon: typeof MessageSquare }> = [
     { view: 'CHATS', label: 'Berozgar Chats', icon: MessageSquare },
-    { view: 'LANDING', label: 'Web Lounge', icon: Sparkles },
-    { view: 'DASHBOARD', label: 'Vault Rooms', icon: Activity },
-    { view: 'HISTORY', label: 'History', icon: FolderClock },
   ];
 
   return (

@@ -35,6 +35,7 @@ interface SocialPlatformScreenProps {
   pendingDirectChatUser?: UserProfile | null;
   onClearPendingDirectChatUser?: () => void;
   onNavigateToProfile?: (username: string) => void;
+  onNavigateToTapriPage?: (tapriName: string) => void;
 }
 
 export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
@@ -46,6 +47,7 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   pendingDirectChatUser,
   onClearPendingDirectChatUser,
   onNavigateToProfile,
+  onNavigateToTapriPage,
 }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -280,11 +282,11 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
           }}
           onLogout={onLogout}
           onStartNewDirectChat={handleStartNewChat}
+          onViewTapriPage={onNavigateToTapriPage}
           onJoinTapri={async (tapriName) => {
             try {
               const tapriConv = await getOrCreateTapri(tapriName, currentUser);
               setActiveConversationId(tapriConv.id);
-              window.history.pushState({}, '', `/tapri=${tapriConv.tapriName || tapriName}`);
             } catch (e) {
               console.warn('Failed to join tapri:', e);
             }
@@ -306,6 +308,7 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
             currentUser={currentUser}
             onBackToSidebar={() => setActiveConversationId(null)}
             onStartCall={handleStartCall}
+            onViewTapriPage={onNavigateToTapriPage}
             isSidebarCollapsed={isSidebarCollapsed}
             onToggleSidebar={toggleSidebar}
           />

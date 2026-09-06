@@ -22,6 +22,8 @@ import {
   Copy,
   Globe,
   Lock,
+  Info,
+  ExternalLink,
 } from 'lucide-react';
 import { Conversation, SocialMessage, UserProfile } from '../types';
 import {
@@ -42,6 +44,7 @@ interface SocialChatViewProps {
   currentUser: UserProfile;
   onBackToSidebar: () => void;
   onStartCall: (type: 'voice' | 'video', targetUser: UserProfile) => void;
+  onViewTapriPage?: (tapriName: string) => void;
   isSidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
 }
@@ -58,6 +61,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
   currentUser,
   onBackToSidebar,
   onStartCall,
+  onViewTapriPage,
   isSidebarCollapsed = false,
   onToggleSidebar,
 }) => {
@@ -377,6 +381,19 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
         <div className="flex items-center gap-1">
           {isGroupTapri ? (
             <>
+              {/* Dedicated Tapri Page */}
+              {conversation.tapriName && onViewTapriPage && (
+                <button
+                  type="button"
+                  onClick={() => onViewTapriPage(conversation.tapriName!)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-mono transition-colors cursor-pointer border border-white/10"
+                  title="View dedicated Tapri page (creator, realtime online members, creation date)"
+                >
+                  <Info size={14} className="text-[#38bdf8]" />
+                  <span className="hidden sm:inline">Tapri Info</span>
+                </button>
+              )}
+
               {/* Copy Join Link */}
               <button
                 type="button"

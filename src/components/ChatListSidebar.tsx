@@ -18,6 +18,7 @@ import {
   Globe,
   Lock,
   Compass,
+  Info,
 } from 'lucide-react';
 import { Conversation, UserProfile } from '../types';
 import {
@@ -40,6 +41,7 @@ interface ChatListSidebarProps {
   onLogout: () => void;
   onStartNewDirectChat: (targetUser: UserProfile) => void;
   onJoinTapri?: (tapriName: string) => void;
+  onViewTapriPage?: (tapriName: string) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
@@ -53,6 +55,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
   onLogout,
   onStartNewDirectChat,
   onJoinTapri,
+  onViewTapriPage,
   isCollapsed = false,
   onToggleCollapse,
 }) => {
@@ -400,11 +403,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
   return (
     <div className="w-full md:w-80 lg:w-96 h-full flex flex-col bg-[#0b1326] border-r border-white/10 select-none">
       {/* Sidebar Header */}
-      <div className="p-3.5 border-b border-white/10 flex items-center justify-between bg-[#101c36]/70">
-        <div className="flex items-center gap-2">
-          <BerozgarLogo variant="compact" size="sm" />
-        </div>
-
+      <div className="p-3.5 border-b border-white/10 flex items-center justify-end bg-[#101c36]/70">
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -543,21 +542,36 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                       </div>
                       <p className="text-[10px] text-[#64748B] truncate mt-0.5">{def.description}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (onJoinTapri) {
-                          onJoinTapri(def.name);
-                        } else {
-                          getOrCreateTapri(def.name, currentUser).then((t) =>
-                            onSelectConversation(t.id)
-                          );
-                        }
-                      }}
-                      className="px-2.5 py-1 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white text-[11px] font-semibold transition-all shrink-0 cursor-pointer shadow-xs"
-                    >
-                      {isAlreadyJoined ? 'Open' : 'Join'}
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {onViewTapriPage && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onViewTapriPage(def.name);
+                          }}
+                          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-white/60 hover:text-white transition-colors cursor-pointer"
+                          title="View Tapri page (creator, realtime online members, stats)"
+                        >
+                          <Info size={13} className="text-[#38bdf8]" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onJoinTapri) {
+                            onJoinTapri(def.name);
+                          } else {
+                            getOrCreateTapri(def.name, currentUser).then((t) =>
+                              onSelectConversation(t.id)
+                            );
+                          }
+                        }}
+                        className="px-2.5 py-1 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white text-[11px] font-semibold transition-all shrink-0 cursor-pointer shadow-xs"
+                      >
+                        {isAlreadyJoined ? 'Open' : 'Join'}
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -657,11 +671,33 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                         )}
                       </p>
 
-                      {unreadCount > 0 && (
-                        <span className="ml-2 w-5 h-5 rounded-full bg-[#ff5722] text-[#FFF9F3] font-mono text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm">
-                          {unreadCount}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {onViewTapriPage && conv.tapriName && (
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onViewTapriPage(conv.tapriName!);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.stopPropagation();
+                                onViewTapriPage(conv.tapriName!);
+                              }
+                            }}
+                            className="p-1 rounded-md text-white/30 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                            title="View Tapri page"
+                          >
+                            <Info size={12} className="text-[#38bdf8]" />
+                          </span>
+                        )}
+                        {unreadCount > 0 && (
+                          <span className="w-5 h-5 rounded-full bg-[#ff5722] text-[#FFF9F3] font-mono text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </button>
