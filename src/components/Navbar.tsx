@@ -70,6 +70,7 @@ export function Navbar({
 
   const navItems: Array<{ view: ViewMode; label: string; icon: typeof MessageSquare }> = [
     { view: 'CHATS', label: 'Berozgar Chats', icon: MessageSquare },
+    { view: 'LANDING', label: 'Web Lounge', icon: Sparkles },
     { view: 'DASHBOARD', label: 'Vault Rooms', icon: Activity },
     { view: 'HISTORY', label: 'History', icon: FolderClock },
   ];

@@ -19,6 +19,7 @@ import {
   arrayRemove,
   deleteDoc,
   Timestamp,
+  increment,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -66,6 +67,7 @@ export {
   arrayRemove,
   deleteDoc,
   Timestamp,
+  increment,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,

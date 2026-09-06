@@ -14,6 +14,7 @@ import {
   subscribeToIncomingCalls,
   initiateCall,
   getOrCreateDirectConversation,
+  getOrCreateTapri,
   setUserPresence,
 } from '../lib/socialChatService';
 import { ChatListSidebar } from './ChatListSidebar';
@@ -23,17 +24,28 @@ import { GreenRoomModal, GreenRoomReadyConfig } from './GreenRoomModal';
 import { UserProfileModal } from './UserProfileModal';
 import { AuthModal } from './AuthModal';
 import { BerozgarLogo } from './BerozgarLogo';
+import { LandingPage } from './LandingPage';
 
 interface SocialPlatformScreenProps {
   currentUser: UserProfile | null;
   onLogin: (user: UserProfile) => void;
   onLogout: () => void;
+  targetTapriName?: string | null;
+  onClearTargetTapriName?: () => void;
+  pendingDirectChatUser?: UserProfile | null;
+  onClearPendingDirectChatUser?: () => void;
+  onNavigateToProfile?: (username: string) => void;
 }
 
 export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   currentUser,
   onLogin,
   onLogout,
+  targetTapriName,
+  onClearTargetTapriName,
+  pendingDirectChatUser,
+  onClearPendingDirectChatUser,
+  onNavigateToProfile,
 }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -45,6 +57,7 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   } | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [prefilledUsername, setPrefilledUsername] = useState('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     try {
       return localStorage.getItem('berozgar_sidebar_collapsed') === 'true';
@@ -52,6 +65,42 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
       return false;
     }
   });
+
+  // Handle target Tapri auto-join when loaded via URL /tapri=name
+  useEffect(() => {
+    if (!targetTapriName || !currentUser) return;
+    let isCancelled = false;
+
+    getOrCreateTapri(targetTapriName, currentUser)
+      .then((tapriConv) => {
+        if (isCancelled) return;
+        setActiveConversationId(tapriConv.id);
+        onClearTargetTapriName?.();
+      })
+      .catch((err) => console.warn('Could not auto-join target Tapri:', err));
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [targetTapriName, currentUser, onClearTargetTapriName]);
+
+  // Handle pending direct chat user when navigating from UserProfilePage
+  useEffect(() => {
+    if (!pendingDirectChatUser || !currentUser) return;
+    let isCancelled = false;
+
+    getOrCreateDirectConversation(currentUser, pendingDirectChatUser)
+      .then((convId) => {
+        if (isCancelled) return;
+        setActiveConversationId(convId);
+        onClearPendingDirectChatUser?.();
+      })
+      .catch((err) => console.warn('Could not start direct chat:', err));
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [pendingDirectChatUser, currentUser, onClearPendingDirectChatUser]);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => {
@@ -98,6 +147,23 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
     };
   }, [currentUser?.uid]);
 
+  // Adapt site title to reflect number of new unread messages
+  useEffect(() => {
+    if (!currentUser) {
+      document.title = 'Berozgar';
+      return;
+    }
+    const totalUnread = conversations.reduce((sum, conv) => {
+      return sum + (conv.unreadCounts?.[currentUser.uid] || 0);
+    }, 0);
+
+    if (totalUnread > 0) {
+      document.title = `(${totalUnread}) Berozgar`;
+    } else {
+      document.title = 'Berozgar';
+    }
+  }, [conversations, currentUser]);
+
   // Handle starting a new direct chat with a user
   const handleStartNewChat = async (targetUser: UserProfile) => {
     if (!currentUser) {
@@ -125,26 +191,11 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
     const type = config.callType;
 
     try {
-      const pc = new RTCPeerConnection();
-      if (type === 'video') {
-        pc.addTransceiver('video', { direction: 'sendrecv' });
-      }
-      pc.addTransceiver('audio', { direction: 'sendrecv' });
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      const offerInit: RTCSessionDescriptionInit = {
-        type: offer.type,
-        sdp: offer.sdp,
-      };
-
       const callId = await initiateCall(
         activeConversationId,
         currentUser,
         targetUser,
-        type,
-        offerInit
+        type
       );
 
       const session: CallSession = {
@@ -158,14 +209,12 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
         receiverPhoto: targetUser.photoURL,
         type,
         status: 'ringing',
-        offer: offerInit,
         createdAt: Date.now(),
       };
 
       setCallPreConfig(config);
       setActiveCall(session);
       setStagingCall(null);
-      pc.close();
     } catch (err) {
       console.warn('Call start issue:', err);
     }
@@ -173,53 +222,23 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
 
-  // If user is not logged in, prompt Auth modal or show guest preview
+  // If user is not logged in, render the full atmospheric landing page
   if (!currentUser) {
     return (
-      <div className="min-h-[calc(100vh-76px)] flex flex-col items-center justify-center p-6 bg-[#080f21] text-center relative overflow-hidden">
-        {/* Glowing background */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#EF4E22]/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative max-w-lg z-10 flex flex-col items-center">
-          <div className="mb-6 shadow-[0_0_35px_rgba(239,78,34,0.35)] rounded-full">
-            <BerozgarLogo variant="icon" size="xl" />
-          </div>
-
-          <div className="flex flex-col items-center mb-3">
-            <h1
-              className="text-4xl sm:text-5xl font-extrabold text-[#EF4E22] tracking-tight leading-none"
-              style={{ fontFamily: 'Rozha One, Mukta, sans-serif' }}
-            >
-              बेरोजगार
-            </h1>
-            <span
-              className="text-base sm:text-lg font-bold text-[#FFF9F3]/90 mt-1"
-              style={{ fontFamily: 'Mukta, sans-serif' }}
-            >
-              चैट एप • BEROJGAR CHAT
-            </span>
-          </div>
-
-          <p className="font-sans text-sm text-[#FFF9F3]/80 max-w-md mb-8 leading-relaxed">
-            बस गपशप, बस बिला। Real-time messaging, photos, voice notes, seen receipts, and instant voice & video calls.
-          </p>
-
-          <button
-            type="button"
-            onClick={() => setShowAuthModal(true)}
-            className="px-8 py-3.5 rounded-2xl bg-[#EF4E22] text-[#FFF9F3] font-mono text-sm font-bold uppercase tracking-wider hover:bg-[#f3643d] transition-all shadow-[0_0_25px_rgba(239,78,34,0.4)] active:scale-95 cursor-pointer flex items-center gap-2"
-          >
-            <Sparkles size={16} />
-            <span>Create Account or Sign In</span>
-          </button>
-
-          <span className="font-mono text-xs text-white/50 mt-4 block">
-            Instagram-style @username • No phone number required
-          </span>
-        </div>
+      <div className="w-full">
+        <LandingPage
+          currentUser={currentUser}
+          onEnterLounge={() => setShowAuthModal(true)}
+          onOpenAuth={(reserved) => {
+            if (reserved) setPrefilledUsername(reserved);
+            setShowAuthModal(true);
+          }}
+        />
 
         {showAuthModal && (
           <AuthModal
+            initialUsername={prefilledUsername}
+            initialMode={prefilledUsername ? 'signup' : 'signin'}
             onSuccess={(user) => {
               onLogin(user);
               setShowAuthModal(false);
@@ -243,10 +262,33 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
           currentUser={currentUser}
           conversations={conversations}
           activeConversationId={activeConversationId}
-          onSelectConversation={(id) => setActiveConversationId(id)}
-          onOpenProfile={() => setShowProfileModal(true)}
+          onSelectConversation={(id) => {
+            setActiveConversationId(id);
+            const selected = conversations.find((c) => c.id === id);
+            if (selected?.type === 'group' && selected.tapriName) {
+              window.history.pushState({}, '', `/tapri=${selected.tapriName}`);
+            } else {
+              window.history.pushState({}, '', '/');
+            }
+          }}
+          onOpenProfile={() => {
+            if (onNavigateToProfile && currentUser) {
+              onNavigateToProfile(currentUser.username);
+            } else {
+              setShowProfileModal(true);
+            }
+          }}
           onLogout={onLogout}
           onStartNewDirectChat={handleStartNewChat}
+          onJoinTapri={async (tapriName) => {
+            try {
+              const tapriConv = await getOrCreateTapri(tapriName, currentUser);
+              setActiveConversationId(tapriConv.id);
+              window.history.pushState({}, '', `/tapri=${tapriConv.tapriName || tapriName}`);
+            } catch (e) {
+              console.warn('Failed to join tapri:', e);
+            }
+          }}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={toggleSidebar}
         />

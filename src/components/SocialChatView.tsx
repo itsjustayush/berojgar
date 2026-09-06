@@ -16,8 +16,12 @@ import {
   Download,
   X,
   Sparkles,
-  PanelLeftClose,
-  PanelLeftOpen,
+  Coffee,
+  Share2,
+  Users,
+  Copy,
+  Globe,
+  Lock,
 } from 'lucide-react';
 import { Conversation, SocialMessage, UserProfile } from '../types';
 import {
@@ -27,6 +31,7 @@ import {
   setTypingStatus,
   toggleMessageReaction,
 } from '../lib/socialChatService';
+import { db, doc, onSnapshot } from '../lib/firebase';
 import { AudioMessagePlayer } from './AudioMessagePlayer';
 import { VoiceRecorder } from './VoiceRecorder';
 import { UserAvatar } from './UserAvatar';
@@ -80,8 +85,35 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
     lastSeen: 0,
   };
 
-  const isOtherTyping =
-    conversation.typing?.[otherUid] && Date.now() - (conversation.typing[otherUid] || 0) < 4000;
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
+  const otherTypingTimeoutRef = useRef<number | null>(null);
+
+  // Instantaneous conversation typing status listener
+  useEffect(() => {
+    if (!conversation.id || !otherUid) return;
+
+    const convDocRef = doc(db, 'conversations', conversation.id);
+    const unsub = onSnapshot(convDocRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        const typingTimestamp = data.typing?.[otherUid];
+        if (typingTimestamp && Date.now() - typingTimestamp < 4000) {
+          setIsOtherTyping(true);
+          if (otherTypingTimeoutRef.current) clearTimeout(otherTypingTimeoutRef.current);
+          otherTypingTimeoutRef.current = window.setTimeout(() => {
+            setIsOtherTyping(false);
+          }, 3500);
+        } else {
+          setIsOtherTyping(false);
+        }
+      }
+    });
+
+    return () => {
+      unsub();
+      if (otherTypingTimeoutRef.current) clearTimeout(otherTypingTimeoutRef.current);
+    };
+  }, [conversation.id, otherUid]);
 
   const initialMountTime = useRef(Date.now());
   const prevMsgCountRef = useRef(0);
@@ -211,6 +243,33 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
   };
 
   // Filter messages for in-chat search
+  const [copiedTapriLink, setCopiedTapriLink] = useState(false);
+  const isGroupTapri = conversation.type === 'group';
+  const tapriShareUrl = `https://berojgarchat.vercel.app/tapri=${conversation.tapriName || 'lounge'}`;
+
+  const handleCopyTapriLink = () => {
+    navigator.clipboard?.writeText(tapriShareUrl);
+    setCopiedTapriLink(true);
+    setTimeout(() => setCopiedTapriLink(false), 2000);
+  };
+
+  const handleQuickChai = async () => {
+    try {
+      await sendSocialMessage(conversation.id, {
+        conversationId: conversation.id,
+        senderId: currentUser.uid,
+        senderUsername: currentUser.username,
+        senderName: currentUser.displayName,
+        senderPhoto: currentUser.photoURL,
+        text: '☕ Sent a hot cutting chai to the Tapri! Cheers chillers! ✨',
+        type: 'text',
+      });
+      soundEffects.playJoinSound();
+    } catch {
+      // ignore
+    }
+  };
+
   const displayedMessages = inChatSearchQuery.trim()
     ? messages.filter((m) =>
         m.text.toLowerCase().includes(inChatSearchQuery.toLowerCase())
@@ -241,74 +300,126 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             <ArrowLeft size={18} />
           </button>
 
-          {/* Desktop Sidebar Collapse Toggle */}
-          {onToggleSidebar && (
-            <button
-              type="button"
-              onClick={onToggleSidebar}
-              className="hidden md:flex p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {isSidebarCollapsed ? <PanelLeftOpen size={18} className="text-[#EF4E22]" /> : <PanelLeftClose size={18} />}
-            </button>
+          {/* Group Tapri vs 1-on-1 Avatar */}
+          {isGroupTapri ? (
+            <div className="shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-[#ff5722] to-[#b32b00] flex items-center justify-center text-white shadow-md font-mono font-bold text-lg">
+              #
+            </div>
+          ) : (
+            <div className="shrink-0">
+              <UserAvatar
+                name={otherUser.displayName || otherUser.username}
+                username={otherUser.username}
+                photoURL={otherUser.photoURL}
+                size="md"
+                showStatus
+                isOnline={otherUser.status === 'online'}
+              />
+            </div>
           )}
 
-          {/* User Avatar with status */}
-          <div className="shrink-0">
-            <UserAvatar
-              name={otherUser.displayName || otherUser.username}
-              username={otherUser.username}
-              photoURL={otherUser.photoURL}
-              size="md"
-              showStatus
-              isOnline={otherUser.status === 'online'}
-            />
-          </div>
-
-          {/* User Identity & Active Status */}
+          {/* Identity & Active Status */}
           <div className="min-w-0">
-            <h2 className="text-sm font-bold text-white truncate flex items-center gap-1.5">
-              <span>{otherUser.displayName}</span>
-              <span className="text-[10px] font-mono text-white/40 hidden sm:inline">@{otherUser.username}</span>
-            </h2>
-            <div className="text-[11px] font-mono flex items-center gap-1.5">
-              {isOtherTyping ? (
-                <span className="text-[#EF4E22] font-bold animate-pulse flex items-center gap-1">
-                  <span>typing</span>
-                  <span className="animate-bounce">...</span>
-                </span>
-              ) : otherUser.status === 'online' ? (
-                <span className="text-[#EF4E22] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-pulse" />
-                  <span>Active now</span>
-                </span>
-              ) : (
-                <span className="text-white/40">{formatLastSeen(otherUser.lastSeen)}</span>
-              )}
-            </div>
+            {isGroupTapri ? (
+              <>
+                <h2 className="text-sm font-bold text-white truncate flex items-center gap-1.5">
+                  <span>#{conversation.tapriName || conversation.tapriTitle || 'Tapri'}</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#ff5722]/15 text-[#ffb5a0] border border-[#ff5722]/30 flex items-center gap-1">
+                    {conversation.tapriIsPublic !== false ? (
+                      <>
+                        <Globe size={10} className="text-[#22C55E]" />
+                        <span>Public</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={10} className="text-[#ffb5a0]" />
+                        <span>Private</span>
+                      </>
+                    )}
+                  </span>
+                </h2>
+                <div className="text-[11px] font-mono text-white/50 flex items-center gap-1.5">
+                  <Users size={12} className="text-[#ff5722]" />
+                  <span>{conversation.participants.length} chillers in Tapri</span>
+                  <span className="hidden sm:inline text-white/30">•</span>
+                  <span className="hidden sm:inline text-white/40 truncate">
+                    {conversation.tapriDescription || 'Late-night chill lounge'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-sm font-bold text-white truncate flex items-center gap-1.5">
+                  <span>{otherUser.displayName}</span>
+                  <span className="text-[10px] font-mono text-white/40 hidden sm:inline">@{otherUser.username}</span>
+                </h2>
+                <div className="text-[11px] font-mono flex items-center gap-1.5">
+                  {isOtherTyping ? (
+                    <span className="text-[#EF4E22] font-bold animate-pulse flex items-center gap-1">
+                      <span>typing</span>
+                      <span className="animate-bounce">...</span>
+                    </span>
+                  ) : otherUser.status === 'online' ? (
+                    <span className="text-[#EF4E22] flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-pulse" />
+                      <span>Active now</span>
+                    </span>
+                  ) : (
+                    <span className="text-white/40">{formatLastSeen(otherUser.lastSeen)}</span>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Action Controls: Voice Call, Video Call, Search */}
+        {/* Action Controls */}
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onStartCall('voice', otherUser as UserProfile)}
-            className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
-            title="Start Voice Call"
-          >
-            <Phone size={18} />
-          </button>
+          {isGroupTapri ? (
+            <>
+              {/* Copy Join Link */}
+              <button
+                type="button"
+                onClick={handleCopyTapriLink}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-mono transition-colors cursor-pointer border border-white/10"
+                title="Copy shareable Tapri link"
+              >
+                {copiedTapriLink ? <Check size={14} className="text-[#22C55E]" /> : <Copy size={14} />}
+                <span className="hidden sm:inline">{copiedTapriLink ? 'Copied!' : 'Share Link'}</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={() => onStartCall('video', otherUser as UserProfile)}
-            className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
-            title="Start Video Call"
-          >
-            <Video size={18} />
-          </button>
+              {/* Quick Send Chai */}
+              <button
+                type="button"
+                onClick={handleQuickChai}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#ff5722]/15 hover:bg-[#ff5722]/25 text-[#ff5722] text-xs font-semibold transition-colors cursor-pointer border border-[#ff5722]/30"
+                title="Send Chai to Tapri"
+              >
+                <Coffee size={14} />
+                <span className="hidden sm:inline">Chai ☕</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => onStartCall('voice', otherUser as UserProfile)}
+                className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
+                title="Start Voice Call"
+              >
+                <Phone size={18} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onStartCall('video', otherUser as UserProfile)}
+                className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
+                title="Start Video Call"
+              >
+                <Video size={18} />
+              </button>
+            </>
+          )}
 
           <button
             type="button"
@@ -357,15 +468,42 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
         {displayedMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8 text-white/40">
-            <div className="w-16 h-16 rounded-3xl bg-[#EF4E22]/10 border border-[#EF4E22]/20 flex items-center justify-center mb-3">
-              <Sparkles size={24} className="text-[#EF4E22]" />
-            </div>
-            <h3 className="font-extrabold text-lg text-white mb-1" style={{ fontFamily: 'Mukta, sans-serif' }}>
-              Chat with {otherUser.displayName}
-            </h3>
-            <p className="font-mono text-xs max-w-sm text-white/50">
-              Real-time messaging, seen receipts, photos, voice notes, and calls on Berozgar.
-            </p>
+            {isGroupTapri ? (
+              <>
+                <div className="w-16 h-16 rounded-3xl bg-[#ff5722]/15 border border-[#ff5722]/30 flex items-center justify-center mb-3 text-[#ff5722]">
+                  <Coffee size={28} />
+                </div>
+                <h3 className="font-extrabold text-lg text-white mb-1" style={{ fontFamily: 'Mukta, sans-serif' }}>
+                  Welcome to #{conversation.tapriName || conversation.tapriTitle || 'Tapri'}
+                </h3>
+                <p className="font-mono text-xs max-w-sm text-white/50 mb-3">
+                  {conversation.tapriDescription || 'Late-night chill group chat. Chai, code, and midnight banter.'}
+                </p>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-[#CBD5E1]">
+                  <span>berojgarchat.vercel.app/tapri={conversation.tapriName}</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyTapriLink}
+                    className="p-1 text-[#ff5722] hover:text-white cursor-pointer"
+                    title="Copy Tapri Link"
+                  >
+                    {copiedTapriLink ? <Check size={14} className="text-[#22C55E]" /> : <Copy size={14} />}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 rounded-3xl bg-[#EF4E22]/10 border border-[#EF4E22]/20 flex items-center justify-center mb-3">
+                  <Sparkles size={24} className="text-[#EF4E22]" />
+                </div>
+                <h3 className="font-extrabold text-lg text-white mb-1" style={{ fontFamily: 'Mukta, sans-serif' }}>
+                  Chat with {otherUser.displayName}
+                </h3>
+                <p className="font-mono text-xs max-w-sm text-white/50">
+                  Real-time messaging, seen receipts, photos, voice notes, and calls on Berozgar.
+                </p>
+              </>
+            )}
           </div>
         ) : (
           displayedMessages.map((msg) => {
@@ -378,6 +516,11 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
               >
                 {/* Message Header */}
                 <div className="flex items-center gap-1.5 mb-1 px-1">
+                  {isGroupTapri && !isYou && (
+                    <span className="font-mono text-[11px] font-bold text-[#ffb5a0] mr-0.5">
+                      @{msg.senderUsername || 'chiller'}
+                    </span>
+                  )}
                   <span className="font-mono text-[10px] text-white/40">
                     {new Date(msg.timestamp).toLocaleTimeString([], {
                       hour: '2-digit',
@@ -557,6 +700,29 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             );
           })
         )}
+
+        {/* Remote User Typing Indicator Bubble */}
+        {isOtherTyping && (
+          <div className="flex items-end gap-2 text-left animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <UserAvatar
+              name={otherUser.displayName || otherUser.username}
+              username={otherUser.username}
+              photoURL={otherUser.photoURL}
+              size="sm"
+            />
+            <div className="bg-[#18233c] border border-white/10 rounded-2xl rounded-bl-xs px-4 py-3 shadow-md flex items-center gap-2">
+              <span className="text-xs font-mono text-white/70">
+                {otherUser.displayName} is typing
+              </span>
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-bounce" />
+              </div>
+            </div>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 

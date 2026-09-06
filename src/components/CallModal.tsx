@@ -28,6 +28,7 @@ import {
   setCallHostMessage,
   toggleCallHandRaise,
   recordIceRestart,
+  updateCallOffer,
 } from '../lib/socialChatService';
 import {
   getAvailableMediaDevices,
@@ -111,11 +112,14 @@ export const CallModal: React.FC<CallModalProps> = ({
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(preConfig?.stream || null);
   const durationTimerRef = useRef<number | null>(null);
   const statsTimerRef = useRef<number | null>(null);
   const audioMeterRef = useRef<AudioMeterNode | null>(null);
+  const addedCandidatesRef = useRef<Set<string>>(new Set());
+  const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
 
   // Load hardware devices
   useEffect(() => {
@@ -148,9 +152,9 @@ export const CallModal: React.FC<CallModalProps> = ({
         const pc = new RTCPeerConnection(RTC_CONFIG);
         pcRef.current = pc;
 
-        // Acquire or use preConfig stream
+        // Acquire or use preConfig stream if caller or already accepted
         let stream = localStreamRef.current;
-        if (!stream) {
+        if (!stream && (isCaller || call.status === 'accepted')) {
           const res = await getOptimizedMediaStream({
             audio: true,
             video: call.type === 'video' && !isVideoOff,
@@ -187,13 +191,25 @@ export const CallModal: React.FC<CallModalProps> = ({
           });
         }
 
-        // On Remote Track
+        // On Remote Track: pipe to dedicated remote audio and video elements
         pc.ontrack = (event) => {
-          if (remoteVideoRef.current && event.streams[0]) {
-            remoteVideoRef.current.srcObject = event.streams[0];
+          const remoteStream = (event.streams && event.streams[0]) ? event.streams[0] : new MediaStream([event.track]);
+
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = remoteStream;
+            remoteAudioRef.current.muted = false;
+            remoteAudioRef.current.volume = 1.0;
+            remoteAudioRef.current.play().catch((err) => {
+              console.warn('Audio auto-play caught:', err);
+            });
             if (selectedSpeakerId) {
-              setAudioOutputDevice(remoteVideoRef.current, selectedSpeakerId);
+              setAudioOutputDevice(remoteAudioRef.current, selectedSpeakerId).catch(() => {});
             }
+          }
+
+          if (remoteVideoRef.current && (event.track.kind === 'video' || call.type === 'video')) {
+            remoteVideoRef.current.srcObject = remoteStream;
+            remoteVideoRef.current.play().catch(console.warn);
           }
         };
 
@@ -219,7 +235,7 @@ export const CallModal: React.FC<CallModalProps> = ({
           }
         };
 
-        // If caller and ringing/accepted, generate offer with optimized SDP
+        // If caller, generate real offer with optimized SDP and save to Firestore
         if (isCaller) {
           const offer = await pc.createOffer();
           const optimizedSdp = optimizeSessionDescription(offer.sdp || '');
@@ -228,9 +244,7 @@ export const CallModal: React.FC<CallModalProps> = ({
             sdp: optimizedSdp,
           };
           await pc.setLocalDescription(finalOffer);
-        } else if (call.offer) {
-          // If receiver, handle initial offer
-          await pc.setRemoteDescription(new RTCSessionDescription(call.offer));
+          await updateCallOffer(call.id, finalOffer);
         }
       } catch (err) {
         console.warn('WebRTC initialization notice:', err);
@@ -270,27 +284,47 @@ export const CallModal: React.FC<CallModalProps> = ({
       }
 
       // Handle Answer on caller side
-      if (isCaller && updatedCall.answer && pcRef.current && !pcRef.current.currentRemoteDescription) {
-        try {
-          await pcRef.current.setRemoteDescription(new RTCSessionDescription(updatedCall.answer));
-        } catch (e) {
-          console.warn('Set remote answer notice:', e);
+      if (isCaller && updatedCall.answer && pcRef.current) {
+        if (pcRef.current.signalingState === 'have-local-offer') {
+          try {
+            await pcRef.current.setRemoteDescription(new RTCSessionDescription(updatedCall.answer));
+            if (pendingCandidatesRef.current.length > 0) {
+              for (const cand of pendingCandidatesRef.current) {
+                try {
+                  await pcRef.current.addIceCandidate(new RTCIceCandidate(cand));
+                } catch (e) {
+                  console.warn('Pending candidate add on caller:', e);
+                }
+              }
+              pendingCandidatesRef.current = [];
+            }
+          } catch (e) {
+            console.warn('Set remote answer notice:', e);
+          }
         }
       }
 
-      // Handle ICE Candidates
-      if (pcRef.current && pcRef.current.remoteDescription) {
-        const candidates = isCaller
-          ? updatedCall.receiverCandidates
-          : updatedCall.callerCandidates;
+      // Handle ICE Candidates with queueing for pending remote description
+      const incomingCandidates = isCaller
+        ? updatedCall.receiverCandidates
+        : updatedCall.callerCandidates;
 
-        if (candidates && candidates.length > 0) {
-          candidates.forEach((cand) => {
-            try {
-              pcRef.current?.addIceCandidate(new RTCIceCandidate(cand));
-            } catch {}
-          });
-        }
+      if (incomingCandidates && incomingCandidates.length > 0) {
+        incomingCandidates.forEach((cand) => {
+          const candKey = JSON.stringify(cand);
+          if (addedCandidatesRef.current.has(candKey)) return;
+
+          if (pcRef.current && pcRef.current.remoteDescription && pcRef.current.remoteDescription.type) {
+            addedCandidatesRef.current.add(candKey);
+            pcRef.current.addIceCandidate(new RTCIceCandidate(cand)).catch((err) => {
+              console.warn('addIceCandidate error:', err);
+            });
+          } else {
+            if (!pendingCandidatesRef.current.some((c) => JSON.stringify(c) === candKey)) {
+              pendingCandidatesRef.current.push(cand);
+            }
+          }
+        });
       }
     });
 
@@ -410,6 +444,9 @@ export const CallModal: React.FC<CallModalProps> = ({
       pcRef.current.close();
       pcRef.current = null;
     }
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = null;
+    }
   };
 
   // Mute / Unmute with audio cue
@@ -498,6 +535,9 @@ export const CallModal: React.FC<CallModalProps> = ({
 
   const handleSwitchSpeaker = async (deviceId: string) => {
     setSelectedSpeakerId(deviceId);
+    if (remoteAudioRef.current) {
+      await setAudioOutputDevice(remoteAudioRef.current, deviceId);
+    }
     if (remoteVideoRef.current) {
       await setAudioOutputDevice(remoteVideoRef.current, deviceId);
     }
@@ -528,20 +568,88 @@ export const CallModal: React.FC<CallModalProps> = ({
     soundEffects.stopRingtone();
     soundEffects.playJoinSound();
 
-    if (pcRef.current && call.offer) {
-      try {
-        await pcRef.current.setRemoteDescription(new RTCSessionDescription(call.offer));
-        const answer = await pcRef.current.createAnswer();
-        const optimizedAnswer: RTCSessionDescriptionInit = {
-          type: answer.type,
-          sdp: optimizeSessionDescription(answer.sdp || ''),
-        };
-        await pcRef.current.setLocalDescription(optimizedAnswer);
-        await answerCall(call.id, optimizedAnswer);
-        setCallStatus('accepted');
-      } catch (err) {
-        console.warn('Accept call issue:', err);
+    let pc = pcRef.current;
+    if (!pc) {
+      pc = new RTCPeerConnection(RTC_CONFIG);
+      pcRef.current = pc;
+    }
+
+    try {
+      // 1. Acquire local stream
+      let stream = localStreamRef.current;
+      if (!stream) {
+        const res = await getOptimizedMediaStream({
+          audio: true,
+          video: call.type === 'video' && !isVideoOff,
+          audioDeviceId: selectedMicId,
+          videoDeviceId: selectedCamId,
+        });
+        stream = res.stream;
+        localStreamRef.current = stream;
       }
+
+      if (stream) {
+        if (localVideoRef.current && call.type === 'video') {
+          localVideoRef.current.srcObject = stream;
+        }
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack) audioTrack.enabled = !isMuted;
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) videoTrack.enabled = !isVideoOff;
+
+        const senders = pc.getSenders();
+        stream.getTracks().forEach((track) => {
+          if (!senders.some((s) => s.track?.id === track.id)) {
+            pc!.addTrack(track, stream!);
+          }
+        });
+
+        if (!audioMeterRef.current) {
+          audioMeterRef.current = new AudioMeterNode(stream, (volume, speaking) => {
+            setAudioLevel(volume);
+            if (isMuted && speaking) {
+              setIsSpeakingWhileMuted(true);
+            } else {
+              setIsSpeakingWhileMuted(false);
+            }
+          });
+        }
+      }
+
+      // 2. Set remote offer
+      const offerToSet = callSession.offer || call.offer;
+      if (!offerToSet) {
+        console.warn('Call offer not ready yet');
+        return;
+      }
+
+      if (pc.signalingState !== 'have-remote-offer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(offerToSet));
+      }
+
+      // 3. Flush any pending caller candidates
+      if (pendingCandidatesRef.current.length > 0) {
+        for (const cand of pendingCandidatesRef.current) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(cand));
+          } catch (e) {
+            console.warn('Pending candidate add on receiver:', e);
+          }
+        }
+        pendingCandidatesRef.current = [];
+      }
+
+      // 4. Create and send answer
+      const answer = await pc.createAnswer();
+      const optimizedAnswer: RTCSessionDescriptionInit = {
+        type: answer.type,
+        sdp: optimizeSessionDescription(answer.sdp || ''),
+      };
+      await pc.setLocalDescription(optimizedAnswer);
+      await answerCall(call.id, optimizedAnswer);
+      setCallStatus('accepted');
+    } catch (err) {
+      console.warn('Accept call issue:', err);
     }
   };
 
@@ -636,6 +744,15 @@ export const CallModal: React.FC<CallModalProps> = ({
 
         {/* Video / Audio Stage */}
         <div className="relative w-full aspect-video sm:aspect-16/10 bg-[#080f21] flex items-center justify-center overflow-hidden">
+          {/* Dedicated audio element for WebRTC remote audio stream (always mounted in both voice & video) */}
+          <audio
+            ref={remoteAudioRef}
+            autoPlay
+            playsInline
+            controls={false}
+            className="hidden"
+          />
+
           {call.type === 'video' ? (
             <>
               {/* Remote Video Stream */}

@@ -23,12 +23,19 @@ import { BerozgarLogo } from './BerozgarLogo';
 interface AuthModalProps {
   onSuccess: (user: UserProfile) => void;
   onCancel?: () => void;
+  initialUsername?: string;
+  initialMode?: 'signin' | 'signup';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onCancel }) => {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signup');
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
+export const AuthModal: React.FC<AuthModalProps> = ({
+  onSuccess,
+  onCancel,
+  initialUsername = '',
+  initialMode = 'signup',
+}) => {
+  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [username, setUsername] = useState(initialUsername);
+  const [displayName, setDisplayName] = useState(initialUsername);
   const [password, setPassword] = useState('');
   const [bio, setBio] = useState('Available on Berozgar');
   const [showPassword, setShowPassword] = useState(false);

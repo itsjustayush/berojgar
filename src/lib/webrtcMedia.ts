@@ -134,6 +134,17 @@ export async function getOptimizedMediaStream(options: {
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     return { stream };
   } catch (err: unknown) {
+    // Attempt fallback with relaxed constraints if specific hardware was overconstrained
+    if (options.audio) {
+      try {
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: options.video ? true : false,
+        });
+        return { stream: fallbackStream };
+      } catch {}
+    }
+
     const error = err as { name?: string; message?: string };
     let friendlyMessage = 'Unable to access your camera or microphone.';
 

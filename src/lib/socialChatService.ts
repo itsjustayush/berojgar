@@ -14,12 +14,14 @@ import {
   addDoc,
   getDocs,
   deleteDoc,
+  arrayUnion,
+  increment,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from './firebase';
-import { UserProfile, Conversation, SocialMessage, CallSession } from '../types';
+import { UserProfile, Conversation, SocialMessage, CallSession, GuestbookNote } from '../types';
 import { generateSvgAvatar } from './avatarGenerator';
 
 // Converts any username to standard format: lowercase alphanumeric and underscore only
@@ -386,9 +388,12 @@ export async function sendSocialMessage(
 
   await setDoc(msgDocRef, fullMessage);
 
-  // Update conversation last message and reset typing
+  // Update conversation last message, increment unread count for other participants, and reset typing
   const convRef = doc(db, 'conversations', conversationId);
-  await updateDoc(convRef, {
+  const convSnap = await getDoc(convRef);
+  const convData = convSnap.exists() ? (convSnap.data() as Conversation) : null;
+
+  const updatePayload: Record<string, unknown> = {
     lastMessage: {
       text: fullMessage.type === 'image'
         ? '📷 Photo'
@@ -406,7 +411,17 @@ export async function sendSocialMessage(
     },
     updatedAt: timestamp,
     [`typing.${messageData.senderId}`]: 0,
-  });
+  };
+
+  if (convData && convData.participants) {
+    convData.participants.forEach((uid) => {
+      if (uid !== messageData.senderId) {
+        updatePayload[`unreadCounts.${uid}`] = increment(1);
+      }
+    });
+  }
+
+  await updateDoc(convRef, updatePayload);
 
   return msgDocRef.id;
 }
@@ -512,7 +527,7 @@ export async function initiateCall(
   caller: UserProfile,
   receiver: UserProfile,
   type: 'voice' | 'video',
-  offer: RTCSessionDescriptionInit
+  offer?: RTCSessionDescriptionInit
 ): Promise<string> {
   const callDocRef = doc(collection(db, 'calls'));
   const callId = callDocRef.id;
@@ -528,7 +543,7 @@ export async function initiateCall(
     receiverPhoto: targetAvatar(receiver),
     type,
     status: 'ringing',
-    offer,
+    ...(offer ? { offer } : {}),
     callerCandidates: [],
     receiverCandidates: [],
     createdAt: Date.now(),
@@ -548,6 +563,14 @@ export async function initiateCall(
   });
 
   return callId;
+}
+
+export async function updateCallOffer(
+  callId: string,
+  offer: RTCSessionDescriptionInit
+): Promise<void> {
+  const callRef = doc(db, 'calls', callId);
+  await updateDoc(callRef, { offer });
 }
 
 function targetAvatar(user: UserProfile): string {
@@ -664,17 +687,15 @@ export async function addCallIceCandidate(
   role: 'caller' | 'receiver',
   candidate: RTCIceCandidateInit
 ): Promise<void> {
-  const callRef = doc(db, 'calls', callId);
-  const snap = await getDoc(callRef);
-  if (!snap.exists()) return;
-
-  const data = snap.data() as CallSession;
-  const field = role === 'caller' ? 'callerCandidates' : 'receiverCandidates';
-  const existing = data[field] || [];
-
-  await updateDoc(callRef, {
-    [field]: [...existing, candidate],
-  });
+  try {
+    const callRef = doc(db, 'calls', callId);
+    const field = role === 'caller' ? 'callerCandidates' : 'receiverCandidates';
+    await updateDoc(callRef, {
+      [field]: arrayUnion(candidate),
+    });
+  } catch (err) {
+    console.warn('Error adding ICE candidate:', err);
+  }
 }
 
 export async function endCallSession(
@@ -692,4 +713,382 @@ export async function endCallSession(
   } catch {
     // Ignore error
   }
+}
+
+// -------------------------------------------------------------
+// TAPRI (GROUP CHAT) SERVICES & GLOBAL TAPRIS
+// -------------------------------------------------------------
+
+export function sanitizeTapriName(raw: string): string {
+  if (!raw) return '';
+  let clean = raw.trim().toLowerCase();
+  // Strip url prefixes or parameter prefixes
+  if (clean.includes('tapri=')) {
+    clean = clean.split('tapri=')[1];
+  } else if (clean.includes('/tapri/')) {
+    clean = clean.split('/tapri/')[1];
+  }
+  // Strip url encoding, query params, trailing slashes, leading hash
+  clean = clean.split('?')[0].split('&')[0].split('#')[0];
+  clean = clean.replace(/^\/+/, '').replace(/\/+$/, '').replace(/^#/, '');
+  clean = clean.replace(/[^a-z0-9_]/g, '');
+  return clean;
+}
+
+export const GLOBAL_TAPRI_DEFINITIONS = [
+  {
+    name: 'chai_n_code',
+    title: 'Chai & Code',
+    tag: '#chai_n_code',
+    description: 'Late Night Coding, Rust, & Lofi beats stream. Debugging silent sessions with chill background sitar beats and occasional PR venting.',
+    isPublic: true,
+    activeChillersCount: 82,
+    welcomeText: 'Swagat hai to #chai_n_code! ☕ Drop your late-night git diffs, coffee vs chai debates, or bugs you cannot fix.',
+  },
+  {
+    name: 'startup_fumbles',
+    title: 'Startup Fumbles',
+    tag: '#startup_fumbles',
+    description: 'Honest pivoting stories, career rants & unhinged debugging. Real talk without LinkedIn fluff.',
+    isPublic: true,
+    activeChillersCount: 114,
+    welcomeText: 'Welcome to #startup_fumbles! 🔥 Share your 0-revenue moments, awkward investor calls, and lessons learned.',
+  },
+  {
+    name: 'valorant_3am',
+    title: 'Valorant 3AM',
+    tag: '#valorant_3am',
+    description: 'Unranked late-night chill squad. Wholesome, zero toxicity, high ping solidarity.',
+    isPublic: true,
+    activeChillersCount: 24,
+    welcomeText: 'Squad up! 🎮 5-stack unranked late night. No rage quitting permitted.',
+  },
+];
+
+export async function getOrCreateTapri(
+  rawName: string,
+  currentUser?: UserProfile | null,
+  options?: { title?: string; description?: string; isPublic?: boolean }
+): Promise<Conversation> {
+  const tapriName = sanitizeTapriName(rawName) || 'chai_n_code';
+  const convId = `tapri_${tapriName}`;
+  const convRef = doc(db, 'conversations', convId);
+
+  // Find matching default definition if exists
+  const def = GLOBAL_TAPRI_DEFINITIONS.find((d) => d.name === tapriName);
+  const title = options?.title || def?.title || `#${tapriName}`;
+  const description = options?.description || def?.description || `Late night Tapri group for #${tapriName}`;
+  const isPublic = options?.isPublic !== undefined ? options.isPublic : (def?.isPublic ?? true);
+
+  try {
+    const snap = await getDoc(convRef);
+    if (snap.exists()) {
+      const existing = snap.data() as Conversation;
+      // If currentUser is provided, ensure they are in participants
+      if (currentUser && !existing.participants.includes(currentUser.uid)) {
+        await updateDoc(convRef, {
+          participants: arrayUnion(currentUser.uid),
+          [`participantDetails.${currentUser.uid}`]: {
+            uid: currentUser.uid,
+            username: currentUser.username,
+            displayName: currentUser.displayName,
+            photoURL: currentUser.photoURL || '',
+            status: currentUser.status || 'online',
+            lastSeen: Date.now(),
+          },
+          updatedAt: Date.now(),
+        });
+        existing.participants.push(currentUser.uid);
+        existing.participantDetails[currentUser.uid] = {
+          uid: currentUser.uid,
+          username: currentUser.username,
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL || '',
+          status: currentUser.status || 'online',
+          lastSeen: Date.now(),
+        };
+      }
+      return existing;
+    }
+  } catch (err) {
+    console.warn('Tapri fetch error, bootstrapping:', err);
+  }
+
+  // Create new Tapri Conversation
+  const participants = currentUser ? [currentUser.uid] : ['system_tapri_bot'];
+  const participantDetails: Conversation['participantDetails'] = {
+    system_tapri_bot: {
+      uid: 'system_tapri_bot',
+      username: 'tapri_bot',
+      displayName: 'Tapri Master ☕',
+      photoURL: '',
+      status: 'online',
+      lastSeen: Date.now(),
+    },
+  };
+
+  if (currentUser) {
+    participantDetails[currentUser.uid] = {
+      uid: currentUser.uid,
+      username: currentUser.username,
+      displayName: currentUser.displayName,
+      photoURL: currentUser.photoURL || '',
+      status: currentUser.status || 'online',
+      lastSeen: Date.now(),
+    };
+  }
+
+  const newTapri: Conversation = {
+    id: convId,
+    type: 'group',
+    tapriName,
+    tapriTitle: title,
+    tapriTag: `#${tapriName}`,
+    tapriDescription: description,
+    tapriIsPublic: isPublic,
+    creatorId: currentUser?.uid || 'system',
+    activeChillersCount: def?.activeChillersCount || 1,
+    participants,
+    participantDetails,
+    lastMessage: {
+      text: def?.welcomeText || `Tapri #${tapriName} opened! Share the link: https://berojgarchat.vercel.app/tapri=${tapriName}`,
+      senderId: 'system_tapri_bot',
+      senderName: 'Tapri Master ☕',
+      timestamp: Date.now(),
+      type: 'system',
+    },
+    typing: {},
+    unreadCounts: {},
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  try {
+    await setDoc(convRef, newTapri);
+  } catch (e) {
+    console.warn('Could not persist Tapri to Firestore, using local fallback:', e);
+  }
+
+  return newTapri;
+}
+
+export async function getGlobalTapris(currentUser?: UserProfile | null): Promise<Conversation[]> {
+  const list: Conversation[] = [];
+  for (const def of GLOBAL_TAPRI_DEFINITIONS) {
+    try {
+      const tapri = await getOrCreateTapri(def.name, currentUser, {
+        title: def.title,
+        description: def.description,
+        isPublic: def.isPublic,
+      });
+      list.push(tapri);
+    } catch {
+      // Fallback
+      list.push({
+        id: `tapri_${def.name}`,
+        type: 'group',
+        tapriName: def.name,
+        tapriTitle: def.title,
+        tapriTag: def.tag,
+        tapriDescription: def.description,
+        tapriIsPublic: def.isPublic,
+        activeChillersCount: def.activeChillersCount,
+        participants: currentUser ? [currentUser.uid] : [],
+        participantDetails: {},
+        lastMessage: {
+          text: def.welcomeText,
+          senderId: 'system',
+          senderName: 'Tapri Master ☕',
+          timestamp: Date.now(),
+          type: 'system',
+        },
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+    }
+  }
+  return list;
+}
+
+// -------------------------------------------------------------
+// USER PROFILE & CUSTOM SPACE SERVICES
+// -------------------------------------------------------------
+
+export const DEFAULT_AYUSH_PROFILE: UserProfile = {
+  uid: 'itsjustayush_profile_id',
+  username: 'itsjustayush',
+  displayName: 'Ayush Sharma',
+  photoURL: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBJe3nbFkQtKoCqm58K9RWFUmmJDmwlBWkKle2F7gG78lnABk7MgwBG-dT0ouL8iX_khyY95fEomvvG-Mav-viTSqG8xkGPTYmOgehmiBnAexGhUB-7p_AcfOQctOvefLN5YW0533nD1VkTSwDECqOtUD_T2elfvO72IfGYaTdk5sjMUb81TbZPmDKaVEX8CKuwhtEARdIeC0riHD1iFEnL5iYurlWarMCXcEm14KOdmmxtWoAZAXWV',
+  bio: 'Building late-night side-projects & breaking state engines. Chai > Coffee ☕ | Rust, React, and Valorant at 3 AM. If my lounge mic is green, feel free to hop in and talk philosophy or bugs.',
+  status: 'online',
+  lastSeen: Date.now(),
+  createdAt: 1700000000000,
+  customHindiName: 'आयुष',
+  customVibeTag: 'Late-night coder',
+  customStatusEmoji: 'React 19 & Chai',
+  customLocation: 'Delhi, IN • 02:45 AM',
+  customThemeAura: 'aurora',
+  customAudioSnippetTitle: 'vibe_snip_3am.wav',
+  customAudioSnippetDate: 'Recorded yesterday',
+  customAudioSnippetDuration: '0:14',
+  broadcastCurrentLounge: true,
+  allowVoicePings: true,
+  chaiCount: 1280,
+  loungeHours: 142,
+  audioSnippetsCount: 48,
+  favoriteLounges: ['#chai_n_code', '#startup_fumbles', '#valorant_3am'],
+  guestbookNotes: [
+    {
+      id: 'gb_1',
+      senderName: 'Samay V.',
+      senderUsername: 'samay_v',
+      text: 'Bhai Valorant lobby me aao, unranked 5-stack full chill scene hai. Need 1 smoke player!',
+      timestamp: Date.now() - 42 * 60 * 1000,
+      avatarInitials: 'SV',
+    },
+    {
+      id: 'gb_2',
+      senderName: 'Tanvi Vibes',
+      senderUsername: 'tanvi_vibes',
+      text: 'Awesome lofi playlist you shared in the #chai_n_code room yesterday! Kept me awake for design sprints. 🎧',
+      timestamp: Date.now() - 3 * 3600 * 1000,
+      avatarInitials: 'TV',
+    },
+  ],
+};
+
+export async function getUserProfileByUsername(rawUsername: string): Promise<UserProfile> {
+  const clean = sanitizeUsername(rawUsername);
+
+  // Check LocalStorage cache first for customizations
+  let localSaved: Partial<UserProfile> = {};
+  try {
+    const raw = localStorage.getItem(`berozgar_custom_space_${clean}`);
+    if (raw) {
+      localSaved = JSON.parse(raw);
+    }
+  } catch {}
+
+  // If user is Ayush Sharma
+  if (clean === 'itsjustayush') {
+    return {
+      ...DEFAULT_AYUSH_PROFILE,
+      ...localSaved,
+      guestbookNotes: [
+        ...(localSaved.guestbookNotes || []),
+        ...DEFAULT_AYUSH_PROFILE.guestbookNotes!,
+      ],
+    };
+  }
+
+  // Try lookup from Firestore /usernames/{clean} -> /users/{uid}
+  try {
+    const usernameDoc = await getDoc(doc(db, 'usernames', clean));
+    if (usernameDoc.exists()) {
+      const uid = usernameDoc.data().uid;
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data() as UserProfile;
+        return {
+          ...data,
+          ...localSaved,
+          guestbookNotes: [
+            ...(localSaved.guestbookNotes || []),
+            ...(data.guestbookNotes || []),
+          ],
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Profile fetch warning from Firestore:', err);
+  }
+
+  // Synthesize standard fallback profile for valid handles
+  return {
+    uid: `user_${clean}`,
+    username: clean,
+    displayName: clean.charAt(0).toUpperCase() + clean.slice(1),
+    bio: 'Late-night thinker. Chilling in quiet audio lounges.',
+    status: 'online',
+    lastSeen: Date.now(),
+    createdAt: Date.now() - 86400000 * 12,
+    customHindiName: clean,
+    customVibeTag: 'Late-night coder',
+    customStatusEmoji: 'Listening to lofi',
+    customLocation: 'India • Late Night',
+    customThemeAura: 'aurora',
+    customAudioSnippetTitle: 'intro_snippet.wav',
+    customAudioSnippetDate: 'Active',
+    customAudioSnippetDuration: '0:15',
+    broadcastCurrentLounge: true,
+    allowVoicePings: true,
+    chaiCount: 14,
+    loungeHours: 36,
+    audioSnippetsCount: 5,
+    favoriteLounges: ['#chai_n_code', '#startup_fumbles'],
+    guestbookNotes: localSaved.guestbookNotes || [
+      {
+        id: 'gb_sample',
+        senderName: 'Ayush Sharma',
+        senderUsername: 'itsjustayush',
+        text: 'Swagat hai Berojgar Chat pe! Feel free to clink chai or drop a voice note.',
+        timestamp: Date.now() - 3600000 * 2,
+        avatarInitials: 'AS',
+      },
+    ],
+    ...localSaved,
+  };
+}
+
+export async function saveUserProfileCustomization(
+  username: string,
+  customizations: Partial<UserProfile>,
+  currentUid?: string
+): Promise<void> {
+  const clean = sanitizeUsername(username);
+
+  // 1. Save to LocalStorage for immediate persistence
+  try {
+    const existing = localStorage.getItem(`berozgar_custom_space_${clean}`);
+    const parsed = existing ? JSON.parse(existing) : {};
+    const updated = { ...parsed, ...customizations };
+    localStorage.setItem(`berozgar_custom_space_${clean}`, JSON.stringify(updated));
+  } catch {}
+
+  // 2. Save to Firestore if uid is known
+  if (currentUid) {
+    try {
+      await updateDoc(doc(db, 'users', currentUid), customizations);
+    } catch (err) {
+      console.warn('Could not update Firestore user doc:', err);
+    }
+  }
+}
+
+export async function addGuestbookNote(
+  targetUsername: string,
+  note: GuestbookNote
+): Promise<void> {
+  const clean = sanitizeUsername(targetUsername);
+  try {
+    const existingRaw = localStorage.getItem(`berozgar_custom_space_${clean}`);
+    const parsed = existingRaw ? JSON.parse(existingRaw) : {};
+    const notes: GuestbookNote[] = parsed.guestbookNotes || [];
+    notes.unshift(note);
+    parsed.guestbookNotes = notes;
+    localStorage.setItem(`berozgar_custom_space_${clean}`, JSON.stringify(parsed));
+  } catch {}
+}
+
+export async function incrementChaiCount(targetUsername: string): Promise<number> {
+  const clean = sanitizeUsername(targetUsername);
+  let newCount = 1;
+  try {
+    const existingRaw = localStorage.getItem(`berozgar_custom_space_${clean}`);
+    const parsed = existingRaw ? JSON.parse(existingRaw) : {};
+    newCount = (parsed.chaiCount || (clean === 'itsjustayush' ? 1280 : 12)) + 1;
+    parsed.chaiCount = newCount;
+    localStorage.setItem(`berozgar_custom_space_${clean}`, JSON.stringify(parsed));
+  } catch {}
+  return newCount;
 }

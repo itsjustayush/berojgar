@@ -1,4 +1,14 @@
-export type ViewMode = 'CHATS' | 'ROOM' | 'PROFILE' | 'SETTINGS' | 'AUTH' | 'DASHBOARD' | 'HISTORY';
+export type ViewMode = 'CHATS' | 'ROOM' | 'PROFILE' | 'SETTINGS' | 'AUTH' | 'DASHBOARD' | 'HISTORY' | 'LANDING' | 'USER_PROFILE';
+
+export interface GuestbookNote {
+  id: string;
+  senderName: string;
+  senderUsername: string;
+  text: string;
+  timestamp: number;
+  avatarInitials: string;
+  isVoice?: boolean;
+}
 
 export interface UserProfile {
   uid: string;
@@ -9,6 +19,22 @@ export interface UserProfile {
   status: 'online' | 'offline';
   lastSeen: number;
   createdAt: number;
+  // Custom Space & Profile Properties
+  customHindiName?: string;
+  customThemeAura?: 'aurora' | 'sunset' | 'indigo' | 'sage';
+  customVibeTag?: string;
+  customStatusEmoji?: string;
+  customLocation?: string;
+  customAudioSnippetTitle?: string;
+  customAudioSnippetDate?: string;
+  customAudioSnippetDuration?: string;
+  broadcastCurrentLounge?: boolean;
+  allowVoicePings?: boolean;
+  chaiCount?: number;
+  loungeHours?: number;
+  audioSnippetsCount?: number;
+  favoriteLounges?: string[];
+  guestbookNotes?: GuestbookNote[];
 }
 
 export interface UserSession {
@@ -48,6 +74,15 @@ export interface SocialMessage {
 export interface Conversation {
   id: string;
   type: 'direct' | 'group';
+  // Tapri (Group Chat) attributes
+  tapriName?: string; // unique handle e.g. "chai_n_code"
+  tapriTitle?: string; // display title e.g. "Chai & Code"
+  tapriDescription?: string;
+  tapriIsPublic?: boolean; // true = public, false = private
+  tapriTag?: string; // e.g. "#chai_n_code"
+  tapriAvatar?: string;
+  creatorId?: string;
+  activeChillersCount?: number;
   participants: string[];
   participantDetails: Record<string, {
     uid: string;
