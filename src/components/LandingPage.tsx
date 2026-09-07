@@ -422,13 +422,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
 
                   {/* Micro-metric Live Tracker */}
-                  <div className="flex items-center gap-2 text-[#64748B] text-xs font-mono py-1.5 px-3.5 rounded-full bg-[#13233A]/70 border border-white/10 w-fit backdrop-blur-md shadow-sm">
+                  <div className="flex items-center gap-2 text-[#64748B] text-xs font-mono py-1.5 px-3.5 rounded-full bg-[#13233A]/80 border border-white/10 w-fit backdrop-blur-md shadow-sm">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E] animate-ping" />
                     <span className="text-[#F8FAFC] font-semibold tracking-wide flex items-center gap-1.5">
-                      <strong className="text-[#22C55E] font-bold font-mono">{metrics.onlineChillers.toLocaleString()}</strong>
-                      <span>night chillers active right now</span>
+                      <strong className="text-[#22C55E] font-black font-mono tracking-tight text-xs sm:text-sm px-2 py-0.5 rounded-md bg-[#22C55E]/15 border border-[#22C55E]/40 shadow-[0_0_12px_rgba(34,197,94,0.25)] inline-flex items-center gap-1.5">
+                        {metrics.onlineChillers.toLocaleString()}
+                      </strong>
+                      <span>{metrics.onlineChillers === 1 ? 'night chiller active right now' : 'night chillers active right now'}</span>
                       <span className="text-[#64748B]">•</span>
-                      <span className="text-[#86cfff] font-mono">({metrics.totalRegisteredUsers.toLocaleString()} registered)</span>
+                      <span className="text-[#86cfff] font-mono font-bold text-xs px-2 py-0.5 rounded-md bg-[#86cfff]/15 border border-[#86cfff]/30 shadow-sm">
+                        ({metrics.totalRegisteredUsers.toLocaleString()} registered)
+                      </span>
                     </span>
                     <span>•</span>
                     <span>Zero tracking logs kept</span>
@@ -530,29 +534,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                             <span className="text-base text-[#F8FAFC] font-bold">{tapri1.tag}</span>
                             <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
                           </div>
-                          <span className="text-[11px] text-[#22C55E] font-mono font-medium flex items-center gap-1.5 bg-[#0C1929]/70 px-2 py-0.5 rounded-full border border-[#22C55E]/20 w-fit">
+                          <span className="text-[11px] text-[#22C55E] font-mono font-medium flex items-center gap-1.5 bg-[#0C1929]/70 px-2.5 py-1 rounded-full border border-[#22C55E]/20 w-fit">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-                            <span>{tapri1.onlineChillers} chillers listening quietly</span>
+                            <span>{tapri1.onlineChillers} {tapri1.onlineChillers === 1 ? 'chiller listening quietly' : 'chillers listening quietly'}</span>
                             <span className="text-[#64748B]">•</span>
-                            <span className="text-[#86cfff]">{tapri1.totalUsers} members</span>
+                            <span className="text-[#86cfff] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full bg-[#86cfff]/15 border border-[#86cfff]/30 shadow-sm">
+                              {tapri1.totalUsers} {tapri1.totalUsers === 1 ? 'member' : 'members'}
+                            </span>
                           </span>
                         </div>
                       </div>
 
                       {/* Active Speaker Avatars Group */}
-                      <div className="flex items-center -space-x-2">
-                        <div className="w-7 h-7 rounded-full bg-[#384760] border border-[#0C1929] flex items-center justify-center text-[#b7c7e5] text-[11px] font-bold shadow-md">
-                          AK
+                      <div className="flex items-center -space-x-2 p-1 rounded-full bg-[#0C1929]/80 border border-white/10 shadow-inner">
+                        <div
+                          title="Ayush (Host)"
+                          className="w-7 h-7 rounded-full bg-[#1C2D46] border-2 border-[#0C1929] flex items-center justify-center text-[#ffb5a0] text-[11px] font-bold shadow-md ring-1 ring-white/10"
+                        >
+                          AB
                         </div>
-                        <div className="w-7 h-7 rounded-full bg-[#4c98c6] border border-[#0C1929] flex items-center justify-center text-[#00344c] text-[11px] font-bold shadow-md">
-                          RS
-                        </div>
-                        <div className="w-7 h-7 rounded-full bg-[#ff5722] border border-[#0C1929] flex items-center justify-center text-white text-[11px] font-bold shadow-md">
-                          NK
-                        </div>
-                        <div className="w-7 h-7 rounded-full bg-[#1C2D46] border border-[#0C1929] flex items-center justify-center text-[#CBD5E1] text-[10px] font-bold shadow-md">
-                          +79
-                        </div>
+                        {tapri1.onlineChillers > 1 && (
+                          <div
+                            title="Subarna (Chiller)"
+                            className="w-7 h-7 rounded-full bg-[#13233A] border-2 border-[#0C1929] flex items-center justify-center text-[#86cfff] text-[11px] font-bold shadow-md ring-1 ring-white/10"
+                          >
+                            SB
+                          </div>
+                        )}
+                        {currentUser && currentUser.username !== 'itsjustayush' && (
+                          <div
+                            title={currentUser.displayName || currentUser.username}
+                            className="w-7 h-7 rounded-full bg-[#22C55E]/20 border-2 border-[#0C1929] flex items-center justify-center text-[#22C55E] text-[11px] font-bold shadow-md ring-1 ring-[#22C55E]/40"
+                          >
+                            {(currentUser.displayName || currentUser.username || 'U').slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        {tapri1.totalUsers > 3 && (
+                          <div className="w-7 h-7 rounded-full bg-[#1C2D46] border-2 border-[#0C1929] flex items-center justify-center text-[#CBD5E1] text-[10px] font-bold shadow-md ring-1 ring-white/10">
+                            +{tapri1.totalUsers - 2}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -728,9 +749,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="flex flex-col justify-between bg-[#13233A]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-md hover:bg-[#13233A] hover:border-white/20 transition-all group">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#22C55E]/40 text-xs text-[#22C55E] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(34,197,94,0.18)]">
+                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#22C55E]/50 text-xs text-[#22C55E] font-mono font-bold flex items-center gap-2 shadow-[0_0_14px_rgba(34,197,94,0.22)] tracking-wide">
                         <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                        {tapri1.onlineChillers} {tapri1.badgeLabel || 'chillers online'}
+                        {tapri1.onlineChillers} {tapri1.onlineChillers === 1 ? 'chiller online' : 'chillers online'}
                       </span>
                       <span className="material-symbols-outlined text-[#64748B] group-hover:text-[#ff5722] transition-colors text-[20px]">
                         {tapri1.icon || 'code'}
@@ -785,9 +806,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="flex flex-col justify-between bg-gradient-to-b from-[#13233A]/90 to-[#0c1929]/95 border border-white/15 backdrop-blur-xl p-6 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:border-[#ff5722]/50 hover:shadow-[0_8px_32px_rgba(255,87,34,0.2)] transition-all group duration-300">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#ff5722]/40 text-xs text-[#ffb5a0] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(255,87,34,0.18)]">
+                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#ff5722]/50 text-xs text-[#ffb5a0] font-mono font-bold flex items-center gap-2 shadow-[0_0_14px_rgba(255,87,34,0.22)] tracking-wide">
                         <span className="w-2 h-2 rounded-full bg-[#ff5722] animate-pulse" />
-                        {tapri2.onlineChillers} {tapri2.badgeLabel || 'venting'}
+                        {tapri2.onlineChillers} {tapri2.onlineChillers === 1 ? 'chiller venting' : 'chillers venting'}
                       </span>
                       <span className="material-symbols-outlined text-[#64748B] group-hover:text-[#ff5722] transition-colors text-[20px]">
                         {tapri2.icon || 'psychology'}
@@ -842,9 +863,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="flex flex-col justify-between bg-gradient-to-b from-[#13233A]/90 to-[#0c1929]/95 border border-white/15 backdrop-blur-xl p-6 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:border-[#86cfff]/50 hover:shadow-[0_8px_32px_rgba(134,207,255,0.2)] transition-all group duration-300">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#86cfff]/40 text-xs text-[#86cfff] font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(134,207,255,0.18)]">
+                      <span className="px-3 py-1 rounded-full bg-[#0C1929] border border-[#86cfff]/50 text-xs text-[#86cfff] font-mono font-bold flex items-center gap-2 shadow-[0_0_14px_rgba(134,207,255,0.22)] tracking-wide">
                         <span className="w-2 h-2 rounded-full bg-[#86cfff] animate-pulse" />
-                        {tapri3.onlineChillers} {tapri3.badgeLabel || 'co-studying'}
+                        {tapri3.onlineChillers} {tapri3.onlineChillers === 1 ? 'chiller co-studying' : 'chillers co-studying'}
                       </span>
                       <span className="material-symbols-outlined text-[#64748B] group-hover:text-[#ff5722] transition-colors text-[20px]">
                         {tapri3.icon || 'auto_stories'}
@@ -1014,31 +1035,47 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="w-full lg:w-96 flex flex-col gap-2">
                   <div className="flex items-center justify-between text-[#64748B] text-xs font-mono">
                     <span>Packet Delay Variance (Jitter)</span>
-                    <span className="text-[#22C55E] font-semibold font-mono flex items-center gap-1.5 bg-[#07111c] border border-[#22C55E]/30 px-2.5 py-0.5 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.2)]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-                      {metrics.realtimeLatencyMs} ms live jitter
+                    <span className="text-[#22C55E] font-bold font-mono text-xs flex items-center gap-2 bg-[#07111c] border border-[#22C55E]/40 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(34,197,94,0.25)] tracking-wide">
+                      <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
+                      <span>{metrics.realtimeLatencyMs} ms live RTT speed</span>
                     </span>
                   </div>
                   <div className="bg-[#0d1c2d] border border-white/10 p-3 rounded-xl">
-                    <svg
-                      className="w-full h-16 text-[#ff5722]"
-                      fill="none"
-                      viewBox="0 0 320 60"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M0 45 C 30 45, 45 25, 70 30 C 95 35, 110 15, 140 20 C 170 25, 190 40, 220 30 C 250 20, 280 10, 320 25"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeWidth="2.5"
-                      />
-                      <path
-                        d="M0 45 C 30 45, 45 25, 70 30 C 95 35, 110 15, 140 20 C 170 25, 190 40, 220 30 C 250 20, 280 10, 320 25 L 320 60 L 0 60 Z"
-                        fill="currentColor"
-                        fillOpacity="0.12"
-                      />
-                      <circle cx="220" cy="30" fill="#FF5722" r="4" />
-                    </svg>
+                    {(() => {
+                      const points = (metrics.latencyHistory && metrics.latencyHistory.length > 1
+                        ? metrics.latencyHistory
+                        : [14, 12, 16, 11, 15, 12, 13, 10, 14, 12]
+                      ).map((val, idx, arr) => {
+                        const x = Math.round((idx / (arr.length - 1)) * 320);
+                        const clamped = Math.max(5, Math.min(50, val));
+                        const y = Math.round(50 - ((clamped - 5) / 45) * 38);
+                        return { x, y };
+                      });
+                      const lineD = `M ${points.map((p) => `${p.x} ${p.y}`).join(' L ')}`;
+                      const areaD = `${lineD} L 320 60 L 0 60 Z`;
+                      const lastP = points[points.length - 1] || { x: 320, y: 30 };
+                      return (
+                        <svg
+                          className="w-full h-16 text-[#ff5722]"
+                          fill="none"
+                          viewBox="0 0 320 60"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d={lineD}
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeWidth="2.5"
+                          />
+                          <path
+                            d={areaD}
+                            fill="currentColor"
+                            fillOpacity="0.14"
+                          />
+                          <circle cx={lastP.x} cy={lastP.y} fill="#FF5722" r="4.5" className="animate-pulse" />
+                        </svg>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -1051,19 +1088,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Key Stat Counters Banner */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#13233A]/40 border border-white/10 p-6 rounded-2xl shadow-sm text-center">
                 <div className="flex flex-col gap-1">
-                  <span className="text-3xl sm:text-4xl text-[#ff5722] font-extrabold tracking-tight font-mono drop-shadow-[0_0_16px_rgba(255,87,34,0.35)]">
+                  <span className="text-3xl sm:text-4xl text-[#ff5722] font-black tracking-tight font-mono drop-shadow-[0_0_20px_rgba(255,87,34,0.45)]">
                     {metrics.totalMessagesToday.toLocaleString()}
                   </span>
                   <span className="text-sm text-[#CBD5E1] font-medium font-mono">Messages shared today</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-3xl sm:text-4xl text-[#86cfff] font-extrabold tracking-tight font-mono drop-shadow-[0_0_16px_rgba(134,207,255,0.35)]">
-                    &lt;{Math.round(metrics.realtimeLatencyMs * 2.5)}ms
+                  <span className="text-3xl sm:text-4xl text-[#86cfff] font-black tracking-tight font-mono drop-shadow-[0_0_20px_rgba(134,207,255,0.45)]">
+                    ~{metrics.realAudioLagMs || Math.round(metrics.realtimeLatencyMs + 22)}ms
                   </span>
                   <span className="text-sm text-[#CBD5E1] font-medium font-mono">Audio lag across India</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-3xl sm:text-4xl text-[#22C55E] font-extrabold tracking-tight font-mono drop-shadow-[0_0_16px_rgba(34,197,94,0.35)]">
+                  <span className="text-3xl sm:text-4xl text-[#22C55E] font-black tracking-tight font-mono drop-shadow-[0_0_20px_rgba(34,197,94,0.45)]">
                     {metrics.calmScore}
                   </span>
                   <span className="text-sm text-[#CBD5E1] font-medium font-mono">Night chiller calm score</span>

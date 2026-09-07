@@ -258,6 +258,7 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
         {/* Middle: Conversation Avatars */}
         <div className="flex-1 w-full overflow-y-auto py-1 px-2 space-y-2.5 flex flex-col items-center custom-scrollbar">
           {filteredConversations.map((conv) => {
+            const isGroup = conv.type === 'group';
             const other = getOtherParticipant(conv);
             const isActive = conv.id === activeConversationId;
             const unreadCount = conv.unreadCounts?.[currentUser.uid] || 0;
@@ -272,16 +273,22 @@ export const ChatListSidebar: React.FC<ChatListSidebarProps> = ({
                     ? 'ring-2 ring-[#EF4E22] bg-[#EF4E22]/20 shadow-[0_0_12px_rgba(239,78,34,0.35)]'
                     : 'hover:bg-white/10'
                 }`}
-                title={`${other.displayName} (@${other.username})`}
+                title={isGroup ? (conv.tapriTitle || `#${conv.tapriName}`) : `${other.displayName} (@${other.username})`}
               >
-                <UserAvatar
-                  name={other.displayName || other.username}
-                  username={other.username}
-                  photoURL={other.photoURL}
-                  size="md"
-                  showStatus
-                  isOnline={other.status === 'online'}
-                />
+                {isGroup ? (
+                  <div className="w-10 h-10 rounded-full bg-[#ff5722]/20 border border-[#ff5722]/40 flex items-center justify-center text-[#ff5722] hover:bg-[#ff5722]/30 transition-colors">
+                    <Coffee size={18} />
+                  </div>
+                ) : (
+                  <UserAvatar
+                    name={other.displayName || other.username}
+                    username={other.username}
+                    photoURL={other.photoURL}
+                    size="md"
+                    showStatus
+                    isOnline={other.status === 'online'}
+                  />
+                )}
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EF4E22] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-md">
                     {unreadCount > 9 ? '9+' : unreadCount}
