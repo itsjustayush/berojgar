@@ -21,7 +21,7 @@ const applySecurityHeaders = (app: express.Express) => {
 async function startServer() {
   const app = express();
   const httpServer = createServer(app);
-  const PORT = Number(process.env.PORT || 3000);
+  const PORT = 3000;
   applySecurityHeaders(app);
   app.use(express.json({ limit: '256kb' }));
 

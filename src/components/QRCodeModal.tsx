@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { QrCode, X, Smartphone, CloudDownload, Copy, Check, Download } from 'lucide-react';
 import { BundleItem } from '../types';
 
 interface QRCodeModalProps {
@@ -18,7 +19,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
   const [activeTab, setActiveTab] = useState<'JOIN' | 'DOWNLOAD'>('JOIN');
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://fluxp2p.app';
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://berojgarchat.vercel.app';
   
   // URL 1: Mobile Join Room Session URL
   const joinUrl = `${originUrl}?room=${encodeURIComponent(roomId)}`;
@@ -41,22 +42,22 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-md cursor-pointer"
         onClick={onClose}
-      ></div>
+      />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-[#18181b] border border-white/15 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col p-6 md:p-8 space-y-6">
+      <div className="relative w-full max-w-lg bg-[#0c1626] border border-white/15 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col p-6 md:p-8 space-y-6">
         {/* Header */}
         <header className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
-              <span className="material-symbols-outlined text-2xl">qr_code_2</span>
+            <div className="w-10 h-10 rounded-xl bg-[#EF4E22]/15 border border-[#EF4E22]/30 flex items-center justify-center text-[#EF4E22]">
+              <QrCode size={22} />
             </div>
             <div>
-              <h3 className="font-geist text-xl font-bold text-white tracking-tight">
+              <h3 className="text-xl font-bold text-white tracking-tight">
                 Session QR Codes
               </h3>
               <p className="font-mono text-xs text-white/50">
-                ROOM_OTP: <span className="text-blue-400 font-bold">{roomId}</span>
+                ROOM_OTP: <span className="text-[#EF4E22] font-bold">{roomId}</span>
               </p>
             </div>
           </div>
@@ -64,7 +65,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
             onClick={onClose}
             className="text-white/50 hover:text-white p-2 rounded-xl border border-white/10 hover:bg-white/5 transition-all cursor-pointer"
           >
-            <span className="material-symbols-outlined text-xl">close</span>
+            <X size={20} />
           </button>
         </header>
 
@@ -75,11 +76,11 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
             onClick={() => setActiveTab('JOIN')}
             className={`py-2.5 px-4 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
               activeTab === 'JOIN'
-                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                ? 'bg-[#EF4E22] text-white shadow-lg shadow-[#EF4E22]/25'
                 : 'text-white/60 hover:text-white hover:bg-white/5'
             }`}
           >
-            <span className="material-symbols-outlined text-base">phonelink_setup</span>
+            <Smartphone size={16} />
             JOIN_ROOM_QR
           </button>
 
@@ -88,17 +89,17 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
             onClick={() => setActiveTab('DOWNLOAD')}
             className={`py-2.5 px-4 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
               activeTab === 'DOWNLOAD'
-                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                ? 'bg-[#EF4E22] text-white shadow-lg shadow-[#EF4E22]/25'
                 : 'text-white/60 hover:text-white hover:bg-white/5'
             }`}
           >
-            <span className="material-symbols-outlined text-base">cloud_download</span>
+            <CloudDownload size={16} />
             DOWNLOAD_BUNDLE_QR
           </button>
         </div>
 
         {/* QR Display Frame */}
-        <div className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl border-4 border-blue-500/30 shadow-inner relative group">
+        <div className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl border-4 border-[#EF4E22]/30 shadow-inner relative group">
           <QRCodeSVG
             value={currentUrl}
             size={220}
@@ -109,7 +110,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
           />
 
           <div className="mt-4 px-3 py-1 bg-[#0A0A0C] text-white rounded-full text-[10px] font-mono font-bold tracking-widest uppercase flex items-center gap-1.5">
-            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+            <span className="w-2 h-2 bg-[#EF4E22] rounded-full animate-pulse"></span>
             {activeTab === 'JOIN' ? 'SCAN TO JOIN SESSION' : `SCAN TO DOWNLOAD ${bundleItems.length} FILES`}
           </div>
         </div>
@@ -120,11 +121,9 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
             <span className="text-white/60 truncate max-w-[280px]">{currentUrl}</span>
             <button
               onClick={handleCopyLink}
-              className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/40 rounded-lg font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1"
+              className="px-3 py-1.5 bg-[#EF4E22]/20 hover:bg-[#EF4E22]/30 text-[#EF4E22] border border-[#EF4E22]/40 rounded-lg font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-sm">
-                {copiedLink ? 'check' : 'content_copy'}
-              </span>
+              {copiedLink ? <Check size={14} /> : <Copy size={14} />}
               {copiedLink ? 'COPIED' : 'COPY_LINK'}
             </button>
           </div>
@@ -138,7 +137,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
               disabled={bundleItems.length === 0}
               className="w-full py-3.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold tracking-wider hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-lg">download_for_offline</span>
+              <Download size={18} />
               DOWNLOAD ALL BUNDLE FILES ({bundleItems.length})
             </button>
           )}

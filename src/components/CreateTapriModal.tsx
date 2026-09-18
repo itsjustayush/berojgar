@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Users, Lock, Globe, Sparkles, Copy, Check } from 'lucide-react';
+import { X, Users, Lock, Globe, Sparkles, Copy, Check, Coffee } from 'lucide-react';
 import { UserProfile, Conversation } from '../types';
 import { getOrCreateTapri, sanitizeTapriName } from '../lib/socialChatService';
 
@@ -70,7 +70,7 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
           <div className="w-12 h-12 rounded-2xl bg-[#ff5722]/15 border border-[#ff5722]/30 flex items-center justify-center text-[#ff5722]">
-            <span className="material-symbols-outlined text-[26px]">local_cafe</span>
+            <Coffee size={24} />
           </div>
           <div>
             <h2 className="text-xl font-bold font-sans">Open a New Tapri (Group Chat)</h2>

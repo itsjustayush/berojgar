@@ -11,6 +11,7 @@ import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
 import { UserProfilePage } from './components/UserProfilePage';
 import { TapriPage } from './components/TapriPage';
+import { DirectoryScreen } from './components/DirectoryScreen';
 import { generateRoomOTP, normalizeRoomId } from './lib/p2pEngine';
 import { getOrCreateGuestSession, updateGuestNickname } from './lib/session';
 import { callRoomRegistry } from './lib/roomRegistry';
@@ -57,12 +58,13 @@ function parseRouteFromLocation(): {
   // 2. Check for Username profile page in URL:
   // e.g. /itsjustayush or /@itsjustayush
   const cleanPath = path.replace(/^\/+|\/+$/g, '');
-  const systemRoutes = ['chats', 'dashboard', 'room', 'history', 'landing', 'auth', 'api'];
+  const systemRoutes = ['chats', 'directory', 'dashboard', 'room', 'history', 'landing', 'auth', 'api'];
   if (cleanPath && !systemRoutes.includes(cleanPath.toLowerCase()) && !cleanPath.includes('/')) {
     const username = decodeURIComponent(cleanPath).replace(/^@/, '').trim().toLowerCase();
     return { view: 'USER_PROFILE', profileUsername: username };
   }
 
+  if (cleanPath.toLowerCase() === 'directory') return { view: 'DIRECTORY' };
   if (cleanPath.toLowerCase() === 'landing') return { view: 'LANDING' };
   if (cleanPath.toLowerCase() === 'dashboard') return { view: 'DASHBOARD' };
   if (cleanPath.toLowerCase() === 'room') return { view: 'ROOM' };
@@ -356,6 +358,25 @@ export default function App() {
               navigateToView('CHATS');
             }}
           />
+        )}
+
+        {currentView === 'DIRECTORY' && (
+          <div className="h-[calc(100dvh-64px)] w-full">
+            <DirectoryScreen
+              currentUser={currentUser}
+              onStartChat={(targetUser) => {
+                setPendingDirectChatUser(targetUser);
+                navigateToView('CHATS');
+              }}
+              onOpenTapri={(tapriName) => {
+                setTargetTapri(tapriName);
+                navigateToView('CHATS', { tapri: tapriName });
+              }}
+              onViewProfile={(username) => {
+                navigateToView('USER_PROFILE', { username });
+              }}
+            />
+          </div>
         )}
 
         {(currentView === 'DASHBOARD' || currentView === 'AUTH') && (

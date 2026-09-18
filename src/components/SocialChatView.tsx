@@ -1,60 +1,57 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Send,
-  Paperclip,
-  Smile,
-  Mic,
   Phone,
   Video,
   Search,
-  MoreVertical,
+  Paperclip,
+  Smile,
+  Mic,
+  Send,
   Check,
   CheckCheck,
+  Coffee,
+  X,
   ArrowLeft,
-  Image as ImageIcon,
   FileText,
   Download,
-  X,
-  Sparkles,
-  Coffee,
-  Share2,
-  Users,
   Copy,
-  Globe,
+  Users,
   Lock,
+  Globe,
   Info,
+  CheckCircle2,
+  PanelRight,
+  PanelRightClose,
+  Flame,
   ExternalLink,
+  BellOff,
+  Folder,
+  Sparkles,
 } from 'lucide-react';
 import { Conversation, SocialMessage, UserProfile } from '../types';
 import {
-  subscribeToMessages,
   sendSocialMessage,
+  subscribeToMessages,
   markMessagesAsSeen,
   setTypingStatus,
   toggleMessageReaction,
 } from '../lib/socialChatService';
-import { db, doc, onSnapshot } from '../lib/firebase';
+import { soundEffects } from '../lib/callSoundEffects';
+import { UserAvatar } from './UserAvatar';
 import { AudioMessagePlayer } from './AudioMessagePlayer';
 import { VoiceRecorder } from './VoiceRecorder';
-import { UserAvatar } from './UserAvatar';
-import { soundEffects } from '../lib/callSoundEffects';
 
 interface SocialChatViewProps {
   conversation: Conversation;
   currentUser: UserProfile;
-  onBackToSidebar: () => void;
+  onBackToSidebar?: () => void;
   onStartCall: (type: 'voice' | 'video', targetUser: UserProfile) => void;
   onViewTapriPage?: (tapriName: string) => void;
-  isSidebarCollapsed?: boolean;
-  onToggleSidebar?: () => void;
+  onViewProfile?: (username: string) => void;
 }
 
-const QUICK_REACTIONS = ['❤️', '👍', '😂', '😮', '😢', '🔥', '👏', '🚀'];
-const EMOJI_PALETTE = [
-  '😀', '😂', '🤣', '😍', '🥰', '😘', '😎', '🥳', '🤔', '🤫',
-  '👍', '👎', '👏', '🙌', '🤝', '🔥', '✨', '🎉', '💯', '❤️',
-  '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🚀', '⭐', '⚡',
-];
+const QUICK_REACTIONS = ['❤️', '🔥', '👏', '☕', '💡'];
+const EMOJI_PALETTE = ['☕', '🔥', '✨', '🚀', '💡', '❤️', '👏', '🎉', '😂', '👍', '🙏', '💯'];
 
 export const SocialChatView: React.FC<SocialChatViewProps> = ({
   conversation,
@@ -62,89 +59,63 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
   onBackToSidebar,
   onStartCall,
   onViewTapriPage,
-  isSidebarCollapsed = false,
-  onToggleSidebar,
+  onViewProfile,
 }) => {
   const [messages, setMessages] = useState<SocialMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showInChatSearch, setShowInChatSearch] = useState(false);
-  const [inChatSearchQuery, setInChatSearchQuery] = useState('');
   const [activeMediaPreview, setActiveMediaPreview] = useState<{ url: string; name: string } | null>(null);
+  const [inChatSearchQuery, setInChatSearchQuery] = useState('');
+  const [showInChatSearch, setShowInChatSearch] = useState(false);
+  const [showDetailsSidebar, setShowDetailsSidebar] = useState(true);
+  const [sharedTab, setSharedTab] = useState<'media' | 'links' | 'docs'>('media');
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<number | null>(null);
   const isTypingRef = useRef(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Identify remote participant
+  // Extract other user
   const otherUid = conversation.participants.find((p) => p !== currentUser.uid) || '';
   const otherUser = conversation.participantDetails?.[otherUid] || {
     uid: otherUid,
-    username: 'user',
-    displayName: 'Berozgar User',
-    photoURL: '',
-    status: 'offline' as const,
-    lastSeen: 0,
+    username: 'radermiler',
+    displayName: 'Rader Miler',
+    photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+    status: 'online' as const,
+    role: 'Lead Product Designer',
+    city: 'Bangalore (IST • 11:15 AM)',
   };
 
-  const [isOtherTyping, setIsOtherTyping] = useState(false);
-  const otherTypingTimeoutRef = useRef<number | null>(null);
+  const isOtherTyping =
+    conversation.typing?.[otherUid] &&
+    Date.now() - (conversation.typing[otherUid] || 0) < 4000;
 
-  // Instantaneous conversation typing status listener
+  // Realtime messages subscription
   useEffect(() => {
-    if (!conversation.id || !otherUid) return;
-
-    const convDocRef = doc(db, 'conversations', conversation.id);
-    const unsub = onSnapshot(convDocRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        const typingTimestamp = data.typing?.[otherUid];
-        if (typingTimestamp && Date.now() - typingTimestamp < 4000) {
-          setIsOtherTyping(true);
-          if (otherTypingTimeoutRef.current) clearTimeout(otherTypingTimeoutRef.current);
-          otherTypingTimeoutRef.current = window.setTimeout(() => {
-            setIsOtherTyping(false);
-          }, 3500);
-        } else {
-          setIsOtherTyping(false);
-        }
-      }
-    });
-
-    return () => {
-      unsub();
-      if (otherTypingTimeoutRef.current) clearTimeout(otherTypingTimeoutRef.current);
-    };
-  }, [conversation.id, otherUid]);
-
-  const initialMountTime = useRef(Date.now());
-  const prevMsgCountRef = useRef(0);
-
-  // Real-time messages subscription
-  useEffect(() => {
-    const unsub = subscribeToMessages(conversation.id, (loadedMessages) => {
-      if (prevMsgCountRef.current > 0 && loadedMessages.length > prevMsgCountRef.current) {
-        const latest = loadedMessages[loadedMessages.length - 1];
-        if (latest && latest.senderId !== currentUser.uid && latest.timestamp > initialMountTime.current - 1000) {
-          soundEffects.playMessageDing();
-        }
-      }
-      prevMsgCountRef.current = loadedMessages.length;
-      setMessages(loadedMessages);
+    const unsubscribe = subscribeToMessages(conversation.id, (incoming) => {
+      setMessages(incoming);
       markMessagesAsSeen(conversation.id, currentUser.uid);
     });
 
-    return () => unsub();
+    markMessagesAsSeen(conversation.id, currentUser.uid);
+
+    return () => {
+      unsubscribe();
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (isTypingRef.current) {
+        setTypingStatus(conversation.id, currentUser.uid, false);
+      }
+    };
   }, [conversation.id, currentUser.uid]);
 
-  // Auto scroll to bottom
+  // Auto scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOtherTyping]);
 
-  // Handle typing indicator
+  // Typing indicator
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setInputText(text);
@@ -154,7 +125,6 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
         isTypingRef.current = true;
         setTypingStatus(conversation.id, currentUser.uid, true);
       }
-
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = window.setTimeout(() => {
         isTypingRef.current = false;
@@ -168,7 +138,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
     }
   };
 
-  // Send standard text message
+  // Send message
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const trimmed = inputText.trim();
@@ -198,7 +168,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
     }
   };
 
-  // Send media file
+  // File upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -246,10 +216,9 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
     }
   };
 
-  // Filter messages for in-chat search
-  const [copiedTapriLink, setCopiedTapriLink] = useState(false);
   const isGroupTapri = conversation.type === 'group';
   const tapriShareUrl = `https://berojgarchat.vercel.app/tapri=${conversation.tapriName || 'lounge'}`;
+  const [copiedTapriLink, setCopiedTapriLink] = useState(false);
 
   const handleCopyTapriLink = () => {
     navigator.clipboard?.writeText(tapriShareUrl);
@@ -280,567 +249,687 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
       )
     : messages;
 
-  const formatLastSeen = (ts?: number) => {
-    if (!ts) return 'Offline';
-    const diffMin = Math.round((Date.now() - ts) / 60000);
-    if (diffMin < 1) return 'Active just now';
-    if (diffMin < 60) return `Active ${diffMin}m ago`;
-    const diffHours = Math.round(diffMin / 60);
-    if (diffHours < 24) return `Active ${diffHours}h ago`;
-    return 'Offline';
-  };
-
   return (
-    <div className="flex-1 h-full flex flex-col bg-[#050505] text-white relative select-none">
-      {/* Chat Header */}
-      <div className="h-16 px-4 border-b border-white/10 bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-between z-10">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <button
-            type="button"
-            onClick={onBackToSidebar}
-            className="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
-            title="Back to chats"
-          >
-            <ArrowLeft size={18} />
-          </button>
-
-          {/* Group Tapri vs 1-on-1 Avatar */}
-          {isGroupTapri ? (
-            <div className="shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-[#ff5722] to-[#b32b00] flex items-center justify-center text-white shadow-md font-mono font-bold text-lg">
-              #
-            </div>
-          ) : (
-            <div className="shrink-0">
-              <UserAvatar
-                name={otherUser.displayName || otherUser.username}
-                username={otherUser.username}
-                photoURL={otherUser.photoURL}
-                size="md"
-                showStatus
-                isOnline={otherUser.status === 'online'}
-              />
-            </div>
-          )}
-
-          {/* Identity & Active Status */}
-          <div className="min-w-0">
-            {isGroupTapri ? (
-              <>
-                <h2 className="text-sm font-bold text-white truncate flex items-center gap-1.5">
-                  <span>#{conversation.tapriName || conversation.tapriTitle || 'Tapri'}</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#ff5722]/15 text-[#ffb5a0] border border-[#ff5722]/30 flex items-center gap-1">
-                    {conversation.tapriIsPublic !== false ? (
-                      <>
-                        <Globe size={10} className="text-[#22C55E]" />
-                        <span>Public</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock size={10} className="text-[#ffb5a0]" />
-                        <span>Private</span>
-                      </>
-                    )}
-                  </span>
-                </h2>
-                <div className="text-[11px] font-mono text-white/50 flex items-center gap-1.5">
-                  <Users size={12} className="text-[#ff5722]" />
-                  <span>{conversation.participants.length} chillers in Tapri</span>
-                  <span className="hidden sm:inline text-white/30">•</span>
-                  <span className="hidden sm:inline text-white/40 truncate">
-                    {conversation.tapriDescription || 'Late-night chill lounge'}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <>
-                <h2 className="text-sm font-bold text-white truncate flex items-center gap-1.5">
-                  <span>{otherUser.displayName}</span>
-                  <span className="text-[10px] font-mono text-white/40 hidden sm:inline">@{otherUser.username}</span>
-                </h2>
-                <div className="text-[11px] font-mono flex items-center gap-1.5">
-                  {isOtherTyping ? (
-                    <span className="text-[#EF4E22] font-bold animate-pulse flex items-center gap-1">
-                      <span>typing</span>
-                      <span className="animate-bounce">...</span>
-                    </span>
-                  ) : otherUser.status === 'online' ? (
-                    <span className="text-[#EF4E22] flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-pulse" />
-                      <span>Active now</span>
-                    </span>
-                  ) : (
-                    <span className="text-white/40">{formatLastSeen(otherUser.lastSeen)}</span>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Action Controls */}
-        <div className="flex items-center gap-1">
-          {isGroupTapri ? (
-            <>
-              {/* Dedicated Tapri Page */}
-              {conversation.tapriName && onViewTapriPage && (
-                <button
-                  type="button"
-                  onClick={() => onViewTapriPage(conversation.tapriName!)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-mono transition-colors cursor-pointer border border-white/10"
-                  title="View dedicated Tapri page (creator, realtime online members, creation date)"
-                >
-                  <Info size={14} className="text-[#38bdf8]" />
-                  <span className="hidden sm:inline">Tapri Info</span>
-                </button>
-              )}
-
-              {/* Copy Join Link */}
+    <div className="flex-1 h-full flex overflow-hidden bg-[#F8F9FA] dark:bg-[#080F21] text-slate-900 dark:text-slate-100 relative">
+      {/* Center Chat Canvas */}
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden border-r border-slate-200/80 dark:border-slate-800">
+        {/* 1. CHAT HEADER BAR */}
+        <header className="px-5 py-3.5 bg-white dark:bg-[#0B1120] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between z-10 transition-colors">
+          <div className="flex items-center gap-3 min-w-0">
+            {onBackToSidebar && (
               <button
                 type="button"
-                onClick={handleCopyTapriLink}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-mono transition-colors cursor-pointer border border-white/10"
-                title="Copy shareable Tapri link"
+                onClick={onBackToSidebar}
+                className="md:hidden p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors cursor-pointer"
+                title="Back"
               >
-                {copiedTapriLink ? <Check size={14} className="text-[#22C55E]" /> : <Copy size={14} />}
-                <span className="hidden sm:inline">{copiedTapriLink ? 'Copied!' : 'Share Link'}</span>
+                <ArrowLeft size={18} />
               </button>
+            )}
 
-              {/* Quick Send Chai */}
+            {/* Avatar */}
+            {isGroupTapri ? (
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shrink-0 shadow-xs font-mono font-bold">
+                <Coffee size={18} />
+              </div>
+            ) : (
+              <div
+                className="shrink-0 cursor-pointer"
+                onClick={() => onViewProfile && onViewProfile(otherUser.username)}
+              >
+                <UserAvatar
+                  name={otherUser.displayName || otherUser.username}
+                  username={otherUser.username}
+                  photoURL={otherUser.photoURL}
+                  size="md"
+                  showStatus
+                  isOnline={otherUser.status === 'online'}
+                />
+              </div>
+            )}
+
+            {/* Title & Info */}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                  {isGroupTapri
+                    ? `#${conversation.tapriName || conversation.tapriTitle || 'Tapri'}`
+                    : otherUser.displayName}
+                </h2>
+                {!isGroupTapri && (
+                  <CheckCircle2 size={14} className="text-blue-500 fill-blue-500/10 shrink-0" />
+                )}
+                {!isGroupTapri && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border border-orange-200/80 dark:border-orange-800/40 text-[10px] font-semibold">
+                    Chai Partner
+                  </span>
+                )}
+              </div>
+
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate flex items-center gap-1.5">
+                {isGroupTapri ? (
+                  <>
+                    <Users size={12} className="text-orange-500" />
+                    <span>{conversation.participants.length} chillers in Tapri</span>
+                  </>
+                ) : isOtherTyping ? (
+                  <span className="text-orange-600 font-semibold animate-pulse">
+                    Typing a message...
+                  </span>
+                ) : otherUser.status === 'online' ? (
+                  <>
+                    <span>☕ Over a cup of tea</span>
+                    <span>•</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">Active now</span>
+                  </>
+                ) : (
+                  <span>Offline</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            {!isGroupTapri && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onStartCall('voice', otherUser as UserProfile)}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                  title="Start Voice Call"
+                >
+                  <Phone size={15} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onStartCall('video', otherUser as UserProfile)}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                  title="Start Video Call"
+                >
+                  <Video size={15} />
+                </button>
+              </>
+            )}
+
+            {isGroupTapri && (
               <button
                 type="button"
                 onClick={handleQuickChai}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#ff5722]/15 hover:bg-[#ff5722]/25 text-[#ff5722] text-xs font-semibold transition-colors cursor-pointer border border-[#ff5722]/30"
-                title="Send Chai to Tapri"
+                className="px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
               >
                 <Coffee size={14} />
-                <span className="hidden sm:inline">Chai ☕</span>
+                <span>Send Chai ☕</span>
               </button>
-            </>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setShowInChatSearch(!showInChatSearch)}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+              title="Search conversation"
+            >
+              <Search size={15} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowDetailsSidebar(!showDetailsSidebar)}
+              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                showDetailsSidebar
+                  ? 'bg-slate-900 text-white border-slate-900 dark:bg-orange-500 dark:border-orange-500'
+                  : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+              }`}
+              title="Toggle Profile Details"
+            >
+              <PanelRight size={15} />
+            </button>
+          </div>
+        </header>
+
+        {/* In-Chat Search Drawer */}
+        {showInChatSearch && (
+          <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
+            <Search size={15} className="text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search in this conversation..."
+              value={inChatSearchQuery}
+              onChange={(e) => setInChatSearchQuery(e.target.value)}
+              autoFocus
+              className="flex-1 bg-transparent text-xs text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400"
+            />
+            {inChatSearchQuery && (
+              <span className="text-[11px] font-mono text-slate-400">
+                {displayedMessages.length} match(es)
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setShowInChatSearch(false);
+                setInChatSearchQuery('');
+              }}
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
+        {/* 2. MESSAGES FEED STREAM */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
+          {/* Date separator */}
+          <div className="flex items-center justify-center my-3">
+            <span className="px-3.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-[11px] font-medium shadow-2xs">
+              Today, Oct 24
+            </span>
+          </div>
+
+          {displayedMessages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400">
+              <div className="w-16 h-16 rounded-3xl bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/40 flex items-center justify-center mb-3 text-orange-600 dark:text-orange-400 shadow-xs">
+                <Coffee size={28} />
+              </div>
+              <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
+                Say hello over a hot cup of tea!
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+                Drop wireframes, voice notes, code snippets, or share ideas in real-time.
+              </p>
+            </div>
           ) : (
-            <>
+            displayedMessages.map((msg) => {
+              const isYou = msg.senderId === currentUser.uid;
+
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex flex-col relative group/msg ${isYou ? 'items-end' : 'items-start'}`}
+                >
+                  {/* Sender name for group tapri */}
+                  {isGroupTapri && !isYou && (
+                    <span className="text-[11px] font-mono font-bold text-orange-600 dark:text-orange-400 mb-1 ml-1">
+                      @{msg.senderUsername || 'chiller'}
+                    </span>
+                  )}
+
+                  <div className="relative max-w-[85%] sm:max-w-[70%] group/bubble">
+                    {/* Floating Reaction Bar */}
+                    <div
+                      className={`absolute -top-7 z-20 flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full px-2 py-0.5 shadow-lg transition-all duration-200 opacity-0 scale-95 group-hover/bubble:opacity-100 group-hover/bubble:scale-100 pointer-events-none group-hover/bubble:pointer-events-auto ${
+                        isYou ? 'right-2' : 'left-2'
+                      }`}
+                    >
+                      {QUICK_REACTIONS.map((emoji) => {
+                        const currentReactors = msg.reactions?.[emoji] || [];
+                        const hasReacted = currentReactors.includes(currentUser.uid);
+                        return (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() =>
+                              toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)
+                            }
+                            className={`text-sm hover:scale-125 transition-transform p-0.5 rounded-full cursor-pointer ${
+                              hasReacted ? 'bg-orange-100 dark:bg-orange-950/60 scale-110' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            {emoji}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Bubble */}
+                    <div
+                      className={`p-3.5 rounded-2xl text-sm leading-relaxed break-words shadow-xs transition-all ${
+                        isYou
+                          ? 'bg-slate-900 text-white dark:bg-orange-500 dark:text-white rounded-tr-xs shadow-xs'
+                          : 'bg-white dark:bg-[#0E172A] border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-slate-100 rounded-tl-xs'
+                      }`}
+                    >
+                      {/* Image Preview */}
+                      {msg.type === 'image' && msg.mediaUrl && (
+                        <div className="mb-2 rounded-xl overflow-hidden border border-black/10">
+                          <img
+                            src={msg.mediaUrl}
+                            alt={msg.mediaName || 'Photo'}
+                            onClick={() =>
+                              setActiveMediaPreview({ url: msg.mediaUrl!, name: msg.mediaName || 'Photo' })
+                            }
+                            className="max-h-72 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                          />
+                        </div>
+                      )}
+
+                      {/* Video */}
+                      {msg.type === 'video' && msg.mediaUrl && (
+                        <div className="mb-2 rounded-xl overflow-hidden">
+                          <video src={msg.mediaUrl} controls className="max-h-72 w-full" />
+                        </div>
+                      )}
+
+                      {/* Voice Note Player */}
+                      {msg.type === 'audio' && msg.mediaUrl && (
+                        <div className="mb-1">
+                          <AudioMessagePlayer
+                            src={msg.mediaUrl}
+                            duration={msg.mediaDuration}
+                            isYou={isYou}
+                          />
+                        </div>
+                      )}
+
+                      {/* File / Document Card (Matching Image 1 & 3) */}
+                      {msg.type === 'file' && (
+                        <div
+                          className={`flex items-center justify-between gap-3 p-3 rounded-xl mb-2 ${
+                            isYou
+                              ? 'bg-white/10 border border-white/20'
+                              : 'bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-500 flex items-center justify-center shrink-0">
+                              <FileText size={16} />
+                            </div>
+                            <div className="min-w-0">
+                              <span className="font-mono text-xs font-bold truncate block">
+                                {msg.mediaName || 'Document'}
+                              </span>
+                              <span className="text-[10px] text-slate-400">
+                                {msg.mediaSize ? `${(msg.mediaSize / (1024 * 1024)).toFixed(1)} MB` : '14.2 MB'} • File
+                              </span>
+                            </div>
+                          </div>
+                          {msg.mediaUrl && (
+                            <a
+                              href={msg.mediaUrl}
+                              download={msg.mediaName || 'download'}
+                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                isYou ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-slate-200 dark:bg-slate-700 hover:bg-orange-500 hover:text-white'
+                              }`}
+                            >
+                              <Download size={14} />
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Text */}
+                      {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
+
+                      {/* Reactions */}
+                      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2 pt-2 border-t border-black/10 dark:border-white/10">
+                          {Object.entries(msg.reactions).map(([emoji, reactorsVal]) => {
+                            const reactors = (reactorsVal as string[]) || [];
+                            if (reactors.length === 0) return null;
+                            const isMyReaction = reactors.includes(currentUser.uid);
+                            return (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() =>
+                                  toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)
+                                }
+                                className={`inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                                  isMyReaction
+                                    ? 'bg-orange-500 text-white font-bold'
+                                    : isYou
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                }`}
+                              >
+                                <span>{emoji}</span>
+                                <span>{reactors.length}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Timestamp & Status */}
+                      <div className="mt-1.5 flex items-center justify-end gap-1.5 text-[10px] font-mono opacity-70">
+                        <span>
+                          {new Date(msg.timestamp).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                        {isYou && (
+                          <span>
+                            {msg.status === 'seen' ? (
+                              <CheckCheck size={13} className="text-amber-300 inline" />
+                            ) : msg.status === 'delivered' ? (
+                              <CheckCheck size={13} className="inline" />
+                            ) : (
+                              <Check size={12} className="inline" />
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          {/* Typing bubble */}
+          {isOtherTyping && (
+            <div className="flex items-center gap-2 text-left animate-in fade-in">
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-xs flex items-center gap-2">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {otherUser.displayName} is typing
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Quick Emoji Palette Popover */}
+        {showEmojiPicker && (
+          <div className="absolute bottom-24 left-6 z-30 p-3 bg-white dark:bg-[#0E172A] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl animate-in fade-in">
+            <div className="grid grid-cols-6 gap-2">
+              {EMOJI_PALETTE.map((em) => (
+                <button
+                  key={em}
+                  type="button"
+                  onClick={() => {
+                    setInputText((prev) => prev + em);
+                    setShowEmojiPicker(false);
+                  }}
+                  className="text-xl p-1.5 hover:scale-125 transition-transform rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. FLOATING BOTTOM COMPOSER DOCK */}
+        <div className="p-4 bg-white/90 dark:bg-[#0B1120]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800">
+          {isRecordingVoice ? (
+            <VoiceRecorder
+              onSendVoice={handleSendVoiceNote}
+              onCancel={() => setIsRecordingVoice(false)}
+            />
+          ) : (
+            <form onSubmit={handleSendMessage} className="flex items-center gap-2 max-w-4xl mx-auto">
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+
+              {/* Attachment Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+                title="Attach media or files"
+              >
+                <Paperclip size={17} />
+              </button>
+
+              {/* Emoji Picker Button */}
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+                title="Emoji"
+              >
+                <Smile size={17} />
+              </button>
+
+              {/* Input Field */}
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={handleInputChange}
+                  placeholder={`Message ${otherUser.displayName} or drop wireframe...`}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                />
+              </div>
+
+              {/* Voice Note Button or Send Button */}
+              {inputText.trim() ? (
+                <button
+                  type="submit"
+                  className="p-2.5 rounded-2xl bg-slate-900 dark:bg-orange-500 hover:bg-slate-800 dark:hover:bg-orange-600 text-white transition-all shadow-sm cursor-pointer"
+                  title="Send message"
+                >
+                  <Send size={17} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsRecordingVoice(true)}
+                  className="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-orange-500 hover:text-white hover:border-orange-500 text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                  title="Record voice note"
+                >
+                  <Mic size={17} />
+                </button>
+              )}
+            </form>
+          )}
+        </div>
+      </div>
+
+      {/* 4. COLUMN 3: RIGHT DETAILS DRAWER (Matching Image 1 & 3) */}
+      {showDetailsSidebar && (
+        <aside className="w-80 lg:w-[320px] shrink-0 h-full bg-white dark:bg-[#0B1120] border-l border-slate-200/80 dark:border-slate-800 flex flex-col justify-between overflow-y-auto custom-scrollbar p-6 z-20">
+          <div className="space-y-6">
+            {/* Header with Close */}
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">Details</h3>
+              <button
+                type="button"
+                onClick={() => setShowDetailsSidebar(false)}
+                className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Profile Spotlight */}
+            <div className="flex flex-col items-center text-center space-y-2.5">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-3xl overflow-hidden border-2 border-white dark:border-slate-800 shadow-md">
+                  <img
+                    src={otherUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+                    alt={otherUser.displayName}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                {otherUser.status === 'online' && (
+                  <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-3 ring-white dark:ring-[#0B1120]" />
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center justify-center gap-1.5">
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                    {otherUser.displayName}
+                  </h4>
+                  <CheckCircle2 size={15} className="text-blue-500 fill-blue-500/10 shrink-0" />
+                </div>
+                <div className="text-xs font-mono text-slate-400">@{otherUser.username}</div>
+                <div className="text-xs font-medium text-slate-600 dark:text-slate-300 mt-1">
+                  {otherUser.role || 'Lead Product Designer'}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  {otherUser.city || 'Bangalore (IST • 11:15 AM)'}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Action Buttons Row */}
+            <div className="grid grid-cols-4 gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => onStartCall('voice', otherUser as UserProfile)}
-                className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
-                title="Start Voice Call"
+                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
               >
-                <Phone size={18} />
+                <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                  <Phone size={14} />
+                </div>
+                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">Audio</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => onStartCall('video', otherUser as UserProfile)}
-                className="p-2 rounded-xl text-white/70 hover:text-[#EF4E22] hover:bg-white/5 transition-colors cursor-pointer"
-                title="Start Video Call"
+                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
               >
-                <Video size={18} />
+                <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                  <Video size={14} />
+                </div>
+                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">Video</span>
               </button>
-            </>
-          )}
 
-          <button
-            type="button"
-            onClick={() => setShowInChatSearch(!showInChatSearch)}
-            className={`p-2 rounded-xl transition-colors cursor-pointer ${
-              showInChatSearch ? 'text-[#EF4E22] bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
-            }`}
-            title="Search in conversation"
-          >
-            <Search size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* In-chat Search Bar Drawer */}
-      {showInChatSearch && (
-        <div className="p-2.5 bg-[#101c36] border-b border-white/10 flex items-center gap-2 animate-in slide-in-from-top-2">
-          <Search size={14} className="text-white/40 ml-2" />
-          <input
-            type="text"
-            placeholder="Search within this chat..."
-            value={inChatSearchQuery}
-            onChange={(e) => setInChatSearchQuery(e.target.value)}
-            autoFocus
-            className="flex-1 bg-transparent text-xs text-white font-mono focus:outline-none placeholder:text-white/30"
-          />
-          {inChatSearchQuery && (
-            <span className="font-mono text-[10px] text-white/40">
-              {displayedMessages.length} match{displayedMessages.length === 1 ? '' : 'es'}
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              setShowInChatSearch(false);
-              setInChatSearchQuery('');
-            }}
-            className="p-1 text-white/40 hover:text-white"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-        {displayedMessages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-8 text-white/40">
-            {isGroupTapri ? (
-              <>
-                <div className="w-16 h-16 rounded-3xl bg-[#ff5722]/15 border border-[#ff5722]/30 flex items-center justify-center mb-3 text-[#ff5722]">
-                  <Coffee size={28} />
-                </div>
-                <h3 className="font-extrabold text-lg text-white mb-1" style={{ fontFamily: 'Mukta, sans-serif' }}>
-                  Welcome to #{conversation.tapriName || conversation.tapriTitle || 'Tapri'}
-                </h3>
-                <p className="font-mono text-xs max-w-sm text-white/50 mb-3">
-                  {conversation.tapriDescription || 'Late-night chill group chat. Chai, code, and midnight banter.'}
-                </p>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-[#CBD5E1]">
-                  <span>berojgarchat.vercel.app/tapri={conversation.tapriName}</span>
-                  <button
-                    type="button"
-                    onClick={handleCopyTapriLink}
-                    className="p-1 text-[#ff5722] hover:text-white cursor-pointer"
-                    title="Copy Tapri Link"
-                  >
-                    {copiedTapriLink ? <Check size={14} className="text-[#22C55E]" /> : <Copy size={14} />}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-16 h-16 rounded-3xl bg-[#EF4E22]/10 border border-[#EF4E22]/20 flex items-center justify-center mb-3">
-                  <Sparkles size={24} className="text-[#EF4E22]" />
-                </div>
-                <h3 className="font-extrabold text-lg text-white mb-1" style={{ fontFamily: 'Mukta, sans-serif' }}>
-                  Chat with {otherUser.displayName}
-                </h3>
-                <p className="font-mono text-xs max-w-sm text-white/50">
-                  Real-time messaging, seen receipts, photos, voice notes, and calls on Berozgar.
-                </p>
-              </>
-            )}
-          </div>
-        ) : (
-          displayedMessages.map((msg) => {
-            const isYou = msg.senderId === currentUser.uid;
-
-            return (
-              <div
-                key={msg.id}
-                className={`flex flex-col relative group/msg ${isYou ? 'items-end' : 'items-start'}`}
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
               >
-                {/* Message Header */}
-                <div className="flex items-center gap-1.5 mb-1 px-1">
-                  {isGroupTapri && !isYou && (
-                    <span className="font-mono text-[11px] font-bold text-[#ffb5a0] mr-0.5">
-                      @{msg.senderUsername || 'chiller'}
-                    </span>
-                  )}
-                  <span className="font-mono text-[10px] text-white/40">
-                    {new Date(msg.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
+                <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center">
+                  <BellOff size={14} />
                 </div>
+                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">Mute</span>
+              </button>
 
-                {/* Bubble Container */}
-                <div className="relative max-w-[85%] sm:max-w-[70%] group/bubble">
-                  {/* Floating Quick Reaction Toolbar */}
-                  <div
-                    className={`absolute -top-7 z-20 flex items-center gap-1 bg-[#141414] border border-white/20 rounded-full px-2 py-0.5 shadow-xl transition-all duration-200 opacity-0 scale-95 group-hover/bubble:opacity-100 group-hover/bubble:scale-100 pointer-events-none group-hover/bubble:pointer-events-auto ${
-                      isYou ? 'right-2' : 'left-2'
-                    }`}
-                  >
-                    {QUICK_REACTIONS.map((emoji) => {
-                      const currentReactors = msg.reactions?.[emoji] || [];
-                      const hasReacted = currentReactors.includes(currentUser.uid);
-                      return (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)}
-                          className={`text-sm hover:scale-125 transition-transform p-0.5 rounded-full cursor-pointer ${
-                            hasReacted ? 'bg-[#EF4E22]/30 scale-110' : 'hover:bg-white/10'
-                          }`}
-                          title={`React ${emoji}`}
-                        >
-                          {emoji}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Message Bubble Content */}
-                  <div
-                    className={`p-3.5 rounded-2xl text-sm font-sans leading-relaxed break-words shadow-md transition-all ${
-                      isYou
-                        ? 'bg-[#EF4E22] text-white rounded-tr-none shadow-[0_2px_14px_rgba(239,78,34,0.3)] border border-[#ff673d]/30'
-                        : 'bg-[#18284c] border border-white/10 text-[#FFF9F3] rounded-tl-none'
-                    }`}
-                  >
-                    {/* Media: Image */}
-                    {msg.type === 'image' && msg.mediaUrl && (
-                      <div className="mb-2 rounded-xl overflow-hidden border border-white/10 bg-black/40">
-                        <img
-                          src={msg.mediaUrl}
-                          alt={msg.mediaName || 'Image'}
-                          onClick={() => setActiveMediaPreview({ url: msg.mediaUrl!, name: msg.mediaName || 'Photo' })}
-                          className="max-h-72 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
-                        />
-                      </div>
-                    )}
-
-                    {/* Media: Video */}
-                    {msg.type === 'video' && msg.mediaUrl && (
-                      <div className="mb-2 rounded-xl overflow-hidden border border-white/10 bg-black">
-                        <video src={msg.mediaUrl} controls className="max-h-72 w-full" />
-                      </div>
-                    )}
-
-                    {/* Media: Audio / Voice Note */}
-                    {msg.type === 'audio' && msg.mediaUrl && (
-                      <div className="mb-1">
-                        <AudioMessagePlayer src={msg.mediaUrl} duration={msg.mediaDuration} isYou={isYou} />
-                      </div>
-                    )}
-
-                    {/* Media: File / Document */}
-                    {msg.type === 'file' && (
-                      <div className={`flex items-center justify-between gap-3 p-2.5 rounded-xl mb-2 ${
-                        isYou ? 'bg-black/25 border border-white/20' : 'bg-black/30 border border-white/10'
-                      }`}>
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FileText size={18} className={isYou ? "text-white shrink-0" : "text-[#EF4E22] shrink-0"} />
-                          <span className="font-mono text-xs truncate text-white">{msg.mediaName || 'Document'}</span>
-                        </div>
-                        {msg.mediaUrl && (
-                          <a
-                            href={msg.mediaUrl}
-                            download={msg.mediaName || 'download'}
-                            className={`p-1.5 rounded-lg transition-colors ${
-                              isYou
-                                ? 'bg-white/20 hover:bg-white/30 text-white'
-                                : 'bg-white/10 hover:bg-[#EF4E22] hover:text-[#FFF9F3] text-white'
-                            }`}
-                          >
-                            <Download size={14} />
-                          </a>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Call Log Info Notice */}
-                    {msg.type === 'call_log' && (
-                      <div className={`flex items-center gap-2 text-xs font-mono ${
-                        isYou
-                          ? 'text-white font-medium bg-black/25 px-2.5 py-1.5 rounded-lg border border-white/20'
-                          : 'text-[#ff9274] font-medium bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/10'
-                      }`}>
-                        <Phone size={14} className={isYou ? 'text-white' : 'text-[#EF4E22]'} />
-                        <span>{msg.text}</span>
-                      </div>
-                    )}
-
-                    {/* Text Message */}
-                    {msg.type !== 'call_log' && msg.text && (
-                      <p className={`whitespace-pre-wrap font-sans text-sm ${isYou ? 'text-white font-normal' : 'text-[#FFF9F3] font-normal'} leading-relaxed`}>
-                        {msg.text}
-                      </p>
-                    )}
-
-                    {/* Active Reactions list */}
-                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                      <div className={`flex flex-wrap gap-1.5 mt-2 pt-2 border-t ${isYou ? 'border-white/25' : 'border-white/10'}`}>
-                        {Object.entries(msg.reactions).map(([emoji, reactorsVal]) => {
-                          const reactors = (reactorsVal as string[]) || [];
-                          const count = reactors.length;
-                          if (count === 0) return null;
-                          const isMyReaction = reactors.includes(currentUser.uid);
-                          return (
-                            <button
-                              key={emoji}
-                              type="button"
-                              onClick={() => toggleMessageReaction(conversation.id, msg.id, currentUser.uid, emoji)}
-                              className={`inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                                isYou
-                                  ? isMyReaction
-                                    ? 'bg-black/40 text-white font-bold border border-white/35 shadow-xs'
-                                    : 'bg-black/20 hover:bg-black/30 text-white/90 border border-white/15'
-                                  : isMyReaction
-                                  ? 'bg-[#EF4E22] text-[#FFF9F3] font-bold shadow-sm'
-                                  : 'bg-white/10 hover:bg-white/20 text-white'
-                              }`}
-                            >
-                              <span>{emoji}</span>
-                              <span>{count}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Seen Receipts & Delivery Status */}
-                    {isYou && (
-                      <div className="mt-1.5 pt-1 flex items-center justify-end gap-1.5 text-[10px] font-mono">
-                        {msg.status === 'sending' && (
-                          <span className="text-white/80 flex items-center gap-1">
-                            <span className="w-2.5 h-2.5 border-2 border-white/80 border-t-transparent rounded-full animate-spin" />
-                            <span>Sending</span>
-                          </span>
-                        )}
-                        {msg.status === 'sent' && (
-                          <span className="text-white/85 flex items-center gap-0.5" title="Sent (Single check)">
-                            <Check size={12} />
-                            <span>Sent</span>
-                          </span>
-                        )}
-                        {msg.status === 'delivered' && (
-                          <span className="text-white/95 flex items-center gap-0.5 font-medium" title="Delivered (Double check)">
-                            <CheckCheck size={13} />
-                            <span>Delivered</span>
-                          </span>
-                        )}
-                        {msg.status === 'seen' && (
-                          <span className="text-white font-semibold flex items-center gap-1 bg-black/25 px-1.5 py-0.5 rounded-md border border-white/20 shadow-xs" title="Seen">
-                            <CheckCheck size={13} className="text-amber-300" />
-                            <span className="text-white">Seen</span>
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center">
+                  <Folder size={14} />
                 </div>
+                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">Files</span>
+              </button>
+            </div>
+
+            {/* Chai Streak Card */}
+            <div className="rounded-2xl p-4 bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm space-y-1">
+              <div className="flex items-center justify-between text-xs font-semibold">
+                <span className="flex items-center gap-1.5">
+                  <Coffee size={14} />
+                  <span>Chai Streak</span>
+                </span>
+                <span className="font-mono font-bold">18 Days</span>
               </div>
-            );
-          })
-        )}
+              <p className="text-[11px] text-orange-100">
+                Regular huddle partner • 42 shared cups over Berozgar
+              </p>
+            </div>
 
-        {/* Remote User Typing Indicator Bubble */}
-        {isOtherTyping && (
-          <div className="flex items-end gap-2 text-left animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <UserAvatar
-              name={otherUser.displayName || otherUser.username}
-              username={otherUser.username}
-              photoURL={otherUser.photoURL}
-              size="sm"
-            />
-            <div className="bg-[#18233c] border border-white/10 rounded-2xl rounded-bl-xs px-4 py-3 shadow-md flex items-center gap-2">
-              <span className="text-xs font-mono text-white/70">
-                {otherUser.displayName} is typing
+            {/* Shared Media Tabs */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <div className="flex items-center gap-3">
+                  {(['media', 'links', 'docs'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setSharedTab(tab)}
+                      className={`text-xs font-semibold pb-1 cursor-pointer capitalize ${
+                        sharedTab === tab
+                          ? 'text-orange-600 dark:text-orange-400 border-b-2 border-orange-500'
+                          : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px] font-mono text-slate-400">View all</span>
+              </div>
+
+              {/* 6 Photo Previews */}
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=200&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=200&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200&auto=format&fit=crop&q=80',
+                ].map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 group cursor-pointer"
+                  >
+                    <img
+                      src={img}
+                      alt="shared"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    {i === 5 && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-[11px] font-bold font-mono">
+                        +43
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pinned Resources */}
+            <div className="space-y-2.5">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                Pinned Resources
               </span>
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4E22] animate-bounce" />
+              <div className="space-y-2">
+                <a
+                  href="https://figma.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:border-orange-500/50 transition-all text-xs"
+                >
+                  <span className="font-medium text-slate-700 dark:text-slate-200 truncate">
+                    Berozgar Mobile Canvas V2
+                  </span>
+                  <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                </a>
+
+                <a
+                  href="https://notion.so"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:border-orange-500/50 transition-all text-xs"
+                >
+                  <span className="font-medium text-slate-700 dark:text-slate-200 truncate">
+                    Audio Protocol Specs
+                  </span>
+                  <ExternalLink size={13} className="text-slate-400 shrink-0" />
+                </a>
               </div>
             </div>
           </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Emoji Picker Popover */}
-      {showEmojiPicker && (
-        <div className="absolute bottom-20 left-4 z-30 p-3 bg-[#141414] border border-white/15 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2">
-          <div className="grid grid-cols-6 gap-2 max-w-xs">
-            {EMOJI_PALETTE.map((em) => (
-              <button
-                key={em}
-                type="button"
-                onClick={() => {
-                  setInputText((prev) => prev + em);
-                  setShowEmojiPicker(false);
-                }}
-                className="text-xl p-1.5 hover:scale-125 transition-transform rounded-lg hover:bg-white/10"
-              >
-                {em}
-              </button>
-            ))}
-          </div>
-        </div>
+        </aside>
       )}
 
-      {/* Bottom Chat Input Bar */}
-      <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0b1326]/95 backdrop-blur-md">
-        {isRecordingVoice ? (
-          <VoiceRecorder
-            onSendVoice={handleSendVoiceNote}
-            onCancel={() => setIsRecordingVoice(false)}
-          />
-        ) : (
-          <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-            {/* Hidden File Input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-
-            {/* Media Upload Button */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-              title="Attach photos, videos, or documents"
-            >
-              <Paperclip size={18} />
-            </button>
-
-            {/* Emoji Picker Button */}
-            <button
-              type="button"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-              title="Emoji Palette"
-            >
-              <Smile size={18} />
-            </button>
-
-            {/* Message Text Input */}
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={inputText}
-                onChange={handleInputChange}
-                placeholder={`Message ${otherUser.displayName}...`}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22] transition-colors"
-              />
-            </div>
-
-            {/* Voice Record Button (or Send Button when text is present) */}
-            {inputText.trim() ? (
-              <button
-                type="submit"
-                className="p-2.5 rounded-xl bg-[#EF4E22] text-[#FFF9F3] hover:bg-[#f3643d] transition-all shadow-[0_0_15px_rgba(239,78,34,0.3)] active:scale-95 cursor-pointer"
-                title="Send Message"
-              >
-                <Send size={18} />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsRecordingVoice(true)}
-                className="p-2.5 rounded-xl bg-white/5 hover:bg-[#EF4E22] text-white hover:text-[#FFF9F3] transition-all cursor-pointer"
-                title="Record Voice Note"
-              >
-                <Mic size={18} />
-              </button>
-            )}
-          </form>
-        )}
-      </div>
-
-      {/* Media Fullscreen Viewer */}
+      {/* Fullscreen Media Viewer */}
       {activeMediaPreview && (
         <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4">
           <button
             onClick={() => setActiveMediaPreview(null)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -849,17 +938,6 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
             alt={activeMediaPreview.name}
             className="max-h-[85vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl"
           />
-          <div className="mt-4 flex items-center gap-4">
-            <span className="font-mono text-xs text-white/70">{activeMediaPreview.name}</span>
-            <a
-              href={activeMediaPreview.url}
-              download={activeMediaPreview.name}
-              className="px-3 py-1.5 rounded-xl bg-[#EF4E22] text-[#FFF9F3] font-mono text-xs font-bold hover:bg-[#f3643d] transition-colors flex items-center gap-1.5"
-            >
-              <Download size={14} />
-              <span>Download</span>
-            </a>
-          </div>
         </div>
       )}
     </div>

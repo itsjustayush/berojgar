@@ -1,5 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Flame,
+  Radio,
+  Terminal,
+  Check,
+  Copy,
+  BadgeCheck,
+  Eye,
+  Edit,
+  Camera,
+  Headphones,
+  Share2,
+  Brush,
+  IdCard,
+  X,
+  UserCircle,
+  Upload,
+  Link2,
+  LocateFixed,
+  Smile,
+  CheckCircle2,
+  Moon,
+  FileEdit,
+} from 'lucide-react';
+import {
   UserProfile,
   Conversation,
 } from '../types';
@@ -287,9 +311,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               className="flex items-center gap-2 group text-left cursor-pointer"
             >
               <div className="w-9 h-9 rounded-full bg-[#ff5722] flex items-center justify-center shadow-[0_0_16px_rgba(255,87,34,0.35)]">
-                <span className="material-symbols-outlined text-white text-[20px]">
-                  local_fire_department
-                </span>
+                <Flame size={20} className="text-white" />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-sm text-white group-hover:text-[#ff5722] transition-colors">
@@ -311,7 +333,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               onClick={() => onJoinTapri('chai_n_code')}
               className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white font-semibold text-xs transition-all shadow-[0_4px_16px_rgba(255,87,34,0.3)] cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[16px]">graphic_eq</span>
+              <Radio size={16} />
               <span>Join #chai_n_code</span>
             </button>
             <button
@@ -330,7 +352,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center flex-wrap gap-2">
             <div className="flex items-center gap-2 bg-[#13233A]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/5 shadow-sm">
-              <span className="material-symbols-outlined text-[#ffb5a0] text-[18px]">terminal</span>
+              <Terminal size={18} className="text-[#ffb5a0]" />
               <span className="text-[11px] text-[#64748B] font-mono">berojgarchat.vercel.app/</span>
               <span className="text-xs font-semibold text-white tracking-tight font-mono">
                 {username}
@@ -340,18 +362,11 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 className="ml-1 text-[#64748B] hover:text-white transition-colors p-1 rounded-full flex items-center cursor-pointer"
                 title="Copy profile address"
               >
-                <span className="material-symbols-outlined text-[15px]">
-                  {isCopied ? 'check' : 'content_copy'}
-                </span>
+                {isCopied ? <Check size={14} /> : <Copy size={14} />}
               </button>
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1c2b3c] text-[#ffb5a0] text-xs font-medium shadow-sm">
-              <span
-                className="material-symbols-outlined text-[14px]"
-                style={{ fontVariationSettings: '"FILL" 1' }}
-              >
-                verified
-              </span>
+              <BadgeCheck size={14} />
               <span>Verified Chiller • Day 12</span>
             </div>
           </div>
@@ -366,7 +381,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   : 'text-[#64748B] hover:text-white'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">visibility</span>
+              <Eye size={15} />
               <span>Public View</span>
             </button>
             <button
@@ -381,7 +396,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   : 'text-[#CBD5E1] hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">edit_note</span>
+              <FileEdit size={15} />
               <span>Customize & Edit Profile</span>
             </button>
           </div>
@@ -445,7 +460,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity cursor-pointer text-white z-10"
                         title="Change Avatar"
                       >
-                        <span className="material-symbols-outlined text-[22px]">photo_camera</span>
+                        <Camera size={22} />
                         <span className="text-[10px] font-bold uppercase tracking-wider">Change</span>
                       </button>
                     </div>
@@ -463,7 +478,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       }}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white font-bold text-xs transition-all shadow-[0_4px_20px_rgba(255,87,34,0.4)] cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[18px]">headphones</span>
+                      <Headphones size={18} />
                       <span>Join {displayName.split(' ')[0] || username}'s Tapri</span>
                     </button>
                     {onStartDirectChat && !isOwnProfile && (
@@ -490,12 +505,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         ({hindiName})
                       </span>
                     )}
-                    <span
-                      className="material-symbols-outlined text-[#ff5722] text-[20px]"
-                      style={{ fontVariationSettings: '"FILL" 1' }}
-                    >
-                      verified
-                    </span>
+                    <BadgeCheck size={20} className="text-[#ff5722]" />
                     <span className="ml-1 px-3 py-0.5 rounded-full bg-[#1c2b3c] text-[#ffb5a0] text-[11px] font-mono tracking-wide uppercase">
                       {customVibeTag}
                     </span>
@@ -509,7 +519,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       className="text-[#64748B] hover:text-[#ff5722] p-1 transition-colors cursor-pointer rounded-full hover:bg-white/5"
                       title="Edit Profile Information"
                     >
-                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                      <Edit size={16} />
                     </button>
                   </div>
                   <p className="text-xs text-[#64748B]">
@@ -569,7 +579,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-[#CBD5E1] hover:text-white transition-colors cursor-pointer border border-white/5"
                     title="Share profile card"
                   >
-                    <span className="material-symbols-outlined text-[18px]">share</span>
+                    <Share2 size={18} />
                   </button>
                 </div>
               </div>
@@ -602,7 +612,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     onClick={() => onJoinTapri('chai_n_code')}
                     className="w-full py-1.5 px-3 rounded-full bg-[#1C2D46] hover:bg-[#ff5722] hover:text-white text-[#CBD5E1] text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[15px]">sensors</span>
+                    <Radio size={15} />
                     <span>Join Room</span>
                   </button>
                 </div>
@@ -626,7 +636,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     onClick={() => onJoinTapri('startup_fumbles')}
                     className="w-full py-1.5 px-3 rounded-full bg-[#1C2D46] hover:bg-[#ff5722] hover:text-white text-[#CBD5E1] text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[15px]">sensors</span>
+                    <Radio size={15} />
                     <span>Join Room</span>
                   </button>
                 </div>
@@ -650,7 +660,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     onClick={() => onJoinTapri('valorant_3am')}
                     className="w-full py-1.5 px-3 rounded-full bg-[#1C2D46] hover:bg-[#ff5722] hover:text-white text-[#CBD5E1] text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[15px]">sensors</span>
+                    <Radio size={15} />
                     <span>Join Room</span>
                   </button>
                 </div>
@@ -671,7 +681,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-[#ff5722]/20 flex items-center justify-center text-[#ff5722]">
-                    <span className="material-symbols-outlined text-[18px]">brush</span>
+                    <Brush size={18} />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-white">Edit Profile & Tapri Space</h3>
@@ -689,7 +699,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               <div id="displayNameEditorSection" className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[15px] text-[#ff5722]">badge</span>
+                    <IdCard size={15} className="text-[#ff5722]" />
                     <span>Display Name</span>
                   </label>
                   <span className="text-[10px] text-[#64748B] font-mono">Real-time preview</span>
@@ -709,7 +719,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       className="text-[#64748B] hover:text-white"
                       title="Clear display name"
                     >
-                      <span className="material-symbols-outlined text-[14px]">close</span>
+                      <X size={14} />
                     </button>
                   )}
                 </div>
@@ -719,7 +729,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               <div id="avatarEditorSection" className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[15px] text-[#ff5722]">account_circle</span>
+                    <UserCircle size={15} className="text-[#ff5722]" />
                     <span>Avatar & Photo</span>
                   </label>
                   <span className="text-[10px] text-[#ffb5a0] font-mono">Instant Presets</span>
@@ -739,7 +749,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   <div className="flex-1 min-w-0 flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <label className="px-2.5 py-1 rounded-lg bg-[#1C2D46] hover:bg-[#273647] text-white text-[11px] font-medium cursor-pointer transition-colors flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">upload</span>
+                        <Upload size={14} />
                         <span>Upload Photo</span>
                         <input
                           type="file"
@@ -791,7 +801,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
 
                 {/* Custom Avatar URL Input */}
                 <div className="flex items-center gap-2 bg-[#0C1929] px-2.5 py-1.5 rounded-xl border border-white/5 text-[11px]">
-                  <span className="material-symbols-outlined text-[#64748B] text-[14px]">link</span>
+                  <Link2 size={14} className="text-[#64748B]" />
                   <input
                     type="url"
                     value={customAvatarUrl}
@@ -806,7 +816,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               <div id="bioEditorSection" className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[15px] text-[#ff5722]">edit_note</span>
+                    <FileEdit size={15} className="text-[#ff5722]" />
                     <span>Bio & Late-night Note</span>
                   </label>
                   <span className="text-[10px] text-[#64748B] font-mono">
@@ -845,9 +855,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       className="text-[10px] text-[#ff5722] hover:text-[#ff784e] flex items-center gap-1 font-mono transition-colors cursor-pointer"
                       title="Auto-detect current GPS/IP location & set as fixed location"
                     >
-                      <span className={`material-symbols-outlined text-[13px] ${isDetectingLocation ? 'animate-spin' : ''}`}>
-                        my_location
-                      </span>
+                      <LocateFixed size={13} className={isDetectingLocation ? 'animate-spin' : ''} />
                       <span>{isDetectingLocation ? '...' : 'Detect'}</span>
                     </button>
                   </div>
@@ -947,9 +955,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     placeholder="What are you doing at this late hour?"
                     className="bg-transparent flex-1 text-white text-xs focus:outline-none"
                   />
-                  <span className="material-symbols-outlined text-[#ff5722] text-[18px]">
-                    sentiment_satisfied
-                  </span>
+                  <Smile size={18} className="text-[#ff5722]" />
                 </div>
               </div>
 
@@ -979,7 +985,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   onClick={handleSaveCustomSpace}
                   className="flex-1 py-2.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white text-xs font-bold transition-all shadow-[0_4px_16px_rgba(255,87,34,0.35)] flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                  <CheckCircle2 size={16} />
                   <span>{saveButtonText}</span>
                 </button>
                 <button
@@ -1000,7 +1006,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
         <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-full bg-[#ff5722] flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-[14px]">nightlight</span>
+              <Moon size={14} className="text-white" />
             </div>
           </div>
           <div className="flex items-center gap-5 text-xs text-[#CBD5E1]">

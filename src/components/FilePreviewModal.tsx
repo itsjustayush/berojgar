@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Image as ImageIcon, Video, Code, FileText, X, Copy, Check, Download, FileCode } from 'lucide-react';
 import { BundleItem } from '../types';
 import { formatBytes } from '../lib/crypto';
 
@@ -47,17 +48,17 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-md cursor-pointer"
         onClick={onClose}
-      ></div>
+      />
 
       {/* Modal Content Container */}
-      <div className="relative w-full max-w-5xl h-full max-h-[850px] bg-black/60 backdrop-blur-2xl border border-white/10 rounded-2xl flex flex-col overflow-hidden z-10 shadow-2xl">
+      <div className="relative w-full max-w-5xl h-full max-h-[850px] bg-[#0c1626]/95 backdrop-blur-2xl border border-white/10 rounded-2xl flex flex-col overflow-hidden z-10 shadow-2xl">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/10 bg-white/[0.02]">
           <div className="flex items-center gap-3 truncate pr-4">
-            <span className="material-symbols-outlined text-blue-400">
-              {isImage ? 'image' : isVideo ? 'video_library' : isTextOrSnippet ? 'code' : 'description'}
+            <span className="text-[#EF4E22]">
+              {isImage ? <ImageIcon size={22} /> : isVideo ? <Video size={22} /> : isTextOrSnippet ? <Code size={22} /> : <FileText size={22} />}
             </span>
-            <h3 className="font-geist text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
               {file.name}
             </h3>
           </div>
@@ -66,7 +67,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
             className="p-2 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer rounded-xl border border-white/10"
             title="Close Preview"
           >
-            <span className="material-symbols-outlined text-xl">close</span>
+            <X size={20} />
           </button>
         </div>
 
@@ -75,7 +76,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
           {/* Main Preview Area */}
           <div className="flex-[3] relative bg-black/40 flex items-center justify-center p-6 md:p-8 overflow-hidden group">
             <div className="absolute top-4 left-4 z-10">
-              <span className="bg-black/60 backdrop-blur-md px-3 py-1 font-mono text-xs border border-white/20 rounded-full text-blue-400">
+              <span className="bg-black/60 backdrop-blur-md px-3 py-1 font-mono text-xs border border-white/20 rounded-full text-[#EF4E22]">
                 PREVIEW_MODE: HIGH_RES
               </span>
             </div>
@@ -97,20 +98,20 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
               ) : isTextOrSnippet ? (
                 <div className="w-full h-full flex flex-col bg-black/80 rounded-2xl border border-white/10 overflow-hidden">
                   <div className="flex items-center justify-between p-3 bg-white/[0.03] border-b border-white/10">
-                    <span className="font-mono text-xs text-blue-400 font-bold uppercase">
+                    <span className="font-mono text-xs text-[#EF4E22] font-bold uppercase">
                       {file.fileTypeLabel || 'TEXT_SNIPPET'} // {file.name}
                     </span>
                     {file.textContent && (
                       <button
                         onClick={handleCopyText}
-                        className="px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/40 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                        className="px-3 py-1 bg-[#EF4E22]/20 hover:bg-[#EF4E22]/30 text-[#EF4E22] border border-[#EF4E22]/40 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                       >
-                        <span className="material-symbols-outlined text-sm">content_copy</span>
+                        {copiedText ? <Check size={14} /> : <Copy size={14} />}
                         {copiedText ? 'COPIED' : 'COPY_TEXT'}
                       </button>
                     )}
                   </div>
-                  <div className="p-4 flex-1 overflow-auto font-mono text-xs text-blue-300 leading-relaxed whitespace-pre-wrap selection:bg-blue-500 selection:text-white">
+                  <div className="p-4 flex-1 overflow-auto font-mono text-xs text-orange-200/90 leading-relaxed whitespace-pre-wrap selection:bg-[#EF4E22] selection:text-white">
                     {file.textContent || `{
   "node_id": "${file.fileId}",
   "file_name": "${file.name}",
@@ -124,14 +125,12 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed border-white/20 rounded-2xl bg-white/[0.02]">
-                  <span className="material-symbols-outlined text-6xl text-blue-400 mb-4">
-                    file_present
-                  </span>
+                  <FileCode size={54} className="text-[#EF4E22] mb-4" />
                   <h4 className="font-mono text-lg text-white font-bold mb-1">{file.name}</h4>
                   <p className="font-mono text-xs text-white/50 mb-4 uppercase">
                     BRUTALIST_BLOB // {formatBytes(file.size)}
                   </p>
-                  <span className="px-3 py-1 bg-blue-500/10 border border-blue-400/40 text-blue-400 font-mono text-xs rounded-full">
+                  <span className="px-3 py-1 bg-[#EF4E22]/10 border border-[#EF4E22]/40 text-[#EF4E22] font-mono text-xs rounded-full">
                     MEMORY_ONLY_PAYLOAD
                   </span>
                 </div>
@@ -148,7 +147,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
                   FILE_ID
                 </span>
                 <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl">
-                  <code className="font-mono text-xs text-blue-400 break-all font-bold">
+                  <code className="font-mono text-xs text-[#EF4E22] break-all font-bold">
                     {file.fileId}
                   </code>
                 </div>
@@ -170,7 +169,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
                   SHA-256_HASH
                 </span>
                 <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden">
-                  <code className="font-mono text-[11px] text-blue-300 break-all leading-tight">
+                  <code className="font-mono text-[11px] text-white/80 break-all leading-tight">
                     {file.sha256}
                   </code>
                 </div>
@@ -196,7 +195,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
             {/* Status Indicator */}
             <div className="mt-auto border-t border-white/10 pt-4">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-[0_0_8px_#3b82f6]"></div>
+                <div className="w-2 h-2 bg-[#EF4E22] rounded-full animate-pulse shadow-[0_0_8px_#EF4E22]"></div>
                 <span className="font-mono text-xs font-bold text-white">INTEGRITY_VERIFIED</span>
               </div>
               <p className="font-sans text-xs text-white/50 italic">
@@ -211,12 +210,11 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
           <div className="flex gap-3 w-full sm:w-auto">
             <button
               onClick={() => onDownload(file)}
-              className="frosted-button-primary px-6 py-3.5 rounded-xl font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial cursor-pointer"
+              className="px-6 py-3 rounded-xl bg-[#EF4E22] hover:bg-[#f3643d] text-white font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial cursor-pointer shadow-[0_4px_16px_rgba(239,78,34,0.3)]"
             >
-              <span className="material-symbols-outlined text-lg">download</span>
+              <Download size={16} />
               DOWNLOAD
             </button>
-
           </div>
 
           <button

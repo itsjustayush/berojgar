@@ -1,4 +1,5 @@
 import React from 'react';
+import { UserPlus, UserMinus, Info, X } from 'lucide-react';
 
 export interface ActivityToastData {
   id: string;
@@ -44,9 +45,13 @@ export const ActivityToastContainer: React.FC<ActivityToastProps> = ({ toasts, o
                     : 'bg-[#EF4E22]/10 text-[#EF4E22] border border-[#EF4E22]/30'
                 }`}
               >
-                <span className="material-symbols-outlined text-lg">
-                  {isJoin ? 'person_add' : isLeave ? 'person_remove' : 'info'}
-                </span>
+                {isJoin ? (
+                  <UserPlus size={18} />
+                ) : isLeave ? (
+                  <UserMinus size={18} />
+                ) : (
+                  <Info size={18} />
+                )}
               </div>
 
               <div className="flex flex-col min-w-0">
@@ -77,7 +82,7 @@ export const ActivityToastContainer: React.FC<ActivityToastProps> = ({ toasts, o
               className="text-white/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10 shrink-0 cursor-pointer"
               title="Dismiss notification"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <X size={15} />
             </button>
           </div>
         );

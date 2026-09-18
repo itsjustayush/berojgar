@@ -243,6 +243,33 @@ export async function setUserPresence(uid: string, isOnline: boolean): Promise<v
 }
 
 /**
+ * Subscribe to real-time registered users from Firestore
+ */
+export function subscribeToAllRegisteredUsers(
+  currentUid: string | undefined,
+  callback: (users: UserProfile[]) => void
+): () => void {
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef, limit(100));
+
+  return onSnapshot(
+    q,
+    (snap) => {
+      const users: UserProfile[] = [];
+      snap.forEach((docSnap) => {
+        const u = docSnap.data() as UserProfile;
+        if (currentUid && u.uid === currentUid) return;
+        users.push(u);
+      });
+      callback(users);
+    },
+    (err) => {
+      console.warn('Error subscribing to registered users:', err);
+    }
+  );
+}
+
+/**
  * Search users by username or display name
  */
 export async function searchUsers(searchTerm: string, currentUid: string): Promise<UserProfile[]> {

@@ -23,6 +23,24 @@ import {
 import { QRCodeModal } from './QRCodeModal';
 import { ActivityToastContainer, ActivityToastData } from './ActivityToast';
 import { ThemedFileUpload } from './ThemedFileUpload';
+import {
+  ArrowLeft,
+  Link as LinkIcon,
+  QrCode,
+  Users,
+  CheckCircle2,
+  MessageSquare,
+  Lock,
+  Paperclip,
+  Send,
+  Download,
+  Eye,
+  FileText,
+  Check,
+  CheckCheck,
+  Loader2,
+  Smile,
+} from 'lucide-react';
 
 async function arrayBufferToDataUrl(buffer: ArrayBuffer, mimeType: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -1013,24 +1031,24 @@ export const RoomView: React.FC<RoomViewProps> = ({
   };
 
   return (
-    <div className="room-shell page-reveal min-h-screen pt-16 pb-12 px-3 sm:px-8 bg-[#F2F2EE] flex flex-col">
+    <div className="room-shell page-reveal min-h-screen pt-16 pb-12 px-3 sm:px-8 bg-[#080f21] flex flex-col text-[#FFF9F3]">
       {/* Top Header Bar */}
       <div className="w-full max-w-[1280px] mx-auto mt-2 mb-4">
-        <div className="bg-white/90 backdrop-blur-xl border border-[#192837]/10 rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4 shadow-xs">
+        <div className="bg-[#0e1930]/85 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4 shadow-xl">
           <div className="flex items-center gap-3">
             <button
               onClick={onLeaveRoom}
-              className="p-2 bg-white border border-[#192837]/20 hover:bg-[#F2F2EE] text-[#192837] rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+              className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
+              <ArrowLeft size={16} />
               Leave Room
             </button>
 
-            <div className="h-6 w-[1px] bg-[#192837]/15 hidden sm:block"></div>
+            <div className="h-6 w-[1px] bg-white/15 hidden sm:block"></div>
 
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-[#192837]/60">ROOM CODE:</span>
-              <span className="font-mono text-base font-extrabold text-[#7342E2] bg-[#7342E2]/10 px-3 py-1 rounded-lg border border-[#7342E2]/30">
+              <span className="font-mono text-xs font-bold text-white/50">ROOM CODE:</span>
+              <span className="font-mono text-base font-extrabold text-[#EF4E22] bg-[#EF4E22]/10 px-3 py-1 rounded-lg border border-[#EF4E22]/30">
                 {formatRoomOTPDisplay(room.id)}
               </span>
             </div>
@@ -1039,47 +1057,45 @@ export const RoomView: React.FC<RoomViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={handleCopyLink}
-              className="px-3 py-1.5 bg-[#7342E2]/10 hover:bg-[#7342E2]/20 text-[#7342E2] border border-[#7342E2]/30 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 bg-[#EF4E22]/10 hover:bg-[#EF4E22]/20 text-[#EF4E22] border border-[#EF4E22]/30 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-base">
-                {copiedLink ? 'check_circle' : 'link'}
-              </span>
+              {copiedLink ? <CheckCircle2 size={15} /> : <LinkIcon size={15} />}
               {copiedLink ? 'LINK COPIED' : 'COPY SHARE LINK'}
             </button>
 
             <button
               onClick={() => setIsQrModalOpen(true)}
-              className="px-3 py-1.5 bg-white border border-[#192837]/20 hover:bg-[#F2F2EE] text-[#192837] rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-base">qr_code_2</span>
+              <QrCode size={15} />
               QR
             </button>
 
             <div className="relative">
               <button
                 onClick={() => setShowPresenceList(!showPresenceList)}
-                className="px-3 py-1.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/30 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>{peersList.length} ONLINE</span>
               </button>
 
               {/* Online peers popup */}
               {showPresenceList && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#192837]/15 rounded-2xl shadow-xl p-3 z-50">
-                  <div className="font-mono text-[10px] font-bold text-[#192837]/50 uppercase mb-2">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-[#0e1930] border border-white/15 rounded-2xl shadow-2xl p-3 z-50">
+                  <div className="font-mono text-[10px] font-bold text-white/50 uppercase mb-2">
                     ACTIVE ROOM PEERS
                   </div>
                   <div className="space-y-1.5 max-h-48 overflow-y-auto">
                     {peersList.map((p) => (
                       <div
                         key={p.id}
-                        className="flex items-center justify-between text-xs font-mono p-1.5 rounded-lg bg-[#F2F2EE]"
+                        className="flex items-center justify-between text-xs font-mono p-1.5 rounded-lg bg-white/5"
                       >
-                        <span className="font-bold text-[#192837]">
+                        <span className="font-bold text-white">
                           {p.name} {p.isYou ? '(YOU)' : ''}
                         </span>
-                        <span className="text-[10px] text-emerald-600 font-bold">ONLINE</span>
+                        <span className="text-[10px] text-emerald-400 font-bold">ONLINE</span>
                       </div>
                     ))}
                   </div>
@@ -1094,15 +1110,15 @@ export const RoomView: React.FC<RoomViewProps> = ({
       <div className="w-full max-w-[1280px] mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[580px]">
         
         {/* Left / Main Column: Real-time Ephemeral Chat (7 cols) */}
-        <div className="lg:col-span-7 bg-white/90 backdrop-blur-2xl border border-[#192837]/10 rounded-3xl p-4 sm:p-6 flex flex-col justify-between shadow-sm min-h-[500px]">
+        <div className="lg:col-span-7 bg-[#0e1930]/85 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 sm:p-6 flex flex-col justify-between shadow-2xl min-h-[500px]">
           {/* Chat Header */}
-          <div className="flex justify-between items-center pb-3 border-b border-[#192837]/10">
+          <div className="flex justify-between items-center pb-3 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#7342E2] text-xl">forum</span>
-              <span className="font-heading font-bold text-base text-[#192837]">REAL-TIME CHAT</span>
+              <MessageSquare size={18} className="text-[#EF4E22]" />
+              <span className="font-sans font-bold text-base text-white">REAL-TIME CHAT</span>
             </div>
-            <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#7342E2] bg-[#7342E2]/10 px-2.5 py-1 rounded-full font-bold">
-              <span className="material-symbols-outlined text-sm">lock</span>
+            <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#EF4E22] bg-[#EF4E22]/10 px-2.5 py-1 rounded-full font-bold">
+              <Lock size={12} />
               <span>NO ROOM ARCHIVE</span>
             </div>
           </div>
@@ -1120,7 +1136,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
               if (isSystem) {
                 return (
                   <div key={msg.id} className="flex justify-center my-2">
-                    <div className="bg-[#192837]/5 text-[#192837]/70 font-mono text-[11px] px-3.5 py-1.5 rounded-full border border-[#192837]/10 text-center max-w-md">
+                    <div className="bg-white/5 text-white/70 font-mono text-[11px] px-3.5 py-1.5 rounded-full border border-white/10 text-center max-w-md">
                       {msg.text}
                     </div>
                   </div>
@@ -1133,10 +1149,10 @@ export const RoomView: React.FC<RoomViewProps> = ({
                   className={`flex flex-col relative group/msg ${isYou ? 'items-end' : 'items-start'}`}
                 >
                   <div className="flex items-center gap-1.5 mb-1 px-1">
-                    <span className="font-mono text-[11px] font-bold text-[#192837]/70">
+                    <span className="font-mono text-[11px] font-bold text-white/60">
                       {isYou ? 'YOU' : msg.senderName}
                     </span>
-                    <span className="font-mono text-[10px] text-[#192837]/40">
+                    <span className="font-mono text-[10px] text-white/40">
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
@@ -1144,7 +1160,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                   <div className="relative max-w-[85%] group/bubble">
                     {/* Hover & Click Reaction Floating Toolbar */}
                     <div
-                      className={`absolute -top-4 z-20 flex items-center gap-1 bg-white border border-[#192837]/15 rounded-full px-2 py-1 shadow-md transition-all duration-200 ${
+                      className={`absolute -top-4 z-20 flex items-center gap-1 bg-[#0c1626] border border-white/15 rounded-full px-2 py-1 shadow-2xl transition-all duration-200 ${
                         isYou ? 'right-2' : 'left-2'
                       } ${
                         activeEmojiPickerMsgId === msg.id
@@ -1152,7 +1168,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                           : 'opacity-0 scale-95 group-hover/bubble:opacity-100 group-hover/bubble:scale-100 pointer-events-none group-hover/bubble:pointer-events-auto'
                       }`}
                     >
-                      <div className="flex items-center gap-1 pr-1 border-r border-[#192837]/10">
+                      <div className="flex items-center gap-1 pr-1 border-r border-white/10">
                         {QUICK_EMOJIS.map((emoji) => {
                           const currentPeers = msg.reactions?.[emoji] || [];
                           const hasReacted = currentPeers.includes(localPeerId);
@@ -1164,7 +1180,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                                 setActiveEmojiPickerMsgId(null);
                               }}
                               className={`text-sm hover:scale-130 transition-transform p-0.5 rounded-full cursor-pointer leading-none ${
-                                hasReacted ? 'bg-[#7342E2]/20 scale-110' : 'hover:bg-[#192837]/5'
+                                hasReacted ? 'bg-[#EF4E22]/30 scale-110' : 'hover:bg-white/10'
                               }`}
                               title={`React with ${emoji}`}
                             >
@@ -1179,35 +1195,35 @@ export const RoomView: React.FC<RoomViewProps> = ({
                             activeEmojiPickerMsgId === msg.id ? null : msg.id
                           )
                         }
-                        className="text-[10px] font-mono font-bold text-[#7342E2] hover:bg-[#7342E2]/10 px-1.5 py-0.5 rounded-md transition-colors flex items-center gap-0.5 cursor-pointer"
+                        className="text-[10px] font-mono font-bold text-[#EF4E22] hover:bg-[#EF4E22]/10 px-1.5 py-0.5 rounded-md transition-colors flex items-center gap-0.5 cursor-pointer"
                         title="React to message"
                       >
-                        <span className="material-symbols-outlined text-xs">add_reaction</span>
+                        <Smile size={12} />
                         <span className="hidden sm:inline">React</span>
                       </button>
                     </div>
 
                     <div
-                      className={`p-3.5 rounded-2xl text-sm font-sans leading-relaxed break-words shadow-2xs ${
+                      className={`p-3.5 rounded-2xl text-sm font-sans leading-relaxed break-words shadow-md ${
                         isYou
-                          ? 'bg-[#7342E2] text-white rounded-tr-none'
-                          : 'bg-white text-[#192837] border border-[#192837]/15 rounded-tl-none'
+                          ? 'bg-gradient-to-r from-[#EF4E22] to-[#f3643d] text-white rounded-tr-none'
+                          : 'bg-[#142340] text-white border border-white/10 rounded-tl-none'
                       }`}
                     >
                       {msg.text}
 
                       {/* Attachment preview inside chat bubble */}
                       {msg.attachment && (
-                        <div className="mt-2.5 pt-2 border-t border-white/20 flex items-center justify-between gap-3 bg-black/10 p-2 rounded-xl">
+                        <div className="mt-2.5 pt-2 border-t border-white/20 flex items-center justify-between gap-3 bg-black/20 p-2 rounded-xl">
                           <div className="flex items-center gap-2 overflow-hidden">
-                            <span className="material-symbols-outlined text-lg">attachment</span>
+                            <Paperclip size={16} />
                             <span className="font-mono text-xs font-bold truncate">{msg.attachment.fileName}</span>
                           </div>
                           {msg.attachment.blobUrl && (
                             <a
                               href={msg.attachment.blobUrl}
                               download={msg.attachment.fileName}
-                              className="bg-white text-[#192837] hover:bg-emerald-400 font-mono text-[10px] font-bold px-2 py-1 rounded-md shrink-0 transition-colors"
+                              className="bg-white text-black hover:bg-emerald-400 font-mono text-[10px] font-bold px-2 py-1 rounded-md shrink-0 transition-colors"
                             >
                               DOWNLOAD
                             </a>
@@ -1217,7 +1233,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
 
                       {/* Active Reactions List */}
                       {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-2.5 pt-2 border-t border-black/10">
+                        <div className="flex flex-wrap gap-1.5 mt-2.5 pt-2 border-t border-white/10">
                           {Object.entries(msg.reactions).map(([emoji, peerIdsVal]) => {
                             const peerIds = (peerIdsVal as string[]) || [];
                             if (!peerIds || peerIds.length === 0) return null;
@@ -1236,11 +1252,11 @@ export const RoomView: React.FC<RoomViewProps> = ({
                                 className={`inline-flex items-center gap-1 font-mono text-[11px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                                   isMyReaction
                                     ? isYou
-                                      ? 'bg-white text-[#7342E2] shadow-xs'
-                                      : 'bg-[#7342E2] text-white shadow-xs'
+                                      ? 'bg-white text-[#EF4E22] shadow-xs'
+                                      : 'bg-[#EF4E22] text-white shadow-xs'
                                     : isYou
-                                    ? 'bg-black/20 text-white/90 hover:bg-black/30'
-                                    : 'bg-[#F2F2EE] text-[#192837] hover:bg-[#192837]/10 border border-[#192837]/15'
+                                    ? 'bg-black/30 text-white/90 hover:bg-black/40'
+                                    : 'bg-white/10 text-white hover:bg-white/15 border border-white/10'
                                 }`}
                               >
                                 <span>{emoji}</span>
@@ -1253,13 +1269,13 @@ export const RoomView: React.FC<RoomViewProps> = ({
 
                       {/* Delivery & Read Status for outgoing messages */}
                     {isYou && (
-                      <div className="mt-1.5 pt-1 border-t border-white/10 flex justify-end items-center gap-1">
+                      <div className="mt-1.5 pt-1 border-t border-white/15 flex justify-end items-center gap-1">
                         {(() => {
                           const st = msg.status || 'sent';
                           if (st === 'sending') {
                             return (
                               <span className="inline-flex items-center gap-1 font-mono text-[10px] text-white/70" title="Sending message...">
-                                <span className="material-symbols-outlined text-[13px] animate-spin">sync</span>
+                                <Loader2 size={12} className="animate-spin" />
                                 <span>Sending</span>
                               </span>
                             );
@@ -1267,7 +1283,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                           if (st === 'sent') {
                             return (
                               <span className="inline-flex items-center gap-1 font-mono text-[10px] text-white/70" title="Sent to room channel (Single check)">
-                                <span className="material-symbols-outlined text-[13px]">check</span>
+                                <Check size={12} />
                                 <span>Sent</span>
                               </span>
                             );
@@ -1275,7 +1291,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                           if (st === 'delivered') {
                             return (
                               <span className="inline-flex items-center gap-1 font-mono text-[10px] text-white/90" title="Delivered to room peers (Double check)">
-                                <span className="material-symbols-outlined text-[13px]">done_all</span>
+                                <CheckCheck size={12} />
                                 <span>Delivered</span>
                               </span>
                             );
@@ -1283,7 +1299,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                           if (st === 'read') {
                             return (
                               <span className="inline-flex items-center gap-1 font-mono text-[10px] text-emerald-300 font-bold" title="Read confirmed by peer (Double check)">
-                                <span className="material-symbols-outlined text-[13px] font-bold">done_all</span>
+                                <CheckCheck size={12} className="text-emerald-300 font-bold" />
                                 <span>Read</span>
                               </span>
                             );
@@ -1299,11 +1315,11 @@ export const RoomView: React.FC<RoomViewProps> = ({
             })}
             {/* Typing Indicator */}
             {Object.keys(typingPeersMap).length > 0 && (
-              <div className="flex items-center gap-2 text-xs font-mono text-[#7342E2] bg-[#7342E2]/10 py-1.5 px-3 rounded-full w-fit mb-2 border border-[#7342E2]/20 shadow-xs animate-fade-in">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#EF4E22] bg-[#EF4E22]/10 py-1.5 px-3 rounded-full w-fit mb-2 border border-[#EF4E22]/20 shadow-xs animate-fade-in">
                 <div className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-[#7342E2] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-[#7342E2] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-[#7342E2] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-[#EF4E22] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-[#EF4E22] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-[#EF4E22] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                 </div>
                 <span className="font-semibold">
                   {(() => {
@@ -1319,12 +1335,12 @@ export const RoomView: React.FC<RoomViewProps> = ({
           </div>
 
           {/* Quick Emojis Bar */}
-          <div className="flex items-center gap-1.5 py-1.5 px-1 overflow-x-auto border-t border-[#192837]/10">
+          <div className="flex items-center gap-1.5 py-1.5 px-1 overflow-x-auto border-t border-white/10">
             {['👋', '👍', '🔥', '🚀', '🔒', '❤️', '📁', '💻'].map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => handleSendChatMessage(emoji)}
-                className="text-base p-1.5 hover:bg-[#192837]/5 rounded-lg transition-colors cursor-pointer"
+                className="text-base p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
               >
                 {emoji}
               </button>
@@ -1349,9 +1365,9 @@ export const RoomView: React.FC<RoomViewProps> = ({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               title="Attach File"
-              className="p-3 bg-white border border-[#192837]/20 hover:bg-[#F2F2EE] text-[#192837] rounded-2xl flex items-center justify-center cursor-pointer transition-all"
+              className="p-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-2xl flex items-center justify-center cursor-pointer transition-all"
             >
-              <span className="material-symbols-outlined text-xl">attach_file</span>
+              <Paperclip size={18} />
             </button>
 
             <input
@@ -1359,16 +1375,16 @@ export const RoomView: React.FC<RoomViewProps> = ({
               value={chatInput}
               onChange={handleChatInputChange}
               placeholder="Type your ephemeral message..."
-              className="flex-1 bg-white border border-[#192837]/20 rounded-2xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-[#7342E2] focus:ring-1 focus:ring-[#7342E2] transition-all"
+              className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[#EF4E22] focus:ring-1 focus:ring-[#EF4E22] transition-all"
             />
 
             <button
               type="submit"
               disabled={!chatInput.trim()}
-              className="px-5 py-3 bg-[#7342E2] disabled:opacity-50 hover:bg-[#7342E2]/90 text-white rounded-2xl font-mono text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+              className="px-5 py-3 bg-[#EF4E22] hover:bg-[#f3643d] disabled:opacity-50 text-white rounded-2xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_4px_16px_rgba(239,78,34,0.3)]"
             >
               <span>SEND</span>
-              <span className="material-symbols-outlined text-base">send</span>
+              <Send size={15} />
             </button>
           </form>
         </div>
@@ -1403,19 +1419,19 @@ export const RoomView: React.FC<RoomViewProps> = ({
           )}
 
           {/* Ephemeral Bundle / Files List */}
-          <div className="bg-white/90 backdrop-blur-2xl border border-[#192837]/10 rounded-3xl p-5 flex-1 flex flex-col justify-between shadow-sm min-h-[320px]">
+          <div className="bg-[#0e1930]/85 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 flex-1 flex flex-col justify-between shadow-2xl min-h-[320px]">
             <div>
-              <div className="flex justify-between items-center pb-3 border-b border-[#192837]/10 mb-3">
-                <span className="font-heading font-bold text-sm text-[#192837]">
+              <div className="flex justify-between items-center pb-3 border-b border-white/10 mb-3">
+                <span className="font-sans font-bold text-sm text-white">
                   SHARED FILES ({room.bundleItems.length})
                 </span>
-                <span className="font-mono text-[10px] text-[#192837]/50 font-bold">
+                <span className="font-mono text-[10px] text-white/50 font-bold">
                   RAM CACHE
                 </span>
               </div>
 
               {room.bundleItems.length === 0 ? (
-                <div className="py-12 text-center text-[#192837]/50 font-mono text-xs">
+                <div className="py-12 text-center text-white/50 font-mono text-xs">
                   No files shared yet in this room session.
                 </div>
               ) : (
@@ -1423,17 +1439,15 @@ export const RoomView: React.FC<RoomViewProps> = ({
                   {room.bundleItems.map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 bg-[#F2F2EE] border border-[#192837]/10 rounded-2xl flex items-center justify-between gap-3 hover:border-[#7342E2]/40 transition-colors"
+                      className="p-3 bg-white/[0.03] border border-white/10 rounded-2xl flex items-center justify-between gap-3 hover:border-[#EF4E22]/40 transition-colors"
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <span className="material-symbols-outlined text-[#7342E2] text-xl">
-                          description
-                        </span>
+                        <FileText size={18} className="text-[#EF4E22]" />
                         <div className="overflow-hidden">
-                          <div className="font-mono text-xs font-bold text-[#192837] truncate">
+                          <div className="font-mono text-xs font-bold text-white truncate">
                             {item.name}
                           </div>
-                          <div className="font-mono text-[10px] text-[#192837]/60">
+                          <div className="font-mono text-[10px] text-white/60">
                             {formatBytes(item.size)} • {item.fileTypeLabel}
                           </div>
                         </div>
@@ -1442,7 +1456,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={() => onPreviewFile(item)}
-                          className="px-2.5 py-1 bg-white border border-[#192837]/20 hover:bg-[#7342E2]/10 text-[#192837] font-mono text-[10px] font-bold rounded-lg cursor-pointer transition-colors"
+                          className="px-2.5 py-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-mono text-[10px] font-bold rounded-lg cursor-pointer transition-colors"
                         >
                           VIEW
                         </button>
@@ -1450,7 +1464,7 @@ export const RoomView: React.FC<RoomViewProps> = ({
                           <a
                             href={item.blobUrl}
                             download={item.name}
-                            className="px-2.5 py-1 bg-[#7342E2] text-white hover:bg-[#7342E2]/90 font-mono text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+                            className="px-2.5 py-1 bg-[#EF4E22] text-white hover:bg-[#f3643d] font-mono text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
                           >
                             GET
                           </a>
@@ -1463,9 +1477,9 @@ export const RoomView: React.FC<RoomViewProps> = ({
             </div>
 
             {/* Room Footer Status */}
-            <div className="pt-3 border-t border-[#192837]/10 flex justify-between items-center font-mono text-[11px] text-[#192837]/60">
+            <div className="pt-3 border-t border-white/10 flex justify-between items-center font-mono text-[11px] text-white/50">
               <span>TRANSPORT: WEBRTC DTLS</span>
-              <span className="text-emerald-600 font-bold">READY</span>
+              <span className="text-emerald-400 font-bold">READY</span>
             </div>
           </div>
         </div>

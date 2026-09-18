@@ -1,4 +1,4 @@
-export type ViewMode = 'CHATS' | 'ROOM' | 'PROFILE' | 'SETTINGS' | 'AUTH' | 'DASHBOARD' | 'HISTORY' | 'LANDING' | 'USER_PROFILE' | 'TAPRI_PAGE';
+export type ViewMode = 'CHATS' | 'ROOM' | 'PROFILE' | 'SETTINGS' | 'AUTH' | 'DASHBOARD' | 'HISTORY' | 'LANDING' | 'USER_PROFILE' | 'TAPRI_PAGE' | 'DIRECTORY';
 
 export interface GuestbookNote {
   id: string;
