@@ -20,11 +20,15 @@ import { UserProfile } from '../types';
 import { UserAvatar } from './UserAvatar';
 import { subscribeToAllRegisteredUsers } from '../lib/socialChatService';
 
+const BRAND_LOGO_URL =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuA-AV9byNA9FQpRcjaipoJx0Wsa2-Zg_9rrkTlCjzdUg3om-SOQaPwkH1N4z0kFoe3B39efO8poxiohSM4LvMKfnSP-Froza0igkREI6qfgPzv4ddstqmGBqmvv0wHkJH7bIIdBsJvD2J_XEIxNaf1bk3qxSqlfyMd3xt0RMSjsaFpGe7F-L2pXqhjS3wolQReWlF1dBan3uhbHxj2ngxZvvV7iSylugDdb73FB4YmakFUHrgJjPLQnQgBXb0DPnIo7Gg';
+
 interface DirectoryScreenProps {
   currentUser: UserProfile | null;
   onStartChat: (targetUser: UserProfile) => void;
   onOpenTapri: (tapriName: string) => void;
   onViewProfile: (username: string) => void;
+  onNavigateHome?: () => void;
 }
 
 export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
@@ -32,6 +36,7 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
   onStartChat,
   onOpenTapri,
   onViewProfile,
+  onNavigateHome,
 }) => {
   const [registeredUsers, setRegisteredUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,42 +74,93 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
   });
 
   return (
-    <div className="h-[calc(100dvh-64px)] flex overflow-hidden bg-slate-50 dark:bg-[#080F21] text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen w-full flex flex-col bg-surface dark:bg-[#080F21] text-on-surface dark:text-slate-100 font-sans">
+      {/* Brand Header */}
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-surface/90 dark:bg-[#080F21]/90 transition-all border-b border-surface-variant/30 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {onNavigateHome && (
+              <button
+                type="button"
+                onClick={onNavigateHome}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-slate-800 text-on-surface text-xs font-semibold transition-colors cursor-pointer mr-2"
+              >
+                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <span>Back</span>
+              </button>
+            )}
+            <div className="w-9 h-9 rounded-full overflow-hidden shadow-xs flex items-center justify-center bg-primary-container shrink-0">
+              <img
+                alt="Berojgar Logo"
+                className="w-full h-full object-cover"
+                src={BRAND_LOGO_URL}
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[17px] font-bold tracking-tight text-on-surface">Berojgar</span>
+              <span className="text-[10px] font-semibold text-on-surface-variant -mt-0.5">
+                Community Directory
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => onOpenTapri('chai_n_code')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold shadow-xs hover:bg-secondary-fixed transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">local_cafe</span>
+              <span>Join Chai Tapri</span>
+            </button>
+            {onNavigateHome && (
+              <button
+                type="button"
+                onClick={onNavigateHome}
+                className="hidden sm:inline-flex px-4 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-variant/50 text-on-surface text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Open Chats
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
       {/* Main Grid View */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8">
+      <div className="flex-1 overflow-y-auto p-6 lg:p-8">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header & Stats Banner */}
-          <div className="bg-white dark:bg-[#0E172A] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-xs">
+          <div className="bg-surface-container-lowest dark:bg-[#0E172A] border border-surface-variant/40 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/50 text-orange-600 dark:text-orange-400 font-mono text-xs font-semibold mb-2">
-                  <Coffee size={13} />
-                  <span>Real-Time Directory</span>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-secondary text-xs font-bold mb-2">
+                  <span className="material-symbols-outlined text-[15px]">local_cafe</span>
+                  <span>Community Network</span>
                 </div>
-                <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-on-surface">
                   Registered Members
                 </h1>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                  Connect live with real registered community members on the UltronChat network.
+                <p className="text-on-surface-variant text-sm mt-1">
+                  Connect live with creators, developers, and thinkers on the Berojgar network.
                 </p>
               </div>
 
               {/* Real-time Stats Counters */}
               <div className="flex items-center gap-3">
-                <div className="px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 text-center">
-                  <div className="text-lg font-bold text-slate-900 dark:text-white">{registeredUsers.length}</div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">Registered</div>
+                <div className="px-4 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800/60 border border-surface-variant/30 dark:border-slate-700/60 text-center">
+                  <div className="text-lg font-bold text-on-surface">{registeredUsers.length}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Registered</div>
                 </div>
-                <div className="px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 text-center">
+                <div className="px-4 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800/60 border border-surface-variant/30 dark:border-slate-700/60 text-center">
                   <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     {onlineCount}
                   </div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">Online Now</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Online Now</div>
                 </div>
-                <div className="px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 text-center">
-                  <div className="text-lg font-bold text-orange-600 dark:text-orange-400">6</div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Tapris</div>
+                <div className="px-4 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800/60 border border-surface-variant/30 dark:border-slate-700/60 text-center">
+                  <div className="text-lg font-bold text-secondary">6</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Active Tapris</div>
                 </div>
               </div>
             </div>
@@ -112,13 +168,13 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
             {/* Search & Filter Bar */}
             <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
               <div className="relative flex-1 w-full">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search registered members by name, @handle, or location..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 dark:text-white transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800/50 border border-surface-variant/40 dark:border-slate-700 text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary text-on-surface transition-all"
                 />
               </div>
 
@@ -135,10 +191,10 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                       key={filter}
                       type="button"
                       onClick={() => setSelectedFilter(filter)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0 transition-all cursor-pointer ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
                         selectedFilter === filter
-                          ? 'bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs'
-                          : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                          ? 'bg-secondary-container text-on-secondary-container shadow-xs'
+                          : 'bg-surface-container-low hover:bg-surface-container text-on-surface-variant dark:bg-slate-800 dark:text-slate-300'
                       }`}
                     >
                       {labels[filter]}
@@ -167,7 +223,7 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                 return (
                   <div
                     key={member.uid}
-                    className="bg-white dark:bg-[#0E172A] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                    className="bg-surface-container-lowest dark:bg-[#0E172A] border border-surface-variant/40 dark:border-slate-800 rounded-3xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
                   >
                     <div>
                       {/* Top Bar: Avatar & Realtime Status Badge */}
@@ -183,10 +239,10 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                           />
                         </div>
 
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold font-mono ${
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                           isOnline
                             ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300'
-                            : 'bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                            : 'bg-surface-container-low dark:bg-slate-800/60 border border-surface-variant/40 dark:border-slate-700 text-on-surface-variant'
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
                           <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
@@ -196,14 +252,14 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                       {/* Name & Handle */}
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
-                          <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                          <h3 className="font-bold text-on-surface text-base">
                             {member.displayName}
                           </h3>
-                          <CheckCircle2 size={15} className="text-blue-500 fill-blue-500/10 shrink-0" />
+                          <CheckCircle2 size={15} className="text-secondary fill-secondary/10 shrink-0" />
                         </div>
-                        <div className="text-xs font-mono text-slate-400">@{member.username}</div>
+                        <div className="text-xs font-semibold text-on-surface-variant">@{member.username}</div>
                         {hasVibe && (
-                          <div className="text-xs font-medium text-orange-600 dark:text-orange-400 pt-1 flex items-center gap-1">
+                          <div className="text-xs font-semibold text-secondary pt-1 flex items-center gap-1">
                             <Sparkles size={12} />
                             <span>{member.customVibeTag}</span>
                           </div>
@@ -211,22 +267,22 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                       </div>
 
                       {/* Bio */}
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2.5 line-clamp-2 leading-relaxed">
-                        {member.bio || 'Registered user on UltronChat.'}
+                      <p className="text-xs text-on-surface-variant mt-2.5 line-clamp-2 leading-relaxed">
+                        {member.bio || 'Member of the Berojgar community.'}
                       </p>
 
                       {/* Location & Tags */}
                       <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                        <span className="px-2.5 py-1 rounded-full bg-surface-container-low dark:bg-slate-800 text-[11px] font-semibold text-on-surface-variant">
                           📍 {location}
                         </span>
                         {member.customStatusEmoji && (
-                          <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px]">
+                          <span className="px-2.5 py-1 rounded-full bg-surface-container-low dark:bg-slate-800 text-[11px]">
                             {member.customStatusEmoji}
                           </span>
                         )}
                         {member.allowVoicePings !== false && (
-                          <span className="px-2 py-0.5 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-[10px] font-mono text-orange-600 dark:text-orange-400 border border-orange-200/50 dark:border-orange-800/40">
+                          <span className="px-2.5 py-1 rounded-full bg-secondary-container/40 text-[11px] font-bold text-secondary border border-secondary-container/60">
                             ☕ Open for Chai
                           </span>
                         )}
@@ -234,11 +290,11 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                     </div>
 
                     {/* Bottom Actions */}
-                    <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2">
+                    <div className="mt-5 pt-4 border-t border-surface-variant/30 dark:border-slate-800/80 flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => onStartChat(member)}
-                        className="flex-1 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="flex-1 py-2.5 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                       >
                         <MessageSquare size={13} />
                         <span>Message</span>
@@ -247,17 +303,17 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({
                       <button
                         type="button"
                         onClick={() => onOpenTapri('chai_n_code')}
-                        title="Start Chai Huddle"
-                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs transition-colors cursor-pointer"
+                        title="Join Chai Tapri"
+                        className="p-2.5 rounded-full border border-surface-variant/40 dark:border-slate-700 hover:bg-surface-container text-on-surface-variant text-xs transition-colors cursor-pointer"
                       >
-                        <Coffee size={14} className="text-orange-500" />
+                        <Coffee size={14} className="text-secondary" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onViewProfile(member.username)}
                         title="View Profile"
-                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+                        className="p-2.5 rounded-full border border-surface-variant/40 dark:border-slate-700 hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                       >
                         <ArrowUpRight size={14} />
                       </button>

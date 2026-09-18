@@ -117,18 +117,18 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-      <div className="relative w-full max-w-3xl bg-white dark:bg-[#0E172A] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[90vh] text-slate-900 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in">
+      <div className="relative w-full max-w-3xl bg-surface-container-lowest dark:bg-[#0E172A] border border-surface-variant/40 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[90vh] text-on-surface dark:text-slate-100">
         {/* Left Tabs Rail */}
-        <div className="w-full md:w-60 shrink-0 bg-slate-50 dark:bg-[#0B1120] border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between">
+        <div className="w-full md:w-60 shrink-0 bg-surface-container-low dark:bg-[#0B1120] border-b md:border-b-0 md:border-r border-surface-variant/40 dark:border-slate-800 p-4 flex flex-col justify-between">
           <div className="space-y-4">
             <div className="flex items-center gap-2.5 px-2">
-              <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-xs">
                 <Coffee size={17} />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Preferences Hub</h2>
-                <div className="text-[10px] font-mono text-slate-400">Settings & Identity</div>
+                <h2 className="text-sm font-bold text-on-surface dark:text-white">Preferences Hub</h2>
+                <div className="text-[10px] text-on-surface-variant">Settings & Identity</div>
               </div>
             </div>
 
@@ -145,10 +145,10 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
                   key={id}
                   type="button"
                   onClick={() => setActiveTab(id as any)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs font-medium transition-all text-left cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-xs transition-all text-left cursor-pointer ${
                     activeTab === id
-                      ? 'bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs font-semibold'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-secondary-container text-on-secondary-container shadow-xs font-bold'
+                      : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                   }`}
                 >
                   <Icon size={16} className="shrink-0" />
@@ -158,17 +158,19 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             </nav>
           </div>
 
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 px-2 hidden md:block">
-            <div className="text-[11px] font-mono text-slate-400">Berozgar App v2.4</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Encrypted P2P Voice & Chat</div>
+          <div className="pt-4 border-t border-surface-variant/30 dark:border-slate-800/80 px-2 hidden md:block">
+            <div>
+              <div className="text-[11px] font-mono text-on-surface-variant">Berojgar App v2.4</div>
+              <div className="text-[10px] text-on-surface-variant/80 mt-0.5">Encrypted P2P Voice & Chat</div>
+            </div>
           </div>
         </div>
 
         {/* Right Content Area */}
-        <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#0E172A]">
+        <div className="flex-1 flex flex-col min-h-0 bg-surface-container-lowest dark:bg-[#0E172A]">
           {/* Header Bar with Close Button */}
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-            <h3 className="font-bold text-base text-slate-900 dark:text-white">
+          <div className="p-5 border-b border-surface-variant/30 dark:border-slate-800/80 flex items-center justify-between">
+            <h3 className="font-bold text-base text-on-surface dark:text-white">
               {activeTab === 'profile' && 'My Profile & Chai Bio'}
               {activeTab === 'appearance' && 'Appearance & Canvas Theme'}
               {activeTab === 'audio' && 'Audio & Voice Lounge (Tapri)'}
@@ -178,7 +180,7 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -189,7 +191,7 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             {/* PROFILE TAB */}
             {activeTab === 'profile' && (
               <form onSubmit={handleSaveProfile} className="space-y-4">
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-surface-container-low dark:bg-slate-800/50 border border-surface-variant/30 dark:border-slate-700/80">
                   <UserAvatar
                     name={displayName || user.username}
                     username={user.username}
@@ -199,76 +201,76 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
                     isOnline={status === 'online'}
                   />
                   <div>
-                    <div className="font-bold text-sm text-slate-900 dark:text-white">{displayName || user.username}</div>
-                    <div className="text-xs font-mono text-orange-600 dark:text-orange-400">@{user.username}</div>
-                    <div className="text-[11px] text-slate-400 mt-1">Status: {status === 'online' ? 'Active now' : 'Offline'}</div>
+                    <div className="font-bold text-sm text-on-surface dark:text-white">{displayName || user.username}</div>
+                    <div className="text-xs font-mono text-secondary">@{user.username}</div>
+                    <div className="text-[11px] text-on-surface-variant mt-1">Status: {status === 'online' ? 'Active now' : 'Offline'}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                       Display Name
                     </label>
                     <input
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 dark:text-white"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800 border border-surface-variant/30 dark:border-slate-700 text-sm focus:border-secondary text-on-surface dark:text-white"
                       placeholder="Your full name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                       City / Timezone
                     </label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 dark:text-white"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800 border border-surface-variant/30 dark:border-slate-700 text-sm focus:border-secondary text-on-surface dark:text-white"
                       placeholder="e.g. Bangalore, IST"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     Favorite Tea / Chai Style
                   </label>
                   <input
                     type="text"
                     value={teaPreference}
                     onChange={(e) => setTeaPreference(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 dark:text-white"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800 border border-surface-variant/30 dark:border-slate-700 text-sm focus:border-secondary text-on-surface dark:text-white"
                     placeholder="e.g. Kadak Masala Chai with Elaichi ☕"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     Bio & Tagline
                   </label>
                   <textarea
                     rows={3}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 dark:text-white"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-surface-container-low dark:bg-slate-800 border border-surface-variant/30 dark:border-slate-700 text-sm focus:border-secondary text-on-surface dark:text-white"
                     placeholder="Tell other chai lovers what you build..."
                   />
                 </div>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
                   {savedSuccess && (
-                    <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                    <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
                       <Check size={14} /> Saved successfully!
                     </span>
                   )}
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 text-xs font-semibold transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed text-xs font-bold transition-all shadow-md cursor-pointer"
                   >
                     {saving ? 'Saving...' : 'Save Profile Changes'}
                   </button>
@@ -280,8 +282,8 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             {activeTab === 'appearance' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Canvas Palette & Theme</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <h4 className="text-sm font-semibold text-on-surface dark:text-white">Canvas Palette & Theme</h4>
+                  <p className="text-xs text-on-surface-variant">
                     Choose the visual atmosphere that fits your workflow.
                   </p>
                 </div>
@@ -290,54 +292,54 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
                   {/* Light Warmth Theme */}
                   <div
                     onClick={() => handleSelectTheme('light')}
-                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    className={`p-4 rounded-3xl border-2 transition-all cursor-pointer ${
                       !isDarkMode
-                        ? 'border-orange-500 bg-orange-50/40 dark:bg-orange-950/20 ring-2 ring-orange-500/20'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                        ? 'border-secondary bg-secondary-container/20 ring-2 ring-secondary/20'
+                        : 'border-surface-variant/30 dark:border-slate-800 hover:border-surface-variant'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
                           <Sun size={15} />
                         </div>
-                        <span className="font-bold text-xs text-slate-900 dark:text-white">Light Warmth ☕</span>
+                        <span className="font-bold text-xs text-on-surface dark:text-white">Light Warmth ☕</span>
                       </div>
-                      {!isDarkMode && <Check size={16} className="text-orange-600" />}
+                      {!isDarkMode && <Check size={16} className="text-secondary" />}
                     </div>
-                    <div className="p-2.5 rounded-xl bg-[#F8F9FA] border border-slate-200 space-y-1.5 text-[10px] text-slate-600">
-                      <div className="w-16 h-2 bg-slate-300 rounded-full" />
-                      <div className="w-24 h-2 bg-orange-200 rounded-full" />
+                    <div className="p-2.5 rounded-2xl bg-surface border border-surface-variant/40 space-y-1.5 text-[10px] text-on-surface-variant">
+                      <div className="w-16 h-2 bg-surface-variant rounded-full" />
+                      <div className="w-24 h-2 bg-secondary-container rounded-full" />
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2.5">
-                      Clean off-white canvas, slate typography, and terracotta warmth.
+                    <p className="text-[11px] text-on-surface-variant mt-2.5">
+                      Clean off-white canvas, terracotta warmth, and high contrast typography.
                     </p>
                   </div>
 
                   {/* Deep Navy Theme */}
                   <div
                     onClick={() => handleSelectTheme('dark')}
-                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    className={`p-4 rounded-3xl border-2 transition-all cursor-pointer ${
                       isDarkMode
-                        ? 'border-orange-500 bg-orange-50/40 dark:bg-orange-950/20 ring-2 ring-orange-500/20'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                        ? 'border-secondary bg-secondary-container/20 ring-2 ring-secondary/20'
+                        : 'border-surface-variant/30 dark:border-slate-800 hover:border-surface-variant'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-slate-800 text-amber-400 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-slate-800 text-amber-400 flex items-center justify-center">
                           <Moon size={15} />
                         </div>
-                        <span className="font-bold text-xs text-slate-900 dark:text-white">Deep Navy 🌙</span>
+                        <span className="font-bold text-xs text-on-surface dark:text-white">Deep Navy 🌙</span>
                       </div>
-                      {isDarkMode && <Check size={16} className="text-orange-500" />}
+                      {isDarkMode && <Check size={16} className="text-secondary" />}
                     </div>
-                    <div className="p-2.5 rounded-xl bg-[#080F21] border border-slate-700 space-y-1.5 text-[10px] text-slate-300">
+                    <div className="p-2.5 rounded-2xl bg-[#080F21] border border-slate-700 space-y-1.5 text-[10px] text-slate-300">
                       <div className="w-16 h-2 bg-slate-600 rounded-full" />
-                      <div className="w-24 h-2 bg-orange-500/50 rounded-full" />
+                      <div className="w-24 h-2 bg-secondary-container/60 rounded-full" />
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2.5">
-                      Atmospheric midnight blue for late night coding and low-light sessions.
+                    <p className="text-[11px] text-on-surface-variant mt-2.5">
+                      Atmospheric midnight canvas for late night coding and low-light sessions.
                     </p>
                   </div>
                 </div>
@@ -347,41 +349,41 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             {/* AUDIO TAB */}
             {activeTab === 'audio' && (
               <div className="space-y-5">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+                <div className="p-4 rounded-2xl bg-surface-container-low dark:bg-slate-800/50 border border-surface-variant/30 dark:border-slate-700/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white">Microphone Level Test</div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400">Speak into your mic to test sensitivity</div>
+                      <div className="text-xs font-bold text-on-surface dark:text-white">Microphone Level Test</div>
+                      <div className="text-[11px] text-on-surface-variant">Speak into your mic to test sensitivity</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsTestingMic(!isTestingMic)}
-                      className={`px-3 py-1 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                        isTestingMic ? 'bg-red-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+                        isTestingMic ? 'bg-red-500 text-white' : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
                       }`}
                     >
                       {isTestingMic ? 'Stop Test' : 'Test Mic'}
                     </button>
                   </div>
 
-                  <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                  <div className="w-full h-3 rounded-full bg-surface-container dark:bg-slate-700 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-orange-500 transition-all duration-100"
+                      className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-secondary transition-all duration-100"
                       style={{ width: `${micTestLevel}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-surface-variant/30 dark:border-slate-800">
                   <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white">Crisp Noise Suppression</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Filters keyboard clatter and ambient fan hum</div>
+                    <div className="text-xs font-bold text-on-surface dark:text-white">Crisp Noise Suppression</div>
+                    <div className="text-[11px] text-on-surface-variant">Filters keyboard clatter and ambient fan hum</div>
                   </div>
                   <input
                     type="checkbox"
                     checked={noiseSuppression}
                     onChange={(e) => setNoiseSuppression(e.target.checked)}
-                    className="w-4 h-4 accent-orange-500 rounded"
+                    className="w-4 h-4 accent-secondary rounded"
                   />
                 </div>
               </div>
@@ -390,29 +392,29 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             {/* PRIVACY TAB */}
             {activeTab === 'privacy' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-surface-variant/30 dark:border-slate-800">
                   <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white">Allow Direct Chai Huddles</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Permit network members to invite you to voice calls</div>
+                    <div className="text-xs font-bold text-on-surface dark:text-white">Allow Direct Chai Huddles</div>
+                    <div className="text-[11px] text-on-surface-variant">Permit network members to invite you to voice calls</div>
                   </div>
                   <input
                     type="checkbox"
                     checked={allowDirectHuddle}
                     onChange={(e) => setAllowDirectHuddle(e.target.checked)}
-                    className="w-4 h-4 accent-orange-500 rounded"
+                    className="w-4 h-4 accent-secondary rounded"
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-surface-variant/30 dark:border-slate-800">
                   <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white">Stealth / Incognito Mode</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Browse Tapris and conversations without showing green dot</div>
+                    <div className="text-xs font-bold text-on-surface dark:text-white">Stealth / Incognito Mode</div>
+                    <div className="text-[11px] text-on-surface-variant">Browse Tapris and conversations without showing green dot</div>
                   </div>
                   <input
                     type="checkbox"
                     checked={stealthPresence}
                     onChange={(e) => setStealthPresence(e.target.checked)}
-                    className="w-4 h-4 accent-orange-500 rounded"
+                    className="w-4 h-4 accent-secondary rounded"
                   />
                 </div>
               </div>
@@ -421,29 +423,29 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
             {/* NOTIFICATIONS TAB */}
             {activeTab === 'notifications' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-surface-variant/30 dark:border-slate-800">
                   <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white">Message Ding Sound</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Play subtle acoustic chime when new messages arrive</div>
+                    <div className="text-xs font-bold text-on-surface dark:text-white">Message Ding Sound</div>
+                    <div className="text-[11px] text-on-surface-variant">Play subtle acoustic chime when new messages arrive</div>
                   </div>
                   <input
                     type="checkbox"
                     checked={msgSound}
                     onChange={(e) => setMsgSound(e.target.checked)}
-                    className="w-4 h-4 accent-orange-500 rounded"
+                    className="w-4 h-4 accent-secondary rounded"
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-surface-variant/30 dark:border-slate-800">
                   <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white">Chai Huddle Alert Toasts</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Show notification toasts when someone starts speaking in your tapris</div>
+                    <div className="text-xs font-bold text-on-surface dark:text-white">Chai Huddle Alert Toasts</div>
+                    <div className="text-[11px] text-on-surface-variant">Show notification toasts when someone starts speaking in your tapris</div>
                   </div>
                   <input
                     type="checkbox"
                     checked={huddleAlerts}
                     onChange={(e) => setHuddleAlerts(e.target.checked)}
-                    className="w-4 h-4 accent-orange-500 rounded"
+                    className="w-4 h-4 accent-secondary rounded"
                   />
                 </div>
               </div>

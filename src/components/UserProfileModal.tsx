@@ -51,17 +51,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
-      <div className="relative w-full max-w-md bg-[#0e1933] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl overflow-y-auto max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-md bg-surface-container-lowest dark:bg-[#0e1933] border border-surface-variant/40 dark:border-white/10 rounded-3xl p-5 sm:p-7 shadow-2xl overflow-y-auto max-h-[92vh] text-on-surface dark:text-white">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-white" style={{ fontFamily: 'Mukta, sans-serif' }}>
-              Your Berozgar Profile
+            <h2 className="text-xl font-bold font-sans text-on-surface dark:text-white">
+              Your Profile
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -76,38 +76,38 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               size="2xl"
               showStatus
               isOnline={status === 'online'}
-              className="mb-2 shadow-xl"
+              className="mb-2 shadow-md"
             />
-            <span className="font-mono text-xs text-[#EF4E22]">@{user.username}</span>
+            <span className="font-mono text-xs font-bold text-secondary">@{user.username}</span>
           </div>
 
           {/* Username (Immutable identity) */}
           <div>
-            <label className="block font-mono text-[11px] text-white/50 uppercase tracking-wider mb-1">
+            <label className="block font-mono text-[11px] text-on-surface-variant uppercase tracking-wider mb-1">
               Username (Unique ID)
             </label>
-            <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-[#EF4E22] flex items-center justify-between">
+            <div className="px-3.5 py-2.5 rounded-2xl bg-surface-container-low dark:bg-white/5 border border-surface-variant/30 dark:border-white/10 text-xs font-mono text-secondary flex items-center justify-between">
               <span>@{user.username}</span>
-              <span className="text-[10px] text-white/40 font-mono">Permanent</span>
+              <span className="text-[10px] text-on-surface-variant font-mono">Permanent</span>
             </div>
           </div>
 
           {/* Display Name */}
           <div>
-            <label className="block font-mono text-[11px] text-white/70 uppercase tracking-wider mb-1">
+            <label className="block font-mono text-[11px] text-on-surface-variant uppercase tracking-wider mb-1">
               Display Name
             </label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22]"
+              className="w-full bg-surface-container-low dark:bg-white/5 border border-surface-variant/30 dark:border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-on-surface dark:text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
 
           {/* Bio */}
           <div>
-            <label className="block font-mono text-[11px] text-white/70 uppercase tracking-wider mb-1">
+            <label className="block font-mono text-[11px] text-on-surface-variant uppercase tracking-wider mb-1">
               Bio / Status
             </label>
             <input
@@ -115,48 +115,48 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="e.g. Chatting on Berozgar"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#EF4E22]"
+              className="w-full bg-surface-container-low dark:bg-white/5 border border-surface-variant/30 dark:border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-on-surface dark:text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
 
           {/* Online Presence Status Toggle */}
           <div>
-            <label className="block font-mono text-[11px] text-white/70 uppercase tracking-wider mb-1">
+            <label className="block font-mono text-[11px] text-on-surface-variant uppercase tracking-wider mb-1">
               Presence Status
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setStatus('online')}
-                className={`py-2 px-3 rounded-xl border font-mono text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
+                className={`py-2 px-3 rounded-full border font-mono text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   status === 'online'
-                    ? 'bg-[#EF4E22]/15 border-[#EF4E22] text-[#EF4E22]'
-                    : 'border-white/10 text-white/60 hover:text-white'
+                    ? 'bg-secondary-container text-on-secondary-container border-secondary shadow-xs'
+                    : 'bg-surface-container-low border-surface-variant/30 text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="w-2 h-2 rounded-full bg-[#EF4E22]" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <span>Online</span>
               </button>
               <button
                 type="button"
                 onClick={() => setStatus('offline')}
-                className={`py-2 px-3 rounded-xl border font-mono text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
+                className={`py-2 px-3 rounded-full border font-mono text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   status === 'offline'
-                    ? 'bg-white/10 border-white/30 text-white'
-                    : 'border-white/10 text-white/60 hover:text-white'
+                    ? 'bg-surface-container text-on-surface border-surface-variant shadow-xs'
+                    : 'bg-surface-container-low border-surface-variant/30 text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="w-2 h-2 rounded-full bg-neutral-500" />
+                <span className="w-2 h-2 rounded-full bg-neutral-400" />
                 <span>Appear Offline</span>
               </button>
             </div>
           </div>
 
           {/* Meta details */}
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-white/40">
+          <div className="pt-2 border-t border-surface-variant/30 dark:border-white/10 flex items-center justify-between text-[10px] font-mono text-on-surface-variant">
             <span className="flex items-center gap-1">
-              <Shield size={12} className="text-[#EF4E22]" />
-              <span>Berozgar Network</span>
+              <Shield size={12} className="text-secondary" />
+              <span>Berojgar Network</span>
             </span>
             <span>Created {new Date(user.createdAt).toLocaleDateString()}</span>
           </div>
@@ -166,7 +166,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2.5 bg-[#EF4E22] text-[#FFF9F3] font-mono font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#f3643d] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
+              className="flex-1 py-2.5 bg-secondary-container text-on-secondary-container font-mono font-bold text-xs uppercase tracking-wider rounded-full hover:bg-secondary-fixed transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
             >
               {saving ? (
                 <span>Saving...</span>

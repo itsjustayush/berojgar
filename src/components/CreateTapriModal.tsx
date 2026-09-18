@@ -5,13 +5,15 @@ import { getOrCreateTapri, sanitizeTapriName } from '../lib/socialChatService';
 
 interface CreateTapriModalProps {
   currentUser: UserProfile;
-  onSuccess: (tapri: Conversation) => void;
+  onSuccess?: (tapri: Conversation) => void;
+  onCreated?: (tapri: Conversation) => void;
   onClose: () => void;
 }
 
 export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
   currentUser,
   onSuccess,
+  onCreated,
   onClose,
 }) => {
   const [tapriName, setTapriName] = useState('');
@@ -42,7 +44,8 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
         isPublic,
       });
 
-      onSuccess(tapri);
+      if (onCreated) onCreated(tapri);
+      else if (onSuccess) onSuccess(tapri);
     } catch (err: any) {
       setError(err?.message || 'Failed to create Tapri. Please try again.');
     } finally {
@@ -57,31 +60,31 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-      <div className="relative w-full max-w-lg rounded-2xl bg-[#0d1c2d] border border-white/10 shadow-2xl p-6 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in">
+      <div className="relative w-full max-w-lg rounded-3xl bg-surface-container-lowest dark:bg-[#0d1c2d] border border-surface-variant/40 dark:border-white/10 shadow-2xl p-6 text-on-surface dark:text-white">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-[#ff5722]/15 border border-[#ff5722]/30 flex items-center justify-center text-[#ff5722]">
+          <div className="w-12 h-12 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-xs">
             <Coffee size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-bold font-sans">Open a New Tapri (Group Chat)</h2>
-            <p className="text-xs text-[#64748B] font-mono">
+            <h2 className="text-xl font-bold font-sans text-on-surface dark:text-white">Open a New Tapri</h2>
+            <p className="text-xs text-on-surface-variant">
               Late-night audio & text lounge for your crew
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-mono">
+          <div className="mb-4 p-3 rounded-2xl bg-error-container text-on-error-container text-xs font-mono">
             {error}
           </div>
         )}
@@ -89,17 +92,17 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
         <form onSubmit={handleCreate} className="flex flex-col gap-4">
           {/* Tapri Handle */}
           <div>
-            <label className="block text-xs font-semibold text-[#CBD5E1] mb-1.5 font-mono">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-1.5 font-mono">
               Tapri Handle (Unique Name)
             </label>
-            <div className="flex items-center gap-2 bg-[#051424] border border-white/10 rounded-xl px-3 py-2.5 focus-within:border-[#ff5722]">
-              <span className="text-sm font-bold text-[#ff5722] font-mono">#</span>
+            <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#051424] border border-surface-variant/30 dark:border-white/10 rounded-2xl px-3 py-2.5 focus-within:border-secondary transition-colors">
+              <span className="text-sm font-bold text-secondary font-mono">#</span>
               <input
                 type="text"
                 value={tapriName}
                 onChange={(e) => setTapriName(e.target.value)}
                 placeholder="e.g. chai_n_code, midnight_bugs"
-                className="bg-transparent flex-1 text-sm text-white placeholder:text-white/30 focus:outline-none font-mono"
+                className="bg-transparent flex-1 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/50 focus:outline-none font-mono"
                 required
               />
             </div>
@@ -107,7 +110,7 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
 
           {/* Display Title */}
           <div>
-            <label className="block text-xs font-semibold text-[#CBD5E1] mb-1.5 font-mono">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-1.5 font-mono">
               Display Title
             </label>
             <input
@@ -115,13 +118,13 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Chai & Code Delhi Chapter"
-              className="w-full bg-[#051424] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ff5722]"
+              className="w-full bg-surface-container-low dark:bg-[#051424] border border-surface-variant/30 dark:border-white/10 rounded-2xl px-3.5 py-2.5 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-[#CBD5E1] mb-1.5 font-mono">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-1.5 font-mono">
               Topic / Description
             </label>
             <textarea
@@ -129,30 +132,30 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               placeholder="What are we talking or venting about?"
-              className="w-full bg-[#051424] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#ff5722] resize-none"
+              className="w-full bg-surface-container-low dark:bg-[#051424] border border-surface-variant/30 dark:border-white/10 rounded-2xl px-3.5 py-2 text-xs text-on-surface dark:text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary resize-none transition-colors"
             />
           </div>
 
           {/* Privacy Switcher */}
           <div>
-            <label className="block text-xs font-semibold text-[#CBD5E1] mb-2 font-mono">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-2 font-mono">
               Privacy Mode
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setIsPublic(true)}
-                className={`p-3 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
+                className={`p-3 rounded-2xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
                   isPublic
-                    ? 'bg-[#ff5722]/15 border-[#ff5722] text-white shadow-sm'
-                    : 'bg-[#051424] border-white/10 text-[#64748B] hover:text-white'
+                    ? 'bg-secondary-container/20 border-secondary text-on-surface dark:text-white shadow-xs'
+                    : 'bg-surface-container-low dark:bg-[#051424] border-surface-variant/30 dark:border-white/10 text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <Globe size={14} className="text-[#22C55E]" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface dark:text-white">
+                  <Globe size={14} className="text-emerald-500" />
                   <span>Public Tapri</span>
                 </div>
-                <span className="text-[10px] text-[#CBD5E1] leading-tight font-mono">
+                <span className="text-[10px] text-on-surface-variant leading-tight">
                   Anyone with the link can join freely
                 </span>
               </button>
@@ -160,17 +163,17 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPublic(false)}
-                className={`p-3 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
+                className={`p-3 rounded-2xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
                   !isPublic
-                    ? 'bg-[#ff5722]/15 border-[#ff5722] text-white shadow-sm'
-                    : 'bg-[#051424] border-white/10 text-[#64748B] hover:text-white'
+                    ? 'bg-secondary-container/20 border-secondary text-on-surface dark:text-white shadow-xs'
+                    : 'bg-surface-container-low dark:bg-[#051424] border-surface-variant/30 dark:border-white/10 text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <Lock size={14} className="text-[#ffb5a0]" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface dark:text-white">
+                  <Lock size={14} className="text-secondary" />
                   <span>Private Tapri</span>
                 </div>
-                <span className="text-[10px] text-[#CBD5E1] leading-tight font-mono">
+                <span className="text-[10px] text-on-surface-variant leading-tight">
                   Only invited chillers can see chats
                 </span>
               </button>
@@ -178,18 +181,18 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
           </div>
 
           {/* Sharable Join Link Preview */}
-          <div className="p-3 rounded-xl bg-[#051424] border border-white/10 flex items-center justify-between gap-2">
+          <div className="p-3 rounded-2xl bg-surface-container-low dark:bg-[#051424] border border-surface-variant/30 dark:border-white/10 flex items-center justify-between gap-2">
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] text-[#64748B] font-mono">Instant Join Link</span>
-              <span className="text-xs font-mono text-[#CBD5E1] truncate">{previewUrl}</span>
+              <span className="text-[10px] text-on-surface-variant font-mono">Instant Join Link</span>
+              <span className="text-xs font-mono text-on-surface dark:text-[#CBD5E1] truncate">{previewUrl}</span>
             </div>
             <button
               type="button"
               onClick={copyInviteLink}
-              className="p-2 rounded-lg bg-[#1C2D46] hover:bg-[#273647] text-white transition-colors cursor-pointer flex-shrink-0"
+              className="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors cursor-pointer flex-shrink-0 border border-surface-variant/30"
               title="Copy join link"
             >
-              {copiedLink ? <Check size={14} className="text-[#22C55E]" /> : <Copy size={14} />}
+              {copiedLink ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
             </button>
           </div>
 
@@ -198,18 +201,18 @@ export const CreateTapriModal: React.FC<CreateTapriModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-[#64748B] hover:text-white transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-full text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isCreating || !cleanName}
-              className="px-5 py-2.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] disabled:opacity-40 text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(255,87,34,0.35)] cursor-pointer flex items-center gap-2"
+              className="px-5 py-2.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed disabled:opacity-40 font-bold text-xs transition-all shadow-md cursor-pointer flex items-center gap-2"
             >
               {isCreating ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3.5 h-3.5 border-2 border-on-secondary-container border-t-transparent rounded-full animate-spin" />
                   <span>Opening Tapri...</span>
                 </>
               ) : (

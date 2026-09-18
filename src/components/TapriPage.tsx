@@ -22,7 +22,9 @@ import {
   getOrCreateTapri,
 } from '../lib/socialChatService';
 import { UserAvatar } from './UserAvatar';
-import { BerozgarLogo } from './BerozgarLogo';
+
+const BRAND_LOGO_URL =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuA-AV9byNA9FQpRcjaipoJx0Wsa2-Zg_9rrkTlCjzdUg3om-SOQaPwkH1N4z0kFoe3B39efO8poxiohSM4LvMKfnSP-Froza0igkREI6qfgPzv4ddstqmGBqmvv0wHkJH7bIIdBsJvD2J_XEIxNaf1bk3qxSqlfyMd3xt0RMSjsaFpGe7F-L2pXqhjS3wolQReWlF1dBan3uhbHxj2ngxZvvV7iSylugDdb73FB4YmakFUHrgJjPLQnQgBXb0DPnIo7Gg';
 
 interface TapriPageProps {
   tapriName: string;
@@ -122,24 +124,35 @@ export const TapriPage: React.FC<TapriPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#070e1c] text-[#F8FAFC] flex flex-col font-sans selection:bg-[#ff5722] selection:text-white">
+    <div className="min-h-screen bg-surface dark:bg-[#070e1c] text-on-surface dark:text-[#F8FAFC] flex flex-col font-sans selection:bg-secondary-container selection:text-on-secondary-container">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-[#0a1427]/85 backdrop-blur-md border-b border-white/10 px-4 py-3 sm:px-6">
+      <header className="sticky top-0 z-40 bg-surface/90 dark:bg-[#0a1427]/85 backdrop-blur-md border-b border-surface-variant/30 dark:border-white/10 px-4 py-3 sm:px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={onNavigateHome}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 text-xs font-mono transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-white/5 dark:hover:bg-white/10 text-on-surface dark:text-white/80 border border-surface-variant/30 dark:border-white/10 text-xs font-semibold transition-colors cursor-pointer"
             >
               <ArrowLeft size={14} />
               <span>Back to Chats</span>
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-white/10">
-              <BerozgarLogo variant="icon" size="sm" />
-              <span className="font-extrabold text-sm tracking-tight text-white font-mono">
-                BEROZGAR<span className="text-[#ff5722]">.TAPRI</span>
-              </span>
+            <div className="hidden sm:flex items-center gap-2.5 pl-3 border-l border-surface-variant/40 dark:border-white/10">
+              <div className="w-8 h-8 rounded-full overflow-hidden shadow-xs flex items-center justify-center bg-primary-container shrink-0">
+                <img
+                  alt="Berojgar Logo"
+                  className="w-full h-full object-cover"
+                  src={BRAND_LOGO_URL}
+                />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-sm text-on-surface dark:text-white">
+                  Berojgar
+                </span>
+                <span className="text-[10px] font-semibold text-secondary">
+                  Tapri Lounge
+                </span>
+              </div>
             </div>
           </div>
 
@@ -163,7 +176,7 @@ export const TapriPage: React.FC<TapriPageProps> = ({
             </button>
 
             {currentUser ? (
-              <div className="hidden md:flex items-center gap-2 pl-2 border-l border-white/10">
+              <div className="hidden md:flex items-center gap-2 pl-3 border-l border-surface-variant/40 dark:border-white/10">
                 <UserAvatar
                   name={currentUser.displayName}
                   username={currentUser.username}
@@ -172,12 +185,12 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                   showStatus
                   isOnline={currentUser.status === 'online'}
                 />
-                <span className="text-xs font-mono text-white/70">@{currentUser.username}</span>
+                <span className="text-xs font-semibold text-on-surface-variant dark:text-white/70">@{currentUser.username}</span>
               </div>
             ) : (
               <button
                 onClick={onNavigateHome}
-                className="px-3 py-1.5 rounded-xl bg-[#ff5722] hover:bg-[#f3643d] text-white text-xs font-bold font-mono transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed text-xs font-bold transition-colors cursor-pointer shadow-xs"
               >
                 Sign In
               </button>
@@ -189,38 +202,38 @@ export const TapriPage: React.FC<TapriPageProps> = ({
       {/* Main Content Area */}
       <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Hero Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#111f38] to-[#0d182b] border border-white/10 p-6 sm:p-8 lg:p-10 shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest dark:bg-[#0c1626] border border-surface-variant/40 dark:border-white/10 p-6 sm:p-8 lg:p-10 shadow-xs">
           {/* Ambient Glow */}
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-[#ff5722]/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-[#3b82f6]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-secondary-container/30 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-primary-fixed/20 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-start gap-4 sm:gap-6">
               {/* Tapri Big Icon */}
-              <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-[#ff5722] via-[#f4511e] to-[#ff8a65] flex items-center justify-center text-white shadow-xl shadow-[#ff5722]/20 border-2 border-white/20">
-                <Coffee size={36} className="text-white drop-shadow-md" />
+              <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-md">
+                <Coffee size={36} />
               </div>
 
               {/* Title & Tag */}
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#ff5722]/20 border border-[#ff5722]/40 text-[#ff8a65] text-xs font-mono font-bold uppercase tracking-wider">
+                  <span className="px-3 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold uppercase tracking-wider">
                     {tapriInfo?.tag || `#${cleanName}`}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/70 text-xs font-mono">
+                  <span className="px-3 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-semibold">
                     {tapriInfo?.isPublic ? 'Public Lounge' : 'Private Tapri'}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-mono flex items-center gap-1">
+                  <span className="px-3 py-0.5 rounded-full bg-surface-container-high text-on-surface text-xs font-semibold flex items-center gap-1">
                     <Volume2 size={12} />
                     <span>Lofi & Voice Ready</span>
                   </span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-on-surface dark:text-white tracking-tight">
                   {tapriInfo?.title || `#${cleanName}`}
                 </h1>
 
-                <p className="text-xs sm:text-sm text-white/50 font-mono">
+                <p className="text-xs sm:text-sm text-on-surface-variant dark:text-white/50">
                   berojgarchat.vercel.app/tapri={cleanName}
                 </p>
               </div>
@@ -230,7 +243,7 @@ export const TapriPage: React.FC<TapriPageProps> = ({
             <div className="flex flex-col sm:flex-row md:flex-col items-stretch sm:items-center gap-3 shrink-0">
               <button
                 onClick={handleJoinChatClick}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#ff5722] to-[#ea580c] hover:from-[#f4511e] hover:to-[#c2410c] text-white font-bold text-sm shadow-lg shadow-[#ff5722]/25 hover:shadow-xl hover:shadow-[#ff5722]/35 transition-all transform hover:-translate-y-0.5 cursor-pointer font-sans"
+                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-98 cursor-pointer"
               >
                 <MessageSquare size={18} />
                 <span>Enter Tapri Chat</span>
@@ -238,90 +251,90 @@ export const TapriPage: React.FC<TapriPageProps> = ({
 
               <button
                 onClick={handleSendChai}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-[#ffb5a0] transition-all cursor-pointer ${
-                  isChaiClinked ? 'scale-105 ring-2 ring-[#ff5722]' : ''
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-surface-variant/30 text-xs font-bold text-secondary transition-all cursor-pointer ${
+                  isChaiClinked ? 'scale-105 ring-2 ring-secondary' : ''
                 }`}
                 title="Clink cutting chai with this tapri"
               >
-                <Coffee size={15} className="text-[#ff5722]" />
+                <Coffee size={15} />
                 <span>Cheer Cutting Chai ({chaiCount})</span>
               </button>
             </div>
           </div>
 
           {/* Real-time Status Counters Row */}
-          <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="mt-8 pt-6 border-t border-surface-variant/30 dark:border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
             {/* Realtime Online Users Counter */}
-            <div className="p-4 rounded-2xl bg-[#091324]/80 border border-[#22c55e]/30 relative overflow-hidden group">
+            <div className="p-4 rounded-2xl bg-surface-container-low dark:bg-[#091324]/80 border border-emerald-500/30 relative overflow-hidden group">
               <div className="flex items-center gap-2 mb-1">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#22C55E]"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#22C55E] font-bold">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-[#22C55E]">
                   Online Chillers
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+                <span className="text-2xl sm:text-3xl font-extrabold text-on-surface dark:text-white font-mono">
                   {loading ? '...' : tapriInfo?.onlineUsersCount || 0}
                 </span>
-                <span className="text-xs text-[#22c55e] font-mono font-medium">Realtime Live</span>
+                <span className="text-xs text-emerald-600 dark:text-[#22c55e] font-semibold">Realtime Live</span>
               </div>
-              <p className="text-[10px] text-white/40 mt-1 font-mono">
+              <p className="text-[10px] text-on-surface-variant dark:text-white/40 mt-1">
                 Active in this Tapri right now
               </p>
             </div>
 
             {/* Total Members Counter */}
-            <div className="p-4 rounded-2xl bg-[#091324]/80 border border-white/10">
-              <div className="flex items-center gap-1.5 mb-1 text-white/60">
-                <Users size={14} className="text-[#38bdf8]" />
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#38bdf8] font-bold">
+            <div className="p-4 rounded-2xl bg-surface-container-low dark:bg-[#091324]/80 border border-surface-variant/30 dark:border-white/10">
+              <div className="flex items-center gap-1.5 mb-1 text-on-surface-variant dark:text-white/60">
+                <Users size={14} className="text-secondary" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">
                   Total Users
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+                <span className="text-2xl sm:text-3xl font-extrabold text-on-surface dark:text-white font-mono">
                   {loading ? '...' : tapriInfo?.totalUsersCount || 1}
                 </span>
-                <span className="text-xs text-white/50 font-mono">members</span>
+                <span className="text-xs text-on-surface-variant dark:text-white/50 font-medium">members</span>
               </div>
-              <p className="text-[10px] text-white/40 mt-1 font-mono">
+              <p className="text-[10px] text-on-surface-variant dark:text-white/40 mt-1">
                 Registered tapri chillers
               </p>
             </div>
 
             {/* Tapri Creation Date */}
-            <div className="p-4 rounded-2xl bg-[#091324]/80 border border-white/10">
-              <div className="flex items-center gap-1.5 mb-1 text-white/60">
-                <Calendar size={14} className="text-[#a78bfa]" />
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#a78bfa] font-bold">
+            <div className="p-4 rounded-2xl bg-surface-container-low dark:bg-[#091324]/80 border border-surface-variant/30 dark:border-white/10">
+              <div className="flex items-center gap-1.5 mb-1 text-on-surface-variant dark:text-white/60">
+                <Calendar size={14} className="text-primary-container dark:text-[#a78bfa]" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary-container dark:text-[#a78bfa]">
                   Created On
                 </span>
               </div>
-              <div className="text-sm sm:text-base font-bold text-white truncate font-sans">
+              <div className="text-sm sm:text-base font-bold text-on-surface dark:text-white truncate font-sans">
                 {formatCreationDate(tapriInfo?.createdAt)}
               </div>
-              <p className="text-[10px] text-white/40 mt-1 font-mono truncate">
+              <p className="text-[10px] text-on-surface-variant dark:text-white/40 mt-1 truncate">
                 {getRelativeAge(tapriInfo?.createdAt)}
               </p>
             </div>
 
             {/* Tapri Creator Attribution */}
-            <div className="p-4 rounded-2xl bg-[#091324]/80 border border-white/10">
-              <div className="flex items-center gap-1.5 mb-1 text-white/60">
-                <ShieldCheck size={14} className="text-[#ffb5a0]" />
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#ffb5a0] font-bold">
+            <div className="p-4 rounded-2xl bg-surface-container-low dark:bg-[#091324]/80 border border-surface-variant/30 dark:border-white/10">
+              <div className="flex items-center gap-1.5 mb-1 text-on-surface-variant dark:text-white/60">
+                <ShieldCheck size={14} className="text-secondary" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-secondary">
                   Tapri Creator
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm sm:text-base font-bold text-white truncate">
+                <span className="text-sm sm:text-base font-bold text-on-surface dark:text-white truncate">
                   {tapriInfo?.creatorDisplayName || 'Ayush Bhattacharya'}
                 </span>
               </div>
-              <p className="text-[10px] text-[#ff5722] mt-1 font-mono truncate">
+              <p className="text-[10px] text-secondary mt-1 font-semibold truncate">
                 @{tapriInfo?.creatorUsername || 'itsjustayush'}
               </p>
             </div>
@@ -333,52 +346,52 @@ export const TapriPage: React.FC<TapriPageProps> = ({
           {/* Left 2 Cols: Tapri Description & Guidelines */}
           <div className="md:col-span-2 space-y-6">
             {/* Description Box */}
-            <div className="rounded-3xl bg-[#0e192e] border border-white/10 p-6 sm:p-7 shadow-lg space-y-4">
-              <div className="flex items-center gap-2 text-[#ff5722]">
+            <div className="rounded-3xl bg-surface-container-lowest dark:bg-[#0e192e] border border-surface-variant/40 dark:border-white/10 p-6 sm:p-7 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 text-secondary">
                 <Sparkles size={18} />
-                <h2 className="font-extrabold text-base sm:text-lg text-white font-sans">
+                <h2 className="font-extrabold text-base sm:text-lg text-on-surface dark:text-white font-sans">
                   Tapri Description & Vibe
                 </h2>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-2xl bg-[#070e1c] border border-white/5 text-sm sm:text-base text-white/80 leading-relaxed font-sans">
+              <div className="p-4 sm:p-5 rounded-2xl bg-surface-container-low dark:bg-[#070e1c] border border-surface-variant/30 dark:border-white/5 text-sm sm:text-base text-on-surface dark:text-white/80 leading-relaxed font-sans">
                 {tapriInfo?.description ||
                   'Late Night Coding, Rust, & Lofi beats stream. Debugging silent sessions with chill background sitar beats and occasional PR venting.'}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="p-3 rounded-xl bg-white/2 border border-white/5 flex items-start gap-2.5">
-                  <div className="w-6 h-6 rounded-lg bg-[#22c55e]/15 text-[#22c55e] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="p-3.5 rounded-2xl bg-surface-container-low dark:bg-white/2 border border-surface-variant/30 dark:border-white/5 flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-[#22c55e] flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
                     ✓
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block">Real-time Presence</span>
-                    <span className="text-[11px] text-white/50">Online status updates live in real time via Firestore</span>
+                    <span className="text-xs font-bold text-on-surface dark:text-white block">Real-time Presence</span>
+                    <span className="text-[11px] text-on-surface-variant dark:text-white/50">Online status updates live in real time via Firestore</span>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white/2 border border-white/5 flex items-start gap-2.5">
-                  <div className="w-6 h-6 rounded-lg bg-[#ff5722]/15 text-[#ff5722] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="p-3.5 rounded-2xl bg-surface-container-low dark:bg-white/2 border border-surface-variant/30 dark:border-white/5 flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-full bg-secondary-container/40 text-secondary flex items-center justify-center shrink-0 mt-0.5 text-xs">
                     ☕
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block">Cutting Chai Culture</span>
-                    <span className="text-[11px] text-white/50">Spontaneous chai clinks and late-night tech discussions</span>
+                    <span className="text-xs font-bold text-on-surface dark:text-white block">Cutting Chai Culture</span>
+                    <span className="text-[11px] text-on-surface-variant dark:text-white/50">Spontaneous chai clinks and late-night tech discussions</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Live Online Users / Chillers Right Now */}
-            <div className="rounded-3xl bg-[#0e192e] border border-white/10 p-6 shadow-lg space-y-4">
+            <div className="rounded-3xl bg-surface-container-lowest dark:bg-[#0e192e] border border-surface-variant/40 dark:border-white/10 p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Radio size={16} className="text-[#22c55e]" />
-                  <h3 className="font-extrabold text-base text-white">
+                  <Radio size={16} className="text-emerald-600 dark:text-[#22c55e]" />
+                  <h3 className="font-extrabold text-base text-on-surface dark:text-white">
                     Chillers Online Now ({tapriInfo?.onlineUsersCount || 0})
                   </h3>
                 </div>
-                <span className="text-[11px] font-mono text-[#22c55e] px-2 py-0.5 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/30">
+                <span className="text-[11px] font-bold text-emerald-600 dark:text-[#22c55e] px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-[#22c55e]/10 border border-emerald-200 dark:border-[#22c55e]/30">
                   Live Snapshot
                 </span>
               </div>
@@ -388,7 +401,7 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                   {tapriInfo.onlineUsers.map((user) => (
                     <div
                       key={user.uid}
-                      className="p-3 rounded-2xl bg-[#070e1c] border border-white/5 flex items-center justify-between gap-3 hover:border-white/15 transition-all"
+                      className="p-3 rounded-2xl bg-surface-container-low dark:bg-[#070e1c] border border-surface-variant/30 dark:border-white/5 flex items-center justify-between gap-3 hover:border-surface-variant transition-all"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <UserAvatar
@@ -400,10 +413,10 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                           isOnline={true}
                         />
                         <div className="min-w-0">
-                          <span className="text-xs font-bold text-white block truncate">
+                          <span className="text-xs font-bold text-on-surface dark:text-white block truncate">
                             {user.displayName}
                           </span>
-                          <span className="text-[11px] font-mono text-[#ff5722] block truncate">
+                          <span className="text-[11px] font-semibold text-secondary block truncate">
                             @{user.username}
                           </span>
                         </div>
@@ -412,7 +425,7 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                       {onViewUserProfile && (
                         <button
                           onClick={() => onViewUserProfile(user.username)}
-                          className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-mono text-[10px] transition-colors cursor-pointer"
+                          className="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface dark:text-white/70 hover:text-on-surface text-[11px] font-semibold transition-colors cursor-pointer"
                         >
                           View
                         </button>
@@ -421,14 +434,14 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="p-6 rounded-2xl bg-[#070e1c] border border-white/5 text-center space-y-2">
-                  <Coffee size={24} className="text-white/20 mx-auto" />
-                  <p className="text-xs text-white/50 font-mono">
+                <div className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#070e1c] border border-surface-variant/30 dark:border-white/5 text-center space-y-2">
+                  <Coffee size={24} className="text-on-surface-variant/40 dark:text-white/20 mx-auto" />
+                  <p className="text-xs text-on-surface-variant dark:text-white/50">
                     No other chillers active right now.
                   </p>
                   <button
                     onClick={handleJoinChatClick}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#ff5722] hover:bg-[#f3643d] text-white font-bold text-xs font-mono transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-bold text-xs transition-colors cursor-pointer shadow-xs"
                   >
                     <span>Be the first to step into #{cleanName}</span>
                   </button>
@@ -440,17 +453,17 @@ export const TapriPage: React.FC<TapriPageProps> = ({
           {/* Right Col: Creator Profile Card & Quick Actions */}
           <div className="space-y-6">
             {/* Creator Card */}
-            <div className="rounded-3xl bg-[#0e192e] border border-white/10 p-6 shadow-lg space-y-4">
+            <div className="rounded-3xl bg-surface-container-lowest dark:bg-[#0e192e] border border-surface-variant/40 dark:border-white/10 p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff5722] font-bold">
+                <span className="text-[11px] uppercase tracking-widest text-secondary font-bold">
                   Tapri Creator
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-bold">
                   Founder
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#070e1c] border border-white/5 space-y-3">
+              <div className="p-4 rounded-2xl bg-surface-container-low dark:bg-[#070e1c] border border-surface-variant/30 dark:border-white/5 space-y-3">
                 <div className="flex items-center gap-3">
                   <UserAvatar
                     name={tapriInfo?.creatorDisplayName || 'Ayush Bhattacharya'}
@@ -461,16 +474,16 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                     isOnline={true}
                   />
                   <div className="min-w-0">
-                    <span className="text-sm font-extrabold text-white block truncate">
+                    <span className="text-sm font-extrabold text-on-surface dark:text-white block truncate">
                       {tapriInfo?.creatorDisplayName || 'Ayush Bhattacharya'}
                     </span>
-                    <span className="text-xs font-mono text-[#ff5722] block truncate">
+                    <span className="text-xs font-semibold text-secondary block truncate">
                       @{tapriInfo?.creatorUsername || 'itsjustayush'}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-xs text-white/60 leading-relaxed font-sans">
+                <p className="text-xs text-on-surface-variant dark:text-white/60 leading-relaxed font-sans">
                   Host & curator of #{cleanName}. Welcoming developers, chillers, and late-night thinkers.
                 </p>
 
@@ -479,7 +492,7 @@ export const TapriPage: React.FC<TapriPageProps> = ({
                     onClick={() =>
                       onViewUserProfile(tapriInfo?.creatorUsername || 'itsjustayush')
                     }
-                    className="w-full mt-2 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white font-mono text-xs font-semibold border border-white/10 transition-colors cursor-pointer"
+                    className="w-full mt-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface dark:text-white text-xs font-bold border border-surface-variant/30 transition-colors cursor-pointer"
                   >
                     <span>View @{tapriInfo?.creatorUsername || 'itsjustayush'} Profile</span>
                     <ExternalLink size={12} />
@@ -488,20 +501,20 @@ export const TapriPage: React.FC<TapriPageProps> = ({
               </div>
 
               {/* Establishment Timeline Info */}
-              <div className="space-y-2 pt-2 border-t border-white/5">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-white/50">Creation Date:</span>
-                  <span className="text-white font-medium">
+              <div className="space-y-2 pt-2 border-t border-surface-variant/30 dark:border-white/5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-on-surface-variant dark:text-white/50">Creation Date:</span>
+                  <span className="text-on-surface dark:text-white font-semibold">
                     {formatCreationDate(tapriInfo?.createdAt)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-white/50">Lounge ID:</span>
-                  <span className="text-white/70">tapri_{cleanName}</span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-on-surface-variant dark:text-white/50">Lounge ID:</span>
+                  <span className="text-on-surface-variant dark:text-white/70 font-mono">tapri_{cleanName}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-white/50">Direct URL:</span>
-                  <span className="text-[#ff5722] truncate max-w-[140px]">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-on-surface-variant dark:text-white/50">Direct URL:</span>
+                  <span className="text-secondary truncate max-w-[140px] font-semibold">
                     /tapri={cleanName}
                   </span>
                 </div>
@@ -509,22 +522,22 @@ export const TapriPage: React.FC<TapriPageProps> = ({
             </div>
 
             {/* Quick Share Card */}
-            <div className="rounded-3xl bg-[#0e192e] border border-white/10 p-6 shadow-lg space-y-3">
-              <div className="flex items-center gap-2 text-white">
-                <Share2 size={16} className="text-[#38bdf8]" />
+            <div className="rounded-3xl bg-surface-container-lowest dark:bg-[#0e192e] border border-surface-variant/40 dark:border-white/10 p-6 shadow-xs space-y-3">
+              <div className="flex items-center gap-2 text-on-surface dark:text-white">
+                <Share2 size={16} className="text-secondary" />
                 <h3 className="font-bold text-sm">Invite Chillers</h3>
               </div>
-              <p className="text-xs text-white/60 font-sans">
+              <p className="text-xs text-on-surface-variant dark:text-white/60 font-sans">
                 Share this dedicated Tapri link anywhere. Anyone with the link can view live online count and join the chat.
               </p>
 
-              <div className="flex items-center gap-2 p-2 rounded-xl bg-[#070e1c] border border-white/10 font-mono text-xs text-white/80 overflow-hidden">
-                <span className="truncate flex-1">
+              <div className="flex items-center gap-2 p-2 rounded-2xl bg-surface-container-low dark:bg-[#070e1c] border border-surface-variant/30 dark:border-white/10 text-xs text-on-surface dark:text-white/80 overflow-hidden">
+                <span className="truncate flex-1 font-mono text-[11px] pl-1">
                   berojgarchat.vercel.app/tapri={cleanName}
                 </span>
                 <button
                   onClick={handleShareTapri}
-                  className="px-2.5 py-1 rounded-lg bg-[#ff5722] hover:bg-[#f3643d] text-white font-bold text-[11px] shrink-0 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-bold text-[11px] shrink-0 transition-colors cursor-pointer shadow-xs"
                 >
                   {isCopied ? 'Copied!' : 'Copy'}
                 </button>

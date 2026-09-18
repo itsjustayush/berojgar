@@ -741,6 +741,7 @@ export const SocialChatView: React.FC<SocialChatViewProps> = ({
                 type="button"
                 onClick={() => setShowDetailsSidebar(false)}
                 className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Close Details"
               >
                 <X size={16} />
               </button>

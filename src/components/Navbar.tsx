@@ -53,6 +53,7 @@ export function Navbar({
   };
 
   const navItems: Array<{ view: ViewMode; label: string; icon: typeof MessageSquare }> = [
+    { view: 'LANDING', label: 'Home (Landing)', icon: Coffee },
     { view: 'CHATS', label: 'Messages & Tapris', icon: MessageSquare },
     { view: 'DIRECTORY', label: 'Directory & Network', icon: Compass },
   ];
@@ -72,6 +73,16 @@ export function Navbar({
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-1.5">
+            <button
+              onClick={() => navigate('LANDING')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                currentView === 'LANDING'
+                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+              }`}
+            >
+              Home
+            </button>
             <button
               onClick={() => navigate('CHATS')}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${

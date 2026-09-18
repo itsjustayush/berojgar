@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { ViewMode, UserSession, RoomState, BundleItem, UserProfile } from './types';
-import { Navbar } from './components/Navbar';
 import { SocialPlatformScreen } from './components/SocialPlatformScreen';
 import { DashboardScreen } from './components/DashboardScreen';
 import { RoomView } from './components/RoomView';
@@ -260,35 +259,17 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await signOutUser(currentUser?.uid);
+    try {
+      await signOutUser(currentUser?.uid);
+    } catch (err) {
+      console.warn('Sign out warning:', err);
+    }
     setCurrentUser(null);
   };
 
   return (
     <div className="app-shell min-h-screen bg-[#050505] text-white flex flex-col font-sans">
       <div className="noise-overlay" aria-hidden="true" />
-      {currentView !== 'LANDING' && (
-        <Navbar
-          currentView={currentView}
-          setView={(v) => navigateToView(v)}
-          session={session}
-          currentUser={currentUser}
-          onOpenProfile={() => {
-            if (currentUser) {
-              navigateToView('USER_PROFILE', { username: currentUser.username });
-            } else {
-              setShowAuthModal(true);
-            }
-          }}
-          onOpenAuth={() => {
-            setAuthPrefillUsername('');
-            setShowAuthModal(true);
-          }}
-          onUpdateNickname={handleUpdateNickname}
-          latencyMs={latencyMs}
-        />
-      )}
-
       <main className="relative z-10 flex-1">
         {currentView === 'LANDING' && (
           <LandingPage
@@ -307,6 +288,14 @@ export default function App() {
             }}
             onNavigateToTapriPage={(tapriName) => {
               navigateToView('TAPRI_PAGE', { tapri: tapriName });
+            }}
+            onNavigateToDirectory={() => navigateToView('DIRECTORY')}
+            onNavigateToSettings={() => {
+              if (currentUser) {
+                navigateToView('USER_PROFILE', { username: currentUser.username });
+              } else {
+                setShowAuthModal(true);
+              }
             }}
           />
         )}

@@ -40,6 +40,9 @@ import {
   extractPlaceName,
 } from '../lib/locationService';
 
+const BRAND_LOGO_URL =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuA-AV9byNA9FQpRcjaipoJx0Wsa2-Zg_9rrkTlCjzdUg3om-SOQaPwkH1N4z0kFoe3B39efO8poxiohSM4LvMKfnSP-Froza0igkREI6qfgPzv4ddstqmGBqmvv0wHkJH7bIIdBsJvD2J_XEIxNaf1bk3qxSqlfyMd3xt0RMSjsaFpGe7F-L2pXqhjS3wolQReWlF1dBan3uhbHxj2ngxZvvV7iSylugDdb73FB4YmakFUHrgJjPLQnQgBXb0DPnIo7Gg';
+
 export const AVATAR_PRESETS = [
   {
     name: 'Ayush Original',
@@ -301,44 +304,48 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
   );
 
   return (
-    <div className="bg-[#070E18] text-[#d4e4fa] font-sans min-h-screen flex flex-col selection:bg-[#ff5722]/30">
+    <div className="bg-surface dark:bg-[#070E18] text-on-surface dark:text-[#d4e4fa] font-sans min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
       {/* Header */}
-      <header className="sticky top-0 w-full z-50 bg-[#070E18]/90 backdrop-blur-xl border-b border-white/5 shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+      <header className="sticky top-0 w-full z-50 bg-surface/90 dark:bg-[#070E18]/90 backdrop-blur-xl border-b border-surface-variant/30 dark:border-white/5 shadow-xs">
         <div className="h-16 w-full max-w-[1240px] mx-auto px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={onNavigateHome}
-              className="flex items-center gap-2 group text-left cursor-pointer"
+              className="flex items-center gap-2.5 group text-left cursor-pointer"
             >
-              <div className="w-9 h-9 rounded-full bg-[#ff5722] flex items-center justify-center shadow-[0_0_16px_rgba(255,87,34,0.35)]">
-                <Flame size={20} className="text-white" />
+              <div className="w-8 h-8 rounded-full overflow-hidden shadow-xs flex items-center justify-center bg-primary-container shrink-0">
+                <img
+                  alt="Berojgar Logo"
+                  className="w-full h-full object-cover"
+                  src={BRAND_LOGO_URL}
+                />
               </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-sm text-white group-hover:text-[#ff5722] transition-colors">
-                  बेरोजगार चैट
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-sm text-on-surface dark:text-white group-hover:text-secondary transition-colors">
+                  Berojgar
                 </span>
-                <span className="text-[11px] text-[#64748B] font-mono">
-                  Berojgar Chat • Tapri Lounges
+                <span className="text-[10px] font-semibold text-secondary">
+                  Where ideas brew
                 </span>
               </div>
             </button>
-            <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#13233A]/60 ml-2">
-              <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-[11px] text-[#CBD5E1] font-mono">3,412 chillers online</span>
+            <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container dark:bg-[#13233A]/60 ml-2 border border-surface-variant/20">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] text-on-surface-variant dark:text-[#CBD5E1] font-medium">3,412 chillers online</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => onJoinTapri('chai_n_code')}
-              className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white font-semibold text-xs transition-all shadow-[0_4px_16px_rgba(255,87,34,0.3)] cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed font-bold text-xs transition-all shadow-xs cursor-pointer"
             >
-              <Radio size={16} />
+              <Radio size={15} />
               <span>Join #chai_n_code</span>
             </button>
             <button
               onClick={onNavigateHome}
-              className="px-3.5 py-1.5 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-white text-xs font-medium transition-colors cursor-pointer"
+              className="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1C2D46] dark:hover:bg-[#273647] text-on-surface dark:text-white text-xs font-semibold border border-surface-variant/30 transition-colors cursor-pointer"
             >
               Back to Lounges
             </button>
@@ -351,37 +358,37 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
         {/* Top Breadcrumb & URL Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center flex-wrap gap-2">
-            <div className="flex items-center gap-2 bg-[#13233A]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/5 shadow-sm">
-              <Terminal size={18} className="text-[#ffb5a0]" />
-              <span className="text-[11px] text-[#64748B] font-mono">berojgarchat.vercel.app/</span>
-              <span className="text-xs font-semibold text-white tracking-tight font-mono">
+            <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#13233A]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-surface-variant/30 dark:border-white/5 shadow-xs">
+              <Terminal size={16} className="text-secondary" />
+              <span className="text-[11px] text-on-surface-variant dark:text-[#64748B] font-mono">berojgarchat.vercel.app/</span>
+              <span className="text-xs font-bold text-on-surface dark:text-white tracking-tight font-mono">
                 {username}
               </span>
               <button
                 onClick={handleCopyUrl}
-                className="ml-1 text-[#64748B] hover:text-white transition-colors p-1 rounded-full flex items-center cursor-pointer"
+                className="ml-1 text-on-surface-variant dark:text-[#64748B] hover:text-on-surface transition-colors p-1 rounded-full flex items-center cursor-pointer"
                 title="Copy profile address"
               >
-                {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                {isCopied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
               </button>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1c2b3c] text-[#ffb5a0] text-xs font-medium shadow-sm">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-secondary text-xs font-bold border border-secondary-container/60 shadow-xs">
               <BadgeCheck size={14} />
               <span>Verified Chiller • Day 12</span>
             </div>
           </div>
 
           {/* Mode Switcher Pill Dock */}
-          <div className="flex items-center self-start md:self-auto bg-[#0d1c2d] p-1 rounded-full border border-white/5">
+          <div className="flex items-center self-start md:self-auto bg-surface-container dark:bg-[#0d1c2d] p-1 rounded-full border border-surface-variant/30 dark:border-white/5 shadow-xs">
             <button
               onClick={() => setViewMode('public')}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 viewMode === 'public'
-                  ? 'bg-[#ff5722] text-white shadow-[0_2px_12px_rgba(255,87,34,0.35)]'
-                  : 'text-[#64748B] hover:text-white'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-xs'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              <Eye size={15} />
+              <Eye size={14} />
               <span>Public View</span>
             </button>
             <button
@@ -390,13 +397,13 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 const panel = document.getElementById('customizerPanel');
                 panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 viewMode === 'customizer'
-                  ? 'bg-[#ff5722] text-white shadow-[0_2px_12px_rgba(255,87,34,0.35)] ring-1 ring-[#ff5722]/50'
-                  : 'text-[#CBD5E1] hover:text-white hover:bg-white/5'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-xs ring-1 ring-secondary'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              <FileEdit size={15} />
+              <FileEdit size={14} />
               <span>Customize & Edit Profile</span>
             </button>
           </div>
@@ -409,7 +416,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
             {/* Hero Profile Container */}
             <div
               id="profileHeroCard"
-              className="relative overflow-hidden rounded-2xl bg-[#13233A]/75 backdrop-blur-xl border border-white/10 shadow-xl transition-all duration-500"
+              className="relative overflow-hidden rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/75 backdrop-blur-xl border border-surface-variant/40 dark:border-white/10 shadow-xs transition-all duration-500"
             >
               {/* Customizable Ambient Aurora Banner */}
               <div
@@ -418,14 +425,14 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 )}`}
               >
                 {/* Dynamic Aura Blurs */}
-                <div className="absolute -top-12 -left-12 w-64 h-64 rounded-full bg-[#ff5722]/25 blur-3xl mix-blend-screen pointer-events-none" />
-                <div className="absolute top-4 right-8 w-72 h-72 rounded-full bg-[#4c98c6]/30 blur-3xl mix-blend-screen pointer-events-none" />
+                <div className="absolute -top-12 -left-12 w-64 h-64 rounded-full bg-secondary-container/30 blur-3xl mix-blend-screen pointer-events-none" />
+                <div className="absolute top-4 right-8 w-72 h-72 rounded-full bg-primary-fixed/30 blur-3xl mix-blend-screen pointer-events-none" />
                 {/* Dot Pattern Texture */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
                 {/* Top Right Banner Metadata */}
                 <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-[#070E18]/60 backdrop-blur-md text-[11px] text-[#CBD5E1] font-mono flex items-center gap-1.5 border border-white/10">
-                    <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-ping" />
+                  <span className="px-3 py-1 rounded-full bg-surface/80 dark:bg-[#070E18]/60 backdrop-blur-md text-[11px] text-on-surface dark:text-[#CBD5E1] font-mono flex items-center gap-1.5 border border-surface-variant/30 dark:border-white/10 shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                     <span>{locationTag}</span>
                   </span>
                 </div>
@@ -437,7 +444,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-4">
                   {/* Avatar Stack */}
                   <div className="relative group w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
-                    <div className="w-full h-full rounded-full overflow-hidden bg-[#1C2D46] p-1 shadow-2xl border border-white/10 relative">
+                    <div className="w-full h-full rounded-full overflow-hidden bg-surface-container dark:bg-[#1C2D46] p-1 shadow-xl border-2 border-surface dark:border-[#070E18] relative">
                       {avatarUrl ? (
                         <img
                           className="w-full h-full object-cover rounded-full"
@@ -445,7 +452,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                           alt={displayName}
                         />
                       ) : (
-                        <div className="w-full h-full rounded-full bg-gradient-to-br from-[#ff5722] to-[#3a0d1f] flex items-center justify-center font-bold text-3xl text-white">
+                        <div className="w-full h-full rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-3xl">
                           {displayName.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -465,8 +472,8 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       </button>
                     </div>
                     {/* Status Badge Dot */}
-                    <div className="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-[#070E18] flex items-center justify-center shadow-md z-20">
-                      <span className="w-3.5 h-3.5 rounded-full bg-[#22C55E] ring-2 ring-[#070E18]" />
+                    <div className="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-surface dark:bg-[#070E18] flex items-center justify-center shadow-xs z-20">
+                      <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-surface dark:ring-[#070E18]" />
                     </div>
                   </div>
 
@@ -476,9 +483,9 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       onClick={() => {
                         onJoinTapri(`tapri_${username}`);
                       }}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white font-bold text-xs transition-all shadow-[0_4px_20px_rgba(255,87,34,0.4)] cursor-pointer"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed font-bold text-xs transition-all shadow-md cursor-pointer"
                     >
-                      <Headphones size={18} />
+                      <Headphones size={16} />
                       <span>Join {displayName.split(' ')[0] || username}'s Tapri</span>
                     </button>
                     {onStartDirectChat && !isOwnProfile && (
@@ -486,7 +493,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         onClick={() => {
                           if (profile) onStartDirectChat(profile);
                         }}
-                        className="px-4 py-2.5 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-white text-xs font-semibold transition-colors cursor-pointer border border-white/5"
+                        className="px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface dark:text-white text-xs font-semibold transition-colors cursor-pointer border border-surface-variant/30"
                       >
                         Direct Message
                       </button>
@@ -497,16 +504,16 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 {/* Name, Hindi Tag & Handle */}
                 <div className="flex flex-col gap-1 mb-3">
                   <div className="flex items-center flex-wrap gap-2">
-                    <h1 className="text-2xl sm:text-3xl text-white font-extrabold tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl text-on-surface dark:text-white font-extrabold tracking-tight">
                       {displayName}
                     </h1>
                     {hindiName && (
-                      <span className="text-lg text-[#e4beb4] font-medium">
+                      <span className="text-lg text-secondary font-semibold">
                         ({hindiName})
                       </span>
                     )}
-                    <BadgeCheck size={20} className="text-[#ff5722]" />
-                    <span className="ml-1 px-3 py-0.5 rounded-full bg-[#1c2b3c] text-[#ffb5a0] text-[11px] font-mono tracking-wide uppercase">
+                    <BadgeCheck size={20} className="text-secondary" />
+                    <span className="ml-1 px-3 py-0.5 rounded-full bg-secondary-container/40 text-secondary text-[11px] font-bold tracking-wide uppercase border border-secondary-container/60">
                       {customVibeTag}
                     </span>
                     <button
@@ -516,40 +523,40 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         const el = document.getElementById('displayNameEditorSection');
                         el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }}
-                      className="text-[#64748B] hover:text-[#ff5722] p-1 transition-colors cursor-pointer rounded-full hover:bg-white/5"
+                      className="text-on-surface-variant hover:text-secondary p-1 transition-colors cursor-pointer rounded-full hover:bg-surface-container"
                       title="Edit Profile Information"
                     >
-                      <Edit size={16} />
+                      <Edit size={15} />
                     </button>
                   </div>
-                  <p className="text-xs text-[#64748B]">
-                    @{username} • <span className="text-[#CBD5E1]">बस सुकून, बस कोड।</span>
+                  <p className="text-xs text-on-surface-variant">
+                    @{username} • <span className="text-on-surface dark:text-[#CBD5E1] font-medium">बस सुकून, बस कोड।</span>
                   </p>
                 </div>
 
                 {/* Bio */}
-                <p className="text-sm text-[#CBD5E1] leading-relaxed max-w-2xl mb-4">
+                <p className="text-sm text-on-surface-variant dark:text-[#CBD5E1] leading-relaxed max-w-2xl mb-4">
                   {bio}
                 </p>
 
                 {/* Metrics Bar */}
-                <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-[#0C1929]/80 mb-5 border border-white/5 shadow-inner">
+                <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-surface-container-low dark:bg-[#0C1929]/80 mb-5 border border-surface-variant/30 dark:border-white/5 shadow-xs">
                   <div className="flex flex-col px-3 py-1">
-                    <span className="text-[11px] text-[#64748B] font-mono">Lounge Time</span>
-                    <span className="text-base text-white font-semibold flex items-center gap-1">
+                    <span className="text-[11px] text-on-surface-variant font-medium">Lounge Time</span>
+                    <span className="text-base text-on-surface dark:text-white font-bold flex items-center gap-1 font-mono">
                       {profile?.loungeHours || 142}
-                      <span className="text-[#ff5722] text-xs font-normal">hrs</span>
+                      <span className="text-secondary text-xs font-normal">hrs</span>
                     </span>
                   </div>
                   <div className="flex flex-col px-3 py-1">
-                    <span className="text-[11px] text-[#64748B] font-mono">Tea Clinks</span>
-                    <span className="text-base text-white font-semibold flex items-center gap-1">
+                    <span className="text-[11px] text-on-surface-variant font-medium">Tea Clinks</span>
+                    <span className="text-base text-on-surface dark:text-white font-bold flex items-center gap-1 font-mono">
                       {chaiCount} ☕
                     </span>
                   </div>
                   <div className="flex flex-col px-3 py-1">
-                    <span className="text-[11px] text-[#64748B] font-mono">Current Mood</span>
-                    <span className="text-xs text-[#ff5722] font-semibold truncate pt-0.5">
+                    <span className="text-[11px] text-on-surface-variant font-medium">Current Mood</span>
+                    <span className="text-xs text-secondary font-bold truncate pt-0.5">
                       {customStatus}
                     </span>
                   </div>
@@ -560,26 +567,26 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   <button
                     id="chaiClinkBtn"
                     onClick={handleClinkChai}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all cursor-pointer border border-white/5 group ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all cursor-pointer border border-surface-variant/30 group ${
                       isChaiClinked
-                        ? 'bg-[#ff5722] text-white scale-105 shadow-[0_0_16px_rgba(255,87,34,0.5)]'
-                        : 'bg-[#1C2D46] hover:bg-[#273647] text-white'
+                        ? 'bg-secondary-container text-on-secondary-container scale-105 shadow-md'
+                        : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
                     }`}
                   >
                     <span className="text-[16px] group-hover:scale-125 transition-transform inline-block">
                       ☕
                     </span>
-                    <span className="text-xs font-medium">
+                    <span className="text-xs font-bold text-secondary">
                       {isChaiClinked ? 'Chai Sent!' : 'Send 1 Chai'}
                     </span>
                   </button>
 
                   <button
                     onClick={handleShareProfile}
-                    className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-[#CBD5E1] hover:text-white transition-colors cursor-pointer border border-white/5"
+                    className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface dark:text-[#CBD5E1] transition-colors cursor-pointer border border-surface-variant/30"
                     title="Share profile card"
                   >
-                    <Share2 size={18} />
+                    <Share2 size={16} />
                   </button>
                 </div>
               </div>
@@ -588,79 +595,79 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
             {/* Favorite Quiet Lounges & Communities Section */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-mono uppercase tracking-wider text-[#64748B]">
+                <span className="text-xs uppercase tracking-wider text-on-surface-variant font-bold">
                   Frequented Quiet Lounges & Tapris
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Room 1 */}
-                <div className="p-4 rounded-xl bg-[#13233A]/60 hover:bg-[#13233A] border border-white/5 transition-all shadow-sm flex flex-col justify-between group">
+                <div className="p-4 rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/60 hover:border-secondary border border-surface-variant/40 dark:border-white/5 transition-all shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-white group-hover:text-[#ff5722] transition-colors">
+                      <span className="text-sm font-bold text-on-surface dark:text-white group-hover:text-secondary transition-colors">
                         #chai_n_code
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-mono text-[#22C55E]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-ping" /> 82
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-[#22C55E]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> 82
                       </span>
                     </div>
-                    <p className="text-xs text-[#64748B] mb-4 line-clamp-2">
+                    <p className="text-xs text-on-surface-variant mb-4 line-clamp-2">
                       Late Night Coding, Rust, & Lofi beats stream.
                     </p>
                   </div>
                   <button
                     onClick={() => onJoinTapri('chai_n_code')}
-                    className="w-full py-1.5 px-3 rounded-full bg-[#1C2D46] hover:bg-[#ff5722] hover:text-white text-[#CBD5E1] text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    className="w-full py-2 px-3 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
                   >
-                    <Radio size={15} />
+                    <Radio size={14} />
                     <span>Join Room</span>
                   </button>
                 </div>
 
                 {/* Room 2 */}
-                <div className="p-4 rounded-xl bg-[#13233A]/60 hover:bg-[#13233A] border border-white/5 transition-all shadow-sm flex flex-col justify-between group">
+                <div className="p-4 rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/60 hover:border-secondary border border-surface-variant/40 dark:border-white/5 transition-all shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-white group-hover:text-[#ff5722] transition-colors truncate">
+                      <span className="text-sm font-bold text-on-surface dark:text-white group-hover:text-secondary transition-colors truncate">
                         #startup_fumbles
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-mono text-[#22C55E]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-ping" /> 114
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-[#22C55E]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> 114
                       </span>
                     </div>
-                    <p className="text-xs text-[#64748B] mb-4 line-clamp-2">
+                    <p className="text-xs text-on-surface-variant mb-4 line-clamp-2">
                       Honest pivoting stories, career rants & unhinged debugging.
                     </p>
                   </div>
                   <button
                     onClick={() => onJoinTapri('startup_fumbles')}
-                    className="w-full py-1.5 px-3 rounded-full bg-[#1C2D46] hover:bg-[#ff5722] hover:text-white text-[#CBD5E1] text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    className="w-full py-2 px-3 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
                   >
-                    <Radio size={15} />
+                    <Radio size={14} />
                     <span>Join Room</span>
                   </button>
                 </div>
 
                 {/* Room 3 */}
-                <div className="p-4 rounded-xl bg-[#13233A]/60 hover:bg-[#13233A] border border-white/5 transition-all shadow-sm flex flex-col justify-between group">
+                <div className="p-4 rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/60 hover:border-secondary border border-surface-variant/40 dark:border-white/5 transition-all shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-white group-hover:text-[#ff5722] transition-colors">
+                      <span className="text-sm font-bold text-on-surface dark:text-white group-hover:text-secondary transition-colors">
                         #valorant_3am
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-mono text-[#22C55E]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-ping" /> 24
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-[#22C55E]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> 24
                       </span>
                     </div>
-                    <p className="text-xs text-[#64748B] mb-4 line-clamp-2">
+                    <p className="text-xs text-on-surface-variant mb-4 line-clamp-2">
                       Unranked late-night chill squad. Wholesome, zero toxicity.
                     </p>
                   </div>
                   <button
                     onClick={() => onJoinTapri('valorant_3am')}
-                    className="w-full py-1.5 px-3 rounded-full bg-[#1C2D46] hover:bg-[#ff5722] hover:text-white text-[#CBD5E1] text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    className="w-full py-2 px-3 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
                   >
-                    <Radio size={15} />
+                    <Radio size={14} />
                     <span>Join Room</span>
                   </button>
                 </div>
@@ -673,24 +680,24 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
           <div
             id="customizerPanel"
             className={`lg:col-span-4 flex flex-col gap-4 sticky top-20 transition-all ${
-              viewMode === 'customizer' ? 'ring-2 ring-[#ff5722]/60 rounded-2xl' : ''
+              viewMode === 'customizer' ? 'ring-2 ring-secondary/60 rounded-3xl' : ''
             }`}
           >
-            <div className="rounded-2xl bg-[#13233A]/90 backdrop-blur-xl p-5 border border-white/10 shadow-xl flex flex-col gap-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/90 backdrop-blur-xl p-5 border border-surface-variant/40 dark:border-white/10 shadow-xs flex flex-col gap-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
               {/* Customizer Header */}
-              <div className="flex items-center justify-between pb-2 border-b border-white/5">
+              <div className="flex items-center justify-between pb-2 border-b border-surface-variant/30 dark:border-white/5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#ff5722]/20 flex items-center justify-center text-[#ff5722]">
-                    <Brush size={18} />
+                  <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+                    <Brush size={16} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">Edit Profile & Tapri Space</h3>
-                    <p className="text-[11px] text-[#64748B] font-mono">
+                    <h3 className="text-sm font-bold text-on-surface dark:text-white">Edit Profile & Tapri Space</h3>
+                    <p className="text-[11px] text-on-surface-variant">
                       Changes preview live in real-time
                     </p>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-[#ff5722]/20 text-[#ffb5a0] text-[10px] font-mono font-bold tracking-wider">
+                <span className="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold tracking-wider">
                   LIVE
                 </span>
               </div>
@@ -698,25 +705,25 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               {/* Section: Display Name */}
               <div id="displayNameEditorSection" className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <IdCard size={15} className="text-[#ff5722]" />
+                  <label className="text-xs font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
+                    <IdCard size={15} className="text-secondary" />
                     <span>Display Name</span>
                   </label>
-                  <span className="text-[10px] text-[#64748B] font-mono">Real-time preview</span>
+                  <span className="text-[10px] text-on-surface-variant">Real-time preview</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#0C1929] px-3 py-2 rounded-xl border border-white/10 focus-within:border-[#ff5722] transition-colors">
+                <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#0C1929] px-3 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10 focus-within:border-secondary transition-colors">
                   <input
                     type="text"
                     value={customDisplayName}
                     onChange={(e) => setCustomDisplayName(e.target.value)}
                     placeholder="e.g. Ayush Bhattacharya"
-                    className="bg-transparent flex-1 text-white text-xs font-medium focus:outline-none placeholder:text-[#64748B]"
+                    className="bg-transparent flex-1 text-on-surface dark:text-white text-xs font-medium focus:outline-none placeholder:text-on-surface-variant/50"
                   />
                   {customDisplayName && (
                     <button
                       type="button"
                       onClick={() => setCustomDisplayName('')}
-                      className="text-[#64748B] hover:text-white"
+                      className="text-on-surface-variant hover:text-on-surface"
                       title="Clear display name"
                     >
                       <X size={14} />
@@ -728,28 +735,28 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               {/* Section: Avatar & Photo */}
               <div id="avatarEditorSection" className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <UserCircle size={15} className="text-[#ff5722]" />
+                  <label className="text-xs font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
+                    <UserCircle size={15} className="text-secondary" />
                     <span>Avatar & Photo</span>
                   </label>
-                  <span className="text-[10px] text-[#ffb5a0] font-mono">Instant Presets</span>
+                  <span className="text-[10px] text-secondary font-semibold">Instant Presets</span>
                 </div>
 
                 {/* Current Avatar Preview & Upload */}
-                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#0C1929] border border-white/5">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-[#1C2D46] border border-white/10 flex-shrink-0">
+                <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] border border-surface-variant/30 dark:border-white/5">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container dark:bg-[#1C2D46] border border-surface-variant/30 dark:border-white/10 flex-shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center font-bold text-white text-sm bg-gradient-to-br from-[#ff5722] to-[#3a0d1f]">
+                      <div className="w-full h-full flex items-center justify-center font-bold text-on-secondary-container text-sm bg-secondary-container">
                         {displayName.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <label className="px-2.5 py-1 rounded-lg bg-[#1C2D46] hover:bg-[#273647] text-white text-[11px] font-medium cursor-pointer transition-colors flex items-center gap-1">
-                        <Upload size={14} />
+                      <label className="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-semibold cursor-pointer transition-colors flex items-center gap-1 border border-surface-variant/30">
+                        <Upload size={13} />
                         <span>Upload Photo</span>
                         <input
                           type="file"
@@ -762,29 +769,29 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         <button
                           type="button"
                           onClick={() => setCustomAvatarUrl('')}
-                          className="text-[10px] text-[#ff5722] hover:underline cursor-pointer"
+                          className="text-[10px] text-secondary hover:underline cursor-pointer font-bold"
                         >
                           Reset
                         </button>
                       )}
                     </div>
-                    <span className="text-[10px] text-[#64748B] truncate">PNG, JPG or WebP</span>
+                    <span className="text-[10px] text-on-surface-variant truncate">PNG, JPG or WebP</span>
                   </div>
                 </div>
 
                 {/* Avatar Presets Grid */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] text-[#64748B] font-mono">Or pick an aesthetic vibe avatar:</span>
+                  <span className="text-[10px] text-on-surface-variant">Or pick an aesthetic vibe avatar:</span>
                   <div className="grid grid-cols-3 gap-1.5">
                     {AVATAR_PRESETS.map((preset) => (
                       <button
                         key={preset.name}
                         type="button"
                         onClick={() => setCustomAvatarUrl(preset.url)}
-                        className={`flex items-center gap-1.5 p-1.5 rounded-xl bg-[#0C1929] hover:bg-[#1C2D46] border transition-all text-left cursor-pointer ${
+                        className={`flex items-center gap-1.5 p-1.5 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container border transition-all text-left cursor-pointer ${
                           avatarUrl === preset.url
-                            ? 'border-[#ff5722] ring-1 ring-[#ff5722]/50'
-                            : 'border-white/5'
+                            ? 'border-secondary ring-1 ring-secondary/50'
+                            : 'border-surface-variant/30 dark:border-white/5'
                         }`}
                         title={preset.name}
                       >
@@ -793,21 +800,21 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                           alt={preset.name}
                           className="w-6 h-6 rounded-full object-cover flex-shrink-0"
                         />
-                        <span className="text-[10px] text-[#CBD5E1] truncate font-mono">{preset.vibe}</span>
+                        <span className="text-[10px] text-on-surface dark:text-[#CBD5E1] truncate font-medium">{preset.vibe}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Custom Avatar URL Input */}
-                <div className="flex items-center gap-2 bg-[#0C1929] px-2.5 py-1.5 rounded-xl border border-white/5 text-[11px]">
-                  <Link2 size={14} className="text-[#64748B]" />
+                <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#0C1929] px-2.5 py-1.5 rounded-2xl border border-surface-variant/30 dark:border-white/5 text-[11px]">
+                  <Link2 size={14} className="text-on-surface-variant" />
                   <input
                     type="url"
                     value={customAvatarUrl}
                     onChange={(e) => setCustomAvatarUrl(e.target.value)}
                     placeholder="Or paste image URL..."
-                    className="bg-transparent flex-1 text-white text-[11px] focus:outline-none placeholder:text-[#64748B]"
+                    className="bg-transparent flex-1 text-on-surface dark:text-white text-[11px] focus:outline-none placeholder:text-on-surface-variant/50"
                   />
                 </div>
               </div>
@@ -815,11 +822,11 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               {/* Section: Bio & About You */}
               <div id="bioEditorSection" className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <FileEdit size={15} className="text-[#ff5722]" />
+                  <label className="text-xs font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
+                    <FileEdit size={15} className="text-secondary" />
                     <span>Bio & Late-night Note</span>
                   </label>
-                  <span className="text-[10px] text-[#64748B] font-mono">
+                  <span className="text-[10px] text-on-surface-variant">
                     {customBio.length}/280
                   </span>
                 </div>
@@ -829,30 +836,30 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   value={customBio}
                   onChange={(e) => setCustomBio(e.target.value)}
                   placeholder="Write a late-night thought, bio or what you're working on..."
-                  className="w-full bg-[#0C1929] text-white text-xs p-3 rounded-xl border border-white/10 focus:outline-none focus:border-[#ff5722] resize-none leading-relaxed placeholder:text-[#64748B]"
+                  className="w-full bg-surface-container-low dark:bg-[#0C1929] text-on-surface dark:text-white text-xs p-3 rounded-2xl border border-surface-variant/30 dark:border-white/10 focus:outline-none focus:border-secondary resize-none leading-relaxed placeholder:text-on-surface-variant/50"
                 />
               </div>
 
               {/* Section: Hindi Tag & Location / Time */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium text-[#CBD5E1]">Hindi Name Tag</label>
+                  <label className="text-[11px] font-medium text-on-surface dark:text-[#CBD5E1]">Hindi Name Tag</label>
                   <input
                     type="text"
                     value={customHindiName}
                     onChange={(e) => setCustomHindiName(e.target.value)}
                     placeholder="e.g. आयुष"
-                    className="bg-[#0C1929] px-2.5 py-2 rounded-xl border border-white/10 text-white text-xs focus:outline-none focus:border-[#ff5722] placeholder:text-[#64748B]"
+                    className="bg-surface-container-low dark:bg-[#0C1929] px-2.5 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10 text-on-surface dark:text-white text-xs focus:outline-none focus:border-secondary placeholder:text-on-surface-variant/50"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-medium text-[#CBD5E1]">Fixed Location</label>
+                    <label className="text-[11px] font-medium text-on-surface dark:text-[#CBD5E1]">Fixed Location</label>
                     <button
                       type="button"
                       onClick={handleDetectCurrentLocation}
                       disabled={isDetectingLocation}
-                      className="text-[10px] text-[#ff5722] hover:text-[#ff784e] flex items-center gap-1 font-mono transition-colors cursor-pointer"
+                      className="text-[10px] text-secondary hover:underline flex items-center gap-1 font-bold transition-colors cursor-pointer"
                       title="Auto-detect current GPS/IP location & set as fixed location"
                     >
                       <LocateFixed size={13} className={isDetectingLocation ? 'animate-spin' : ''} />
@@ -864,64 +871,64 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     value={customLocation}
                     onChange={(e) => setCustomLocation(e.target.value)}
                     placeholder="e.g. Delhi, IN"
-                    className="bg-[#0C1929] px-2.5 py-2 rounded-xl border border-white/10 text-white text-xs focus:outline-none focus:border-[#ff5722] placeholder:text-[#64748B]"
+                    className="bg-surface-container-low dark:bg-[#0C1929] px-2.5 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10 text-on-surface dark:text-white text-xs focus:outline-none focus:border-secondary placeholder:text-on-surface-variant/50"
                   />
-                  <span className="text-[9px] text-[#64748B] font-mono">
+                  <span className="text-[9px] text-on-surface-variant">
                     Location is fixed • Clock updates live
                   </span>
                 </div>
               </div>
 
               {/* Section 1: Ambient Banner Aura Picker */}
-              <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
-                <label className="text-xs font-medium text-[#CBD5E1]">Ambient Banner Aura</label>
+              <div className="flex flex-col gap-1.5 pt-2 border-t border-surface-variant/30 dark:border-white/5">
+                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">Ambient Banner Aura</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setCustomTheme('aurora')}
-                    className={`p-2 rounded-xl bg-[#0C1929] hover:bg-[#1C2D46] flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'aurora' ? 'border-[#ff5722]' : 'border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'aurora' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#143d42] to-[#2b1b17] ring-1 ring-[#ff5722]/40" />
-                    <span className="text-[11px] text-[#CBD5E1]">Midnight Aurora</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#143d42] to-[#2b1b17] ring-1 ring-secondary/40" />
+                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Midnight Aurora</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomTheme('sunset')}
-                    className={`p-2 rounded-xl bg-[#0C1929] hover:bg-[#1C2D46] flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'sunset' ? 'border-[#ff5722]' : 'border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'sunset' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#ff5722] to-[#3a0d1f] ring-1 ring-[#ff5722]/40" />
-                    <span className="text-[11px] text-[#CBD5E1]">Sunset Ember</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#ff5722] to-[#3a0d1f] ring-1 ring-secondary/40" />
+                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Sunset Ember</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomTheme('indigo')}
-                    className={`p-2 rounded-xl bg-[#0C1929] hover:bg-[#1C2D46] flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'indigo' ? 'border-[#ff5722]' : 'border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'indigo' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1a237e] to-[#0d47a1] ring-1 ring-[#ff5722]/40" />
-                    <span className="text-[11px] text-[#CBD5E1]">Electric Indigo</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1a237e] to-[#0d47a1] ring-1 ring-secondary/40" />
+                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Electric Indigo</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomTheme('sage')}
-                    className={`p-2 rounded-xl bg-[#0C1929] hover:bg-[#1C2D46] flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'sage' ? 'border-[#ff5722]' : 'border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'sage' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1c3829] to-[#0f231c] ring-1 ring-[#ff5722]/40" />
-                    <span className="text-[11px] text-[#CBD5E1]">Nordic Sage</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1c3829] to-[#0f231c] ring-1 ring-secondary/40" />
+                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Nordic Sage</span>
                   </button>
                 </div>
               </div>
 
               {/* Section 2: Bio Vibe Selector */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-[#CBD5E1]">Persona • Bio Vibe Tag</label>
+                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">Persona • Bio Vibe Tag</label>
                 <div className="flex flex-wrap gap-1.5">
                   {['Late-night coder', 'Graphic nocturne', 'Philosophical chiller', 'Lofi curator'].map(
                     (tag) => (
@@ -929,10 +936,10 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         key={tag}
                         type="button"
                         onClick={() => setCustomVibeTag(tag)}
-                        className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all cursor-pointer ${
+                        className={`px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer ${
                           customVibeTag === tag
-                            ? 'bg-[#ff5722] text-white'
-                            : 'bg-[#0C1929] hover:bg-[#1C2D46] text-[#CBD5E1] border border-white/5'
+                            ? 'bg-secondary-container text-on-secondary-container font-bold shadow-xs'
+                            : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-surface-variant/30'
                         }`}
                       >
                         {tag}
@@ -944,28 +951,28 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
 
               {/* Section 3: Status Line & Focus Emoji Input */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-[#CBD5E1]">
+                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">
                   Status Line & Focus Emoji
                 </label>
-                <div className="flex items-center gap-2 bg-[#0C1929] px-3 py-2 rounded-xl border border-white/10">
+                <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#0C1929] px-3 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10">
                   <input
                     type="text"
                     value={customStatus}
                     onChange={(e) => setCustomStatus(e.target.value)}
                     placeholder="What are you doing at this late hour?"
-                    className="bg-transparent flex-1 text-white text-xs focus:outline-none"
+                    className="bg-transparent flex-1 text-on-surface dark:text-white text-xs focus:outline-none"
                   />
-                  <Smile size={18} className="text-[#ff5722]" />
+                  <Smile size={18} className="text-secondary" />
                 </div>
               </div>
 
               {/* Section 4: Privacy & Ambient Rules */}
-              <div className="flex flex-col gap-2 pt-1 border-t border-white/5">
-                <label className="text-xs font-medium text-[#CBD5E1]">Privacy & Ambient Rules</label>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0C1929] border border-white/5">
+              <div className="flex flex-col gap-2 pt-1 border-t border-surface-variant/30 dark:border-white/5">
+                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">Privacy & Ambient Rules</label>
+                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] border border-surface-variant/30 dark:border-white/5">
                   <div className="flex flex-col">
-                    <span className="text-xs text-white font-medium">Broadcast Current Lounge</span>
-                    <span className="text-[10px] text-[#64748B] font-mono">
+                    <span className="text-xs text-on-surface dark:text-white font-medium">Broadcast Current Lounge</span>
+                    <span className="text-[10px] text-on-surface-variant">
                       Shows #chai_n_code when active
                     </span>
                   </div>
@@ -973,7 +980,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     type="checkbox"
                     checked={broadcastLounge}
                     onChange={(e) => setBroadcastLounge(e.target.checked)}
-                    className="accent-[#ff5722] cursor-pointer w-4 h-4"
+                    className="accent-secondary cursor-pointer w-4 h-4"
                   />
                 </div>
               </div>
@@ -983,7 +990,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveCustomSpace}
-                  className="flex-1 py-2.5 rounded-full bg-[#ff5722] hover:bg-[#F4511E] text-white text-xs font-bold transition-all shadow-[0_4px_16px_rgba(255,87,34,0.35)] flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 py-2.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <CheckCircle2 size={16} />
                   <span>{saveButtonText}</span>
@@ -991,7 +998,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <button
                   type="button"
                   onClick={handleResetCustomSpace}
-                  className="px-4 py-2.5 rounded-full bg-[#1C2D46] hover:bg-[#273647] text-[#64748B] hover:text-white text-xs font-medium transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors cursor-pointer border border-surface-variant/30"
                 >
                   Reset
                 </button>
@@ -1002,21 +1009,26 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-[#0C1929] border-t border-white/5 py-6 mt-auto">
+      <footer className="w-full bg-surface-container-low dark:bg-[#0C1929] border-t border-surface-variant/30 dark:border-white/5 py-6 mt-auto">
         <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-full bg-[#ff5722] flex items-center justify-center">
-              <Moon size={14} className="text-white" />
+            <div className="w-6 h-6 rounded-full overflow-hidden shadow-xs flex items-center justify-center bg-primary-container shrink-0">
+              <img
+                alt="Berojgar Logo"
+                className="w-full h-full object-cover"
+                src={BRAND_LOGO_URL}
+              />
             </div>
+            <span className="text-xs font-bold text-on-surface dark:text-white">Berojgar Chat</span>
           </div>
-          <div className="flex items-center gap-5 text-xs text-[#CBD5E1]">
-            <button onClick={onNavigateHome} className="hover:text-white transition-colors cursor-pointer">
+          <div className="flex items-center gap-5 text-xs text-on-surface-variant dark:text-[#CBD5E1]">
+            <button onClick={onNavigateHome} className="hover:text-on-surface transition-colors cursor-pointer">
               Home
             </button>
-            <button onClick={() => onJoinTapri('chai_n_code')} className="hover:text-white transition-colors cursor-pointer">
+            <button onClick={() => onJoinTapri('chai_n_code')} className="hover:text-on-surface transition-colors cursor-pointer">
               #chai_n_code
             </button>
-            <button onClick={() => onJoinTapri('startup_fumbles')} className="hover:text-white transition-colors cursor-pointer">
+            <button onClick={() => onJoinTapri('startup_fumbles')} className="hover:text-on-surface transition-colors cursor-pointer">
               #startup_fumbles
             </button>
           </div>

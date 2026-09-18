@@ -14,6 +14,7 @@ import {
   Volume2,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { Conversation, UserProfile, ViewMode } from '../types';
 import {
@@ -375,6 +376,19 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
           >
             <Settings size={17} />
           </button>
+
+          {currentUser && (
+            <button
+              id="unified-sidebar-logout-btn"
+              type="button"
+              onClick={() => onLogout()}
+              title="Log Out of Berojgar"
+              aria-label="Log Out of Berojgar"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95"
+            >
+              <LogOut size={17} />
+            </button>
+          )}
 
           {currentUser ? (
             <button
@@ -738,6 +752,19 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
           >
             <Settings size={16} />
           </button>
+
+          {currentUser && (
+            <button
+              id="unified-sidebar-expanded-logout-btn"
+              type="button"
+              onClick={() => onLogout()}
+              title="Log Out of Berojgar"
+              aria-label="Log Out of Berojgar"
+              className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95"
+            >
+              <LogOut size={16} />
+            </button>
+          )}
         </div>
       </div>
 
