@@ -277,9 +277,9 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070E18] text-white flex flex-col items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-2 border-[#ff5722] border-t-transparent animate-spin mb-4" />
-        <p className="font-mono text-xs text-white/50">Fetching @{username}'s Tapri space...</p>
+      <div className="min-h-screen bg-surface text-on-surface flex flex-col items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4" />
+        <p className="font-mono text-xs text-on-surface-variant">Fetching @{username}'s Tapri space...</p>
       </div>
     );
   }
@@ -304,9 +304,9 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
   );
 
   return (
-    <div className="bg-surface dark:bg-[#070E18] text-on-surface dark:text-[#d4e4fa] font-sans min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
+    <div className="bg-surface text-on-surface font-sans min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
       {/* Header */}
-      <header className="sticky top-0 w-full z-50 bg-surface/90 dark:bg-[#070E18]/90 backdrop-blur-xl border-b border-surface-variant/30 dark:border-white/5 shadow-xs">
+      <header className="sticky top-0 w-full z-50 bg-surface-container-low/90 backdrop-blur-xl border-b border-outline-variant/30 shadow-xs">
         <div className="h-16 w-full max-w-[1240px] mx-auto px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -321,17 +321,17 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 />
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="font-bold text-sm text-on-surface dark:text-white group-hover:text-secondary transition-colors">
+                <span className="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
                   Berojgar
                 </span>
-                <span className="text-[10px] font-semibold text-secondary">
+                <span className="text-[10px] font-semibold text-primary">
                   Where ideas brew
                 </span>
               </div>
             </button>
-            <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container dark:bg-[#13233A]/60 ml-2 border border-surface-variant/20">
+            <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container ml-2 border border-outline-variant/30">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] text-on-surface-variant dark:text-[#CBD5E1] font-medium">3,412 chillers online</span>
+              <span className="text-[11px] text-on-surface-variant font-medium">3,412 chillers online</span>
             </div>
           </div>
 
@@ -345,7 +345,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
             </button>
             <button
               onClick={onNavigateHome}
-              className="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1C2D46] dark:hover:bg-[#273647] text-on-surface dark:text-white text-xs font-semibold border border-surface-variant/30 transition-colors cursor-pointer"
+              className="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold border border-outline-variant/30 transition-colors cursor-pointer"
             >
               Back to Lounges
             </button>
@@ -358,28 +358,28 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
         {/* Top Breadcrumb & URL Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center flex-wrap gap-2">
-            <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#13233A]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-surface-variant/30 dark:border-white/5 shadow-xs">
-              <Terminal size={16} className="text-secondary" />
-              <span className="text-[11px] text-on-surface-variant dark:text-[#64748B] font-mono">berojgarchat.vercel.app/</span>
-              <span className="text-xs font-bold text-on-surface dark:text-white tracking-tight font-mono">
+            <div className="flex items-center gap-2 bg-surface-container-low backdrop-blur-md px-4 py-1.5 rounded-full border border-outline-variant/30 shadow-xs">
+              <Terminal size={16} className="text-primary" />
+              <span className="text-[11px] text-on-surface-variant font-mono">berojgarchat.vercel.app/</span>
+              <span className="text-xs font-bold text-on-surface tracking-tight font-mono">
                 {username}
               </span>
               <button
                 onClick={handleCopyUrl}
-                className="ml-1 text-on-surface-variant dark:text-[#64748B] hover:text-on-surface transition-colors p-1 rounded-full flex items-center cursor-pointer"
+                className="ml-1 text-on-surface-variant hover:text-on-surface transition-colors p-1 rounded-full flex items-center cursor-pointer"
                 title="Copy profile address"
               >
-                {isCopied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                {isCopied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
               </button>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-secondary text-xs font-bold border border-secondary-container/60 shadow-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold border border-secondary-container/60 shadow-xs">
               <BadgeCheck size={14} />
               <span>Verified Chiller • Day 12</span>
             </div>
           </div>
 
           {/* Mode Switcher Pill Dock */}
-          <div className="flex items-center self-start md:self-auto bg-surface-container dark:bg-[#0d1c2d] p-1 rounded-full border border-surface-variant/30 dark:border-white/5 shadow-xs">
+          <div className="flex items-center self-start md:self-auto bg-surface-container p-1 rounded-full border border-outline-variant/30 shadow-xs">
             <button
               onClick={() => setViewMode('public')}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
@@ -399,7 +399,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               }}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 viewMode === 'customizer'
-                  ? 'bg-secondary-container text-on-secondary-container shadow-xs ring-1 ring-secondary'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-xs ring-1 ring-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -416,7 +416,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
             {/* Hero Profile Container */}
             <div
               id="profileHeroCard"
-              className="relative overflow-hidden rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/75 backdrop-blur-xl border border-surface-variant/40 dark:border-white/10 shadow-xs transition-all duration-500"
+              className="relative overflow-hidden rounded-3xl bg-surface-container-lowest backdrop-blur-xl border border-outline-variant/30 shadow-xs transition-all duration-500"
             >
               {/* Customizable Ambient Aurora Banner */}
               <div
@@ -425,13 +425,13 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 )}`}
               >
                 {/* Dynamic Aura Blurs */}
-                <div className="absolute -top-12 -left-12 w-64 h-64 rounded-full bg-secondary-container/30 blur-3xl mix-blend-screen pointer-events-none" />
-                <div className="absolute top-4 right-8 w-72 h-72 rounded-full bg-primary-fixed/30 blur-3xl mix-blend-screen pointer-events-none" />
+                <div className="absolute -top-12 -left-12 w-64 h-64 rounded-full bg-secondary-container/20 blur-3xl mix-blend-screen pointer-events-none" />
+                <div className="absolute top-4 right-8 w-72 h-72 rounded-full bg-primary-fixed/20 blur-3xl mix-blend-screen pointer-events-none" />
                 {/* Dot Pattern Texture */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
                 {/* Top Right Banner Metadata */}
                 <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-surface/80 dark:bg-[#070E18]/60 backdrop-blur-md text-[11px] text-on-surface dark:text-[#CBD5E1] font-mono flex items-center gap-1.5 border border-surface-variant/30 dark:border-white/10 shadow-xs">
+                  <span className="px-3 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-[11px] text-on-surface font-mono flex items-center gap-1.5 border border-outline-variant/30 shadow-xs">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                     <span>{locationTag}</span>
                   </span>
@@ -444,7 +444,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-4">
                   {/* Avatar Stack */}
                   <div className="relative group w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
-                    <div className="w-full h-full rounded-full overflow-hidden bg-surface-container dark:bg-[#1C2D46] p-1 shadow-xl border-2 border-surface dark:border-[#070E18] relative">
+                    <div className="w-full h-full rounded-full overflow-hidden bg-surface-container p-1 shadow-xl border-2 border-surface relative">
                       {avatarUrl ? (
                         <img
                           className="w-full h-full object-cover rounded-full"
@@ -472,8 +472,8 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                       </button>
                     </div>
                     {/* Status Badge Dot */}
-                    <div className="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-surface dark:bg-[#070E18] flex items-center justify-center shadow-xs z-20">
-                      <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-surface dark:ring-[#070E18]" />
+                    <div className="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-surface flex items-center justify-center shadow-xs z-20">
+                      <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
                     </div>
                   </div>
 
@@ -493,7 +493,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         onClick={() => {
                           if (profile) onStartDirectChat(profile);
                         }}
-                        className="px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface dark:text-white text-xs font-semibold transition-colors cursor-pointer border border-surface-variant/30"
+                        className="px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors cursor-pointer border border-outline-variant/30"
                       >
                         Direct Message
                       </button>
@@ -504,16 +504,16 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 {/* Name, Hindi Tag & Handle */}
                 <div className="flex flex-col gap-1 mb-3">
                   <div className="flex items-center flex-wrap gap-2">
-                    <h1 className="text-2xl sm:text-3xl text-on-surface dark:text-white font-extrabold tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl text-on-surface font-extrabold tracking-tight">
                       {displayName}
                     </h1>
                     {hindiName && (
-                      <span className="text-lg text-secondary font-semibold">
+                      <span className="text-lg text-primary font-semibold">
                         ({hindiName})
                       </span>
                     )}
-                    <BadgeCheck size={20} className="text-secondary" />
-                    <span className="ml-1 px-3 py-0.5 rounded-full bg-secondary-container/40 text-secondary text-[11px] font-bold tracking-wide uppercase border border-secondary-container/60">
+                    <BadgeCheck size={20} className="text-primary" />
+                    <span className="ml-1 px-3 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold tracking-wide uppercase border border-secondary-container/60">
                       {customVibeTag}
                     </span>
                     <button
@@ -523,40 +523,40 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         const el = document.getElementById('displayNameEditorSection');
                         el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }}
-                      className="text-on-surface-variant hover:text-secondary p-1 transition-colors cursor-pointer rounded-full hover:bg-surface-container"
+                      className="text-on-surface-variant hover:text-primary p-1 transition-colors cursor-pointer rounded-full hover:bg-surface-container"
                       title="Edit Profile Information"
                     >
                       <Edit size={15} />
                     </button>
                   </div>
                   <p className="text-xs text-on-surface-variant">
-                    @{username} • <span className="text-on-surface dark:text-[#CBD5E1] font-medium">बस सुकून, बस कोड।</span>
+                    @{username} • <span className="text-on-surface font-medium">बस सुकून, बस कोड।</span>
                   </p>
                 </div>
 
                 {/* Bio */}
-                <p className="text-sm text-on-surface-variant dark:text-[#CBD5E1] leading-relaxed max-w-2xl mb-4">
+                <p className="text-sm text-on-surface-variant leading-relaxed max-w-2xl mb-4">
                   {bio}
                 </p>
 
                 {/* Metrics Bar */}
-                <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-surface-container-low dark:bg-[#0C1929]/80 mb-5 border border-surface-variant/30 dark:border-white/5 shadow-xs">
+                <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-surface-container-low mb-5 border border-outline-variant/30 shadow-xs">
                   <div className="flex flex-col px-3 py-1">
                     <span className="text-[11px] text-on-surface-variant font-medium">Lounge Time</span>
-                    <span className="text-base text-on-surface dark:text-white font-bold flex items-center gap-1 font-mono">
+                    <span className="text-base text-on-surface font-bold flex items-center gap-1 font-mono">
                       {profile?.loungeHours || 142}
-                      <span className="text-secondary text-xs font-normal">hrs</span>
+                      <span className="text-primary text-xs font-normal">hrs</span>
                     </span>
                   </div>
                   <div className="flex flex-col px-3 py-1">
                     <span className="text-[11px] text-on-surface-variant font-medium">Tea Clinks</span>
-                    <span className="text-base text-on-surface dark:text-white font-bold flex items-center gap-1 font-mono">
+                    <span className="text-base text-on-surface font-bold flex items-center gap-1 font-mono">
                       {chaiCount} ☕
                     </span>
                   </div>
                   <div className="flex flex-col px-3 py-1">
                     <span className="text-[11px] text-on-surface-variant font-medium">Current Mood</span>
-                    <span className="text-xs text-secondary font-bold truncate pt-0.5">
+                    <span className="text-xs text-primary font-bold truncate pt-0.5">
                       {customStatus}
                     </span>
                   </div>
@@ -567,7 +567,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   <button
                     id="chaiClinkBtn"
                     onClick={handleClinkChai}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all cursor-pointer border border-surface-variant/30 group ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all cursor-pointer border border-outline-variant/30 group ${
                       isChaiClinked
                         ? 'bg-secondary-container text-on-secondary-container scale-105 shadow-md'
                         : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
@@ -576,14 +576,14 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     <span className="text-[16px] group-hover:scale-125 transition-transform inline-block">
                       ☕
                     </span>
-                    <span className="text-xs font-bold text-secondary">
+                    <span className="text-xs font-bold text-primary">
                       {isChaiClinked ? 'Chai Sent!' : 'Send 1 Chai'}
                     </span>
                   </button>
 
                   <button
                     onClick={handleShareProfile}
-                    className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface dark:text-[#CBD5E1] transition-colors cursor-pointer border border-surface-variant/30"
+                    className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors cursor-pointer border border-outline-variant/30"
                     title="Share profile card"
                   >
                     <Share2 size={16} />
@@ -601,13 +601,13 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Room 1 */}
-                <div className="p-4 rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/60 hover:border-secondary border border-surface-variant/40 dark:border-white/5 transition-all shadow-xs flex flex-col justify-between group">
+                <div className="p-4 rounded-3xl bg-surface-container-lowest hover:border-primary border border-outline-variant/30 transition-all shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-on-surface dark:text-white group-hover:text-secondary transition-colors">
+                      <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
                         #chai_n_code
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-[#22C55E]">
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> 82
                       </span>
                     </div>
@@ -625,13 +625,13 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 </div>
 
                 {/* Room 2 */}
-                <div className="p-4 rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/60 hover:border-secondary border border-surface-variant/40 dark:border-white/5 transition-all shadow-xs flex flex-col justify-between group">
+                <div className="p-4 rounded-3xl bg-surface-container-lowest hover:border-primary border border-outline-variant/30 transition-all shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-on-surface dark:text-white group-hover:text-secondary transition-colors truncate">
+                      <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors truncate">
                         #startup_fumbles
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-[#22C55E]">
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> 114
                       </span>
                     </div>
@@ -649,13 +649,13 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 </div>
 
                 {/* Room 3 */}
-                <div className="p-4 rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/60 hover:border-secondary border border-surface-variant/40 dark:border-white/5 transition-all shadow-xs flex flex-col justify-between group">
+                <div className="p-4 rounded-3xl bg-surface-container-lowest hover:border-primary border border-outline-variant/30 transition-all shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-on-surface dark:text-white group-hover:text-secondary transition-colors">
+                      <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
                         #valorant_3am
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-[#22C55E]">
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> 24
                       </span>
                     </div>
@@ -680,18 +680,18 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
           <div
             id="customizerPanel"
             className={`lg:col-span-4 flex flex-col gap-4 sticky top-20 transition-all ${
-              viewMode === 'customizer' ? 'ring-2 ring-secondary/60 rounded-3xl' : ''
+              viewMode === 'customizer' ? 'ring-2 ring-primary/60 rounded-3xl' : ''
             }`}
           >
-            <div className="rounded-3xl bg-surface-container-lowest dark:bg-[#13233A]/90 backdrop-blur-xl p-5 border border-surface-variant/40 dark:border-white/10 shadow-xs flex flex-col gap-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="rounded-3xl bg-surface-container-lowest backdrop-blur-xl p-5 border border-outline-variant/30 shadow-xs flex flex-col gap-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
               {/* Customizer Header */}
-              <div className="flex items-center justify-between pb-2 border-b border-surface-variant/30 dark:border-white/5">
+              <div className="flex items-center justify-between pb-2 border-b border-outline-variant/30">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
                     <Brush size={16} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-on-surface dark:text-white">Edit Profile & Tapri Space</h3>
+                    <h3 className="text-sm font-bold text-on-surface">Edit Profile & Tapri Space</h3>
                     <p className="text-[11px] text-on-surface-variant">
                       Changes preview live in real-time
                     </p>
@@ -705,19 +705,19 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               {/* Section: Display Name */}
               <div id="displayNameEditorSection" className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
-                    <IdCard size={15} className="text-secondary" />
+                  <label className="text-xs font-semibold text-on-surface flex items-center gap-1.5">
+                    <IdCard size={15} className="text-primary" />
                     <span>Display Name</span>
                   </label>
                   <span className="text-[10px] text-on-surface-variant">Real-time preview</span>
                 </div>
-                <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#0C1929] px-3 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10 focus-within:border-secondary transition-colors">
+                <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 rounded-2xl border border-outline-variant/30 focus-within:border-primary transition-colors">
                   <input
                     type="text"
                     value={customDisplayName}
                     onChange={(e) => setCustomDisplayName(e.target.value)}
                     placeholder="e.g. Ayush Bhattacharya"
-                    className="bg-transparent flex-1 text-on-surface dark:text-white text-xs font-medium focus:outline-none placeholder:text-on-surface-variant/50"
+                    className="bg-transparent flex-1 text-on-surface text-xs font-medium focus:outline-none placeholder:text-on-surface-variant/50"
                   />
                   {customDisplayName && (
                     <button
@@ -735,16 +735,16 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               {/* Section: Avatar & Photo */}
               <div id="avatarEditorSection" className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
-                    <UserCircle size={15} className="text-secondary" />
+                  <label className="text-xs font-semibold text-on-surface flex items-center gap-1.5">
+                    <UserCircle size={15} className="text-primary" />
                     <span>Avatar & Photo</span>
                   </label>
-                  <span className="text-[10px] text-secondary font-semibold">Instant Presets</span>
+                  <span className="text-[10px] text-primary font-semibold">Instant Presets</span>
                 </div>
 
                 {/* Current Avatar Preview & Upload */}
-                <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] border border-surface-variant/30 dark:border-white/5">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container dark:bg-[#1C2D46] border border-surface-variant/30 dark:border-white/10 flex-shrink-0">
+                <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-surface-container-low border border-outline-variant/30">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container border border-outline-variant/30 flex-shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
                     ) : (
@@ -755,7 +755,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <label className="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-semibold cursor-pointer transition-colors flex items-center gap-1 border border-surface-variant/30">
+                      <label className="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-semibold cursor-pointer transition-colors flex items-center gap-1 border border-outline-variant/30">
                         <Upload size={13} />
                         <span>Upload Photo</span>
                         <input
@@ -769,7 +769,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         <button
                           type="button"
                           onClick={() => setCustomAvatarUrl('')}
-                          className="text-[10px] text-secondary hover:underline cursor-pointer font-bold"
+                          className="text-[10px] text-primary hover:underline cursor-pointer font-bold"
                         >
                           Reset
                         </button>
@@ -788,10 +788,10 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         key={preset.name}
                         type="button"
                         onClick={() => setCustomAvatarUrl(preset.url)}
-                        className={`flex items-center gap-1.5 p-1.5 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container border transition-all text-left cursor-pointer ${
+                        className={`flex items-center gap-1.5 p-1.5 rounded-2xl bg-surface-container-low hover:bg-surface-container border transition-all text-left cursor-pointer ${
                           avatarUrl === preset.url
-                            ? 'border-secondary ring-1 ring-secondary/50'
-                            : 'border-surface-variant/30 dark:border-white/5'
+                            ? 'border-primary ring-1 ring-primary/50'
+                            : 'border-outline-variant/30'
                         }`}
                         title={preset.name}
                       >
@@ -800,21 +800,21 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                           alt={preset.name}
                           className="w-6 h-6 rounded-full object-cover flex-shrink-0"
                         />
-                        <span className="text-[10px] text-on-surface dark:text-[#CBD5E1] truncate font-medium">{preset.vibe}</span>
+                        <span className="text-[10px] text-on-surface truncate font-medium">{preset.vibe}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Custom Avatar URL Input */}
-                <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#0C1929] px-2.5 py-1.5 rounded-2xl border border-surface-variant/30 dark:border-white/5 text-[11px]">
+                <div className="flex items-center gap-2 bg-surface-container-low px-2.5 py-1.5 rounded-2xl border border-outline-variant/30 text-[11px]">
                   <Link2 size={14} className="text-on-surface-variant" />
                   <input
                     type="url"
                     value={customAvatarUrl}
                     onChange={(e) => setCustomAvatarUrl(e.target.value)}
                     placeholder="Or paste image URL..."
-                    className="bg-transparent flex-1 text-on-surface dark:text-white text-[11px] focus:outline-none placeholder:text-on-surface-variant/50"
+                    className="bg-transparent flex-1 text-on-surface text-[11px] focus:outline-none placeholder:text-on-surface-variant/50"
                   />
                 </div>
               </div>
@@ -822,8 +822,8 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               {/* Section: Bio & About You */}
               <div id="bioEditorSection" className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
-                    <FileEdit size={15} className="text-secondary" />
+                  <label className="text-xs font-semibold text-on-surface flex items-center gap-1.5">
+                    <FileEdit size={15} className="text-primary" />
                     <span>Bio & Late-night Note</span>
                   </label>
                   <span className="text-[10px] text-on-surface-variant">
@@ -836,30 +836,30 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                   value={customBio}
                   onChange={(e) => setCustomBio(e.target.value)}
                   placeholder="Write a late-night thought, bio or what you're working on..."
-                  className="w-full bg-surface-container-low dark:bg-[#0C1929] text-on-surface dark:text-white text-xs p-3 rounded-2xl border border-surface-variant/30 dark:border-white/10 focus:outline-none focus:border-secondary resize-none leading-relaxed placeholder:text-on-surface-variant/50"
+                  className="w-full bg-surface-container-low text-on-surface text-xs p-3 rounded-2xl border border-outline-variant/30 focus:outline-none focus:border-primary resize-none leading-relaxed placeholder:text-on-surface-variant/50"
                 />
               </div>
 
               {/* Section: Hindi Tag & Location / Time */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium text-on-surface dark:text-[#CBD5E1]">Hindi Name Tag</label>
+                  <label className="text-[11px] font-medium text-on-surface">Hindi Name Tag</label>
                   <input
                     type="text"
                     value={customHindiName}
                     onChange={(e) => setCustomHindiName(e.target.value)}
                     placeholder="e.g. आयुष"
-                    className="bg-surface-container-low dark:bg-[#0C1929] px-2.5 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10 text-on-surface dark:text-white text-xs focus:outline-none focus:border-secondary placeholder:text-on-surface-variant/50"
+                    className="bg-surface-container-low px-2.5 py-2 rounded-2xl border border-outline-variant/30 text-on-surface text-xs focus:outline-none focus:border-primary placeholder:text-on-surface-variant/50"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-medium text-on-surface dark:text-[#CBD5E1]">Fixed Location</label>
+                    <label className="text-[11px] font-medium text-on-surface">Fixed Location</label>
                     <button
                       type="button"
                       onClick={handleDetectCurrentLocation}
                       disabled={isDetectingLocation}
-                      className="text-[10px] text-secondary hover:underline flex items-center gap-1 font-bold transition-colors cursor-pointer"
+                      className="text-[10px] text-primary hover:underline flex items-center gap-1 font-bold transition-colors cursor-pointer"
                       title="Auto-detect current GPS/IP location & set as fixed location"
                     >
                       <LocateFixed size={13} className={isDetectingLocation ? 'animate-spin' : ''} />
@@ -871,7 +871,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     value={customLocation}
                     onChange={(e) => setCustomLocation(e.target.value)}
                     placeholder="e.g. Delhi, IN"
-                    className="bg-surface-container-low dark:bg-[#0C1929] px-2.5 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10 text-on-surface dark:text-white text-xs focus:outline-none focus:border-secondary placeholder:text-on-surface-variant/50"
+                    className="bg-surface-container-low px-2.5 py-2 rounded-2xl border border-outline-variant/30 text-on-surface text-xs focus:outline-none focus:border-primary placeholder:text-on-surface-variant/50"
                   />
                   <span className="text-[9px] text-on-surface-variant">
                     Location is fixed • Clock updates live
@@ -880,55 +880,55 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
               </div>
 
               {/* Section 1: Ambient Banner Aura Picker */}
-              <div className="flex flex-col gap-1.5 pt-2 border-t border-surface-variant/30 dark:border-white/5">
-                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">Ambient Banner Aura</label>
+              <div className="flex flex-col gap-1.5 pt-2 border-t border-outline-variant/30">
+                <label className="text-xs font-medium text-on-surface">Ambient Banner Aura</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setCustomTheme('aurora')}
-                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'aurora' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'aurora' ? 'border-primary' : 'border-outline-variant/30'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#143d42] to-[#2b1b17] ring-1 ring-secondary/40" />
-                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Midnight Aurora</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#143d42] to-[#2b1b17] ring-1 ring-primary/40" />
+                    <span className="text-[11px] text-on-surface">Midnight Aurora</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomTheme('sunset')}
-                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'sunset' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'sunset' ? 'border-primary' : 'border-outline-variant/30'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#ff5722] to-[#3a0d1f] ring-1 ring-secondary/40" />
-                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Sunset Ember</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#ff5722] to-[#3a0d1f] ring-1 ring-primary/40" />
+                    <span className="text-[11px] text-on-surface">Sunset Ember</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomTheme('indigo')}
-                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'indigo' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'indigo' ? 'border-primary' : 'border-outline-variant/30'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1a237e] to-[#0d47a1] ring-1 ring-secondary/40" />
-                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Electric Indigo</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1a237e] to-[#0d47a1] ring-1 ring-primary/40" />
+                    <span className="text-[11px] text-on-surface">Electric Indigo</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCustomTheme('sage')}
-                    className={`p-2 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
-                      customTheme === 'sage' ? 'border-secondary' : 'border-surface-variant/30 dark:border-white/5'
+                    className={`p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container flex items-center gap-2 text-left transition-all border cursor-pointer ${
+                      customTheme === 'sage' ? 'border-primary' : 'border-outline-variant/30'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1c3829] to-[#0f231c] ring-1 ring-secondary/40" />
-                    <span className="text-[11px] text-on-surface dark:text-[#CBD5E1]">Nordic Sage</span>
+                    <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#1c3829] to-[#0f231c] ring-1 ring-primary/40" />
+                    <span className="text-[11px] text-on-surface">Nordic Sage</span>
                   </button>
                 </div>
               </div>
 
               {/* Section 2: Bio Vibe Selector */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">Persona • Bio Vibe Tag</label>
+                <label className="text-xs font-medium text-on-surface">Persona • Bio Vibe Tag</label>
                 <div className="flex flex-wrap gap-1.5">
                   {['Late-night coder', 'Graphic nocturne', 'Philosophical chiller', 'Lofi curator'].map(
                     (tag) => (
@@ -939,7 +939,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                         className={`px-3 py-1 rounded-full text-[11px] transition-all cursor-pointer ${
                           customVibeTag === tag
                             ? 'bg-secondary-container text-on-secondary-container font-bold shadow-xs'
-                            : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-surface-variant/30'
+                            : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant/30'
                         }`}
                       >
                         {tag}
@@ -951,27 +951,27 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
 
               {/* Section 3: Status Line & Focus Emoji Input */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">
+                <label className="text-xs font-medium text-on-surface">
                   Status Line & Focus Emoji
                 </label>
-                <div className="flex items-center gap-2 bg-surface-container-low dark:bg-[#0C1929] px-3 py-2 rounded-2xl border border-surface-variant/30 dark:border-white/10">
+                <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 rounded-2xl border border-outline-variant/30">
                   <input
                     type="text"
                     value={customStatus}
                     onChange={(e) => setCustomStatus(e.target.value)}
                     placeholder="What are you doing at this late hour?"
-                    className="bg-transparent flex-1 text-on-surface dark:text-white text-xs focus:outline-none"
+                    className="bg-transparent flex-1 text-on-surface text-xs focus:outline-none"
                   />
-                  <Smile size={18} className="text-secondary" />
+                  <Smile size={18} className="text-primary" />
                 </div>
               </div>
 
               {/* Section 4: Privacy & Ambient Rules */}
-              <div className="flex flex-col gap-2 pt-1 border-t border-surface-variant/30 dark:border-white/5">
-                <label className="text-xs font-medium text-on-surface dark:text-[#CBD5E1]">Privacy & Ambient Rules</label>
-                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-surface-container-low dark:bg-[#0C1929] border border-surface-variant/30 dark:border-white/5">
+              <div className="flex flex-col gap-2 pt-1 border-t border-outline-variant/30">
+                <label className="text-xs font-medium text-on-surface">Privacy & Ambient Rules</label>
+                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-surface-container-low border border-outline-variant/30">
                   <div className="flex flex-col">
-                    <span className="text-xs text-on-surface dark:text-white font-medium">Broadcast Current Lounge</span>
+                    <span className="text-xs text-on-surface font-medium">Broadcast Current Lounge</span>
                     <span className="text-[10px] text-on-surface-variant">
                       Shows #chai_n_code when active
                     </span>
@@ -980,7 +980,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                     type="checkbox"
                     checked={broadcastLounge}
                     onChange={(e) => setBroadcastLounge(e.target.checked)}
-                    className="accent-secondary cursor-pointer w-4 h-4"
+                    className="accent-primary cursor-pointer w-4 h-4"
                   />
                 </div>
               </div>
@@ -998,7 +998,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 <button
                   type="button"
                   onClick={handleResetCustomSpace}
-                  className="px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors cursor-pointer border border-surface-variant/30"
+                  className="px-4 py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors cursor-pointer border border-outline-variant/30"
                 >
                   Reset
                 </button>
@@ -1009,7 +1009,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-surface-container-low dark:bg-[#0C1929] border-t border-surface-variant/30 dark:border-white/5 py-6 mt-auto">
+      <footer className="w-full bg-surface-container-low border-t border-outline-variant/30 py-6 mt-auto">
         <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-full overflow-hidden shadow-xs flex items-center justify-center bg-primary-container shrink-0">
@@ -1019,9 +1019,9 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({
                 src={BRAND_LOGO_URL}
               />
             </div>
-            <span className="text-xs font-bold text-on-surface dark:text-white">Berojgar Chat</span>
+            <span className="text-xs font-bold text-on-surface">Berojgar Chat</span>
           </div>
-          <div className="flex items-center gap-5 text-xs text-on-surface-variant dark:text-[#CBD5E1]">
+          <div className="flex items-center gap-5 text-xs text-on-surface-variant">
             <button onClick={onNavigateHome} className="hover:text-on-surface transition-colors cursor-pointer">
               Home
             </button>

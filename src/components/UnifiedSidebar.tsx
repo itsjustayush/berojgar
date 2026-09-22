@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Search,
   Plus,
   MessageSquare,
   Coffee,
   CheckCircle2,
+  Check,
+  CheckCheck,
   Users,
   Compass,
   Bookmark,
@@ -77,6 +79,13 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [showCreateTapriModal, setShowCreateTapriModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'ALL' | 'DMS' | 'CIRCLES' | 'PINNED'>('ALL');
+  const [now, setNow] = useState<number>(Date.now());
+
+  // 1-second ticker to reactively evaluate typing timestamps
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Filter conversations
   const filteredConversations = conversations.filter((conv) => {
@@ -242,20 +251,56 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
   if (isCollapsed) {
     return (
       <aside
-        id="unified-sidebar-collapsed"
-        aria-label="Unified Navigation Sidebar"
-        className="w-[72px] h-full shrink-0 flex flex-col bg-white dark:bg-[#0B1120] border-r border-slate-200 dark:border-slate-800 select-none items-center py-3.5 justify-between transition-colors z-20"
+        id="unified-sidebar"
+        aria-label="Unified Navigation Sidebar (Collapsed)"
+        className="relative w-[72px] h-full shrink-0 flex flex-col bg-surface-container-lowest border-r border-surface-variant/30 text-on-surface select-none items-center justify-between transition-colors z-20"
       >
-        <div className="flex flex-col items-center gap-4 w-full px-2">
-          {/* Logo */}
+        {/* Floating edge expand pill on the sidebar border */}
+        {onToggleCollapse && (
           <button
             type="button"
-            onClick={() => onNavigate('CHATS')}
-            title="Berozgar - Home"
-            className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+            onClick={onToggleCollapse}
+            title="Expand Sidebar"
+            aria-label="Expand Sidebar"
+            className="absolute top-3.5 -right-3.5 z-30 w-7 h-7 rounded-full bg-surface-container-lowest border border-surface-variant/50 shadow-md text-on-surface-variant hover:text-secondary hover:border-secondary/50 flex items-center justify-center transition-all cursor-pointer hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-secondary"
           >
-            <Coffee size={20} className="stroke-[2.2] group-hover:rotate-6 transition-transform" />
+            <ChevronRight size={14} className="stroke-[2.5] ml-0.5" />
           </button>
+        )}
+
+        <div className="flex flex-col items-center gap-3 w-full">
+          {/* Top Header Row matching expanded hierarchy */}
+          <div className="w-full px-2 py-3 border-b border-surface-variant/30 flex items-center justify-between gap-1 bg-surface-container-lowest">
+            <div className="flex items-center justify-center">
+              {/* Logo */}
+              <button
+                type="button"
+                onClick={() => onNavigate('CHATS')}
+                title="Berozgar - Home"
+                className="w-9 h-9 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+              >
+                <Coffee size={18} className="stroke-[2.2] group-hover:rotate-6 transition-transform" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {/* Hidden placeholder buttons 1 and 2 to preserve DOM selector structure */}
+              <span className="hidden" aria-hidden="true" />
+              <span className="hidden" aria-hidden="true" />
+              {onToggleCollapse && (
+                <button
+                  id="unified-sidebar-expand-btn"
+                  type="button"
+                  onClick={onToggleCollapse}
+                  title="Expand Sidebar"
+                  aria-label="Expand Sidebar"
+                  className="p-1.5 rounded-xl border border-surface-variant/40 bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:shadow-xs active:scale-95 focus-visible:outline-2 focus-visible:outline-secondary"
+                >
+                  <ChevronRight size={16} className="stroke-[2.2]" />
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Primary View Navigation */}
           <div className="flex flex-col items-center gap-1.5 w-full">
@@ -265,13 +310,13 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               title="Messages"
               className={`w-10 h-10 rounded-2xl flex items-center justify-center relative transition-all cursor-pointer ${
                 currentView === 'CHATS'
-                  ? 'bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/70'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-2xs font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
               <MessageSquare size={18} />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-white dark:ring-[#0B1120]" />
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-secondary ring-2 ring-surface" />
               )}
             </button>
 
@@ -281,8 +326,8 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               title="Directory & Network"
               className={`w-10 h-10 rounded-2xl flex items-center justify-center relative transition-all cursor-pointer ${
                 currentView === 'DIRECTORY'
-                  ? 'bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/70'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-2xs font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
               <Compass size={18} />
@@ -290,19 +335,8 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 
             <button
               type="button"
-              onClick={() => {
-                if (onToggleCollapse) onToggleCollapse();
-              }}
-              className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
-              title="Expand Sidebar"
-            >
-              <ChevronRight size={18} />
-            </button>
-
-            <button
-              type="button"
               onClick={() => setShowNewChatModal(true)}
-              className="w-10 h-10 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+              className="w-10 h-10 rounded-2xl bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
               title="Start New Direct Chat"
             >
               <Plus size={18} />
@@ -328,13 +362,13 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                 }}
                 className={`relative p-1 rounded-2xl transition-all cursor-pointer ${
                   isActive
-                    ? 'ring-2 ring-orange-500 bg-orange-50 dark:bg-orange-950/40'
-                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'ring-2 ring-secondary bg-surface-container'
+                    : 'hover:bg-surface-container'
                 }`}
                 title={isGroup ? (conv.tapriTitle || `#${conv.tapriName}`) : `${other.displayName} (@${other.username})`}
               >
                 {isGroup ? (
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-mono font-bold text-sm shadow-xs">
+                  <div className="w-10 h-10 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-mono font-bold text-sm shadow-xs">
                     <Coffee size={17} />
                   </div>
                 ) : (
@@ -348,7 +382,7 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                   />
                 )}
                 {convUnread > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-secondary-container text-on-secondary-container font-mono text-[9px] font-bold flex items-center justify-center shadow-xs">
                     {convUnread > 9 ? '9+' : convUnread}
                   </span>
                 )}
@@ -358,21 +392,21 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex flex-col items-center gap-3 w-full px-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="flex flex-col items-center gap-3 w-full px-2 pt-2 border-t border-surface-variant/30">
           <button
             type="button"
             onClick={onToggleDarkMode}
-            title={isDarkMode ? 'Switch to Light Warmth ☕' : 'Switch to Deep Navy 🌙'}
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
+            title={isDarkMode ? 'Switch to Light Warmth ☕' : 'Switch to Nocturnal Lounge 🌙'}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
           >
-            {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+            {isDarkMode ? <Sun size={17} className="text-secondary" /> : <Moon size={17} />}
           </button>
 
           <button
             type="button"
             onClick={onOpenSettings}
             title="Settings & Preferences"
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
           >
             <Settings size={17} />
           </button>
@@ -384,7 +418,7 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               onClick={() => onLogout()}
               title="Log Out of Berojgar"
               aria-label="Log Out of Berojgar"
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors cursor-pointer active:scale-95"
             >
               <LogOut size={17} />
             </button>
@@ -395,7 +429,7 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               type="button"
               onClick={onOpenProfile}
               title={`@${currentUser.username} (${currentUser.displayName})`}
-              className="relative rounded-full ring-2 ring-emerald-500/80 ring-offset-2 dark:ring-offset-[#0B1120] transition-transform hover:scale-105 cursor-pointer"
+              className="relative rounded-full ring-2 ring-secondary/80 ring-offset-2 ring-offset-surface transition-transform hover:scale-105 cursor-pointer"
             >
               <UserAvatar
                 name={currentUser.displayName}
@@ -403,13 +437,13 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                 photoURL={currentUser.photoURL}
                 size="sm"
               />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#0B1120]" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
             </button>
           ) : (
             <button
               type="button"
               onClick={onOpenAuth}
-              className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold shadow-xs hover:bg-orange-600 transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold shadow-xs hover:bg-secondary-fixed transition-colors cursor-pointer"
             >
               Sign
             </button>
@@ -426,27 +460,27 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
     <aside
       id="unified-sidebar"
       aria-label="Unified Navigation and Chat Sidebar"
-      className="w-full h-full flex flex-col bg-white dark:bg-[#0B1120] border-r border-slate-200/80 dark:border-slate-800 select-none overflow-hidden transition-colors"
+      className="w-full h-full flex flex-col bg-surface-container-lowest border-r border-surface-variant/30 text-on-surface select-none overflow-hidden transition-colors"
     >
       {/* 1. TOP HEADER: Brand Logo, Status & Direct Actions */}
-      <div className="px-3.5 py-3 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+      <div className="px-3.5 py-3 border-b border-surface-variant/30 flex items-center justify-between gap-2 bg-surface-container-lowest">
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"
             onClick={() => onNavigate('CHATS')}
             title="Berozgar - Home"
-            className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-orange-600 text-white flex items-center justify-center shadow-xs shadow-orange-500/20 shrink-0 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-xs shrink-0 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
           >
             <Coffee size={18} className="stroke-[2.2]" />
           </button>
           <div className="min-w-0">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate leading-tight">
+            <h2 className="text-sm font-bold text-on-surface tracking-tight truncate leading-tight">
               Berojgar
             </h2>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/50 text-[9px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live (6)
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-secondary text-[10px] font-mono font-bold border border-secondary/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+                Live Tapri
               </span>
             </div>
           </div>
@@ -457,49 +491,51 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
             type="button"
             onClick={() => setShowCreateTapriModal(true)}
             title="Create Chai Circle / Tapri"
-            className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl border border-surface-variant/40 hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-colors cursor-pointer"
           >
-            <Coffee size={15} className="text-orange-500" />
+            <Coffee size={15} className="text-secondary" />
           </button>
 
           <button
             type="button"
             onClick={() => setShowNewChatModal(true)}
             title="New Direct Message"
-            className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl border border-surface-variant/40 hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
           >
             <Plus size={15} />
           </button>
 
           {onToggleCollapse && (
             <button
+              id="unified-sidebar-collapse-btn"
               type="button"
               onClick={onToggleCollapse}
               title="Collapse Sidebar"
-              className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer hidden md:flex"
+              aria-label="Collapse Sidebar"
+              className="p-1.5 rounded-xl border border-surface-variant/40 bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:shadow-xs active:scale-95 focus-visible:outline-2 focus-visible:outline-secondary"
             >
-              <ChevronLeft size={15} />
+              <ChevronLeft size={16} className="stroke-[2.2]" />
             </button>
           )}
         </div>
       </div>
 
       {/* 2. PRIMARY VIEW SWITCHER SEGMENT (Chats vs Directory) */}
-      <div className="p-2 pb-1 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/30">
-        <div className="grid grid-cols-2 gap-1 p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/50">
+      <div className="p-2 pb-1 border-b border-surface-variant/30 bg-surface-container-lowest">
+        <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-surface-container-low border border-surface-variant/40">
           <button
             type="button"
             onClick={() => onNavigate('CHATS')}
             className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               currentView === 'CHATS'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-secondary-container text-on-secondary-container font-bold shadow-2xs'
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <MessageSquare size={14} />
             <span>Chats</span>
             {unreadCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-orange-500" />
+              <span className="w-2 h-2 rounded-full bg-secondary" />
             )}
           </button>
 
@@ -508,8 +544,8 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
             onClick={() => onNavigate('DIRECTORY')}
             className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               currentView === 'DIRECTORY'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-secondary-container text-on-secondary-container font-bold shadow-2xs'
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <Compass size={14} />
@@ -519,24 +555,24 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
       </div>
 
       {/* 3. SEARCH INPUT */}
-      <div className="p-3 pb-2">
+      <div className="p-3 pb-2 bg-surface-container-lowest">
         <div className="relative flex items-center">
-          <Search size={14} className="absolute left-3 text-slate-400 pointer-events-none" />
+          <Search size={14} className="absolute left-3 text-on-surface-variant/60 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearchNetwork(e.target.value)}
             placeholder="Search conversations..."
-            className="w-full pl-8.5 pr-10 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+            className="w-full pl-8.5 pr-10 py-2 rounded-xl bg-surface-container-low border border-surface-variant/40 text-xs text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-secondary-container/30 focus:border-secondary-container transition-all"
           />
-          <kbd className="absolute right-2.5 px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-700 text-[9px] font-mono text-slate-500 dark:text-slate-400 pointer-events-none">
+          <kbd className="absolute right-2.5 px-1.5 py-0.5 rounded-md bg-surface-container text-[9px] font-mono text-on-surface-variant pointer-events-none">
             ⌘K
           </kbd>
         </div>
       </div>
 
       {/* 4. FILTER CHIPS (All, DMs, Chai Circles, Pinned) */}
-      <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800/80 overflow-x-auto custom-scrollbar">
+      <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-surface-variant/30 overflow-x-auto custom-scrollbar bg-surface-container-lowest">
         {(['ALL', 'DMS', 'CIRCLES', 'PINNED'] as const).map((tab) => {
           const labels: Record<string, string> = {
             ALL: 'All',
@@ -553,10 +589,10 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                 if (currentView !== 'CHATS') onNavigate('CHATS');
                 setActiveTab(tab);
               }}
-              className={`px-2.5 py-1 rounded-xl text-xs font-semibold shrink-0 transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-2xs font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
               {labels[tab]}
@@ -566,13 +602,13 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
       </div>
 
       {/* 5. MAIN SCROLLABLE BODY */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100/80 dark:divide-slate-800/50">
+      <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-surface-variant/20 bg-surface-container-lowest">
         <div className="p-3 space-y-1">
           <div className="flex items-center justify-between px-1 mb-1.5">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-on-surface-variant">
               Recent Conversations
             </span>
-            <span className="text-[10px] font-mono text-slate-400">
+            <span className="text-[10px] font-mono text-on-surface-variant">
               {filteredConversations.length} total
             </span>
           </div>
@@ -594,28 +630,42 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                     }}
                     className={`w-full p-2.5 rounded-2xl flex items-center gap-3 transition-all text-left cursor-pointer border ${
                       isActive
-                        ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs'
-                        : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                        ? 'bg-surface-container border-secondary/30 shadow-xs border-l-4 border-l-secondary-container'
+                        : 'border-transparent hover:bg-surface-container-low'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shrink-0 shadow-xs">
+                    <div className="w-10 h-10 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 shadow-2xs">
                       <Coffee size={17} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        <span className="text-xs font-bold text-on-surface truncate">
                           {tapriTitle}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                        <span className="text-[10px] font-mono text-on-surface-variant shrink-0">
                           {formatTimestamp(conv.lastMessage?.timestamp || conv.updatedAt)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[170px]">
-                          {conv.lastMessage?.text || 'Chai Circle Lounge'}
-                        </p>
+                        {conv.typing &&
+                        Object.entries(conv.typing).some(
+                          ([uid, ts]) => uid !== currentUser.uid && typeof ts === 'number' && now - ts < 4000
+                        ) ? (
+                          <div className="flex items-center gap-1.5 text-xs text-secondary font-medium truncate">
+                            <span className="italic">typing</span>
+                            <span className="inline-flex items-center gap-0.5">
+                              <span className="w-1 h-1 rounded-full bg-secondary animate-bounce [animation-delay:-0.3s]" />
+                              <span className="w-1 h-1 rounded-full bg-secondary animate-bounce [animation-delay:-0.15s]" />
+                              <span className="w-1 h-1 rounded-full bg-secondary animate-bounce" />
+                            </span>
+                          </div>
+                        ) : (
+                          <p className={`text-xs truncate max-w-[170px] ${convUnread > 0 ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`}>
+                            {conv.lastMessage?.text || 'Chai Circle Lounge'}
+                          </p>
+                        )}
                         {convUnread > 0 && (
-                          <span className="px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold shrink-0">
+                          <span className="px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold shrink-0">
                             {convUnread}
                           </span>
                         )}
@@ -628,6 +678,18 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               // Direct message item
               const other = getOtherParticipant(conv);
               const hasAudio = conv.lastMessage?.type === 'audio';
+              const isOtherUserTyping =
+                conv.typing &&
+                Object.entries(conv.typing).some(
+                  ([uid, ts]) => uid !== currentUser.uid && typeof ts === 'number' && now - ts < 4000
+                );
+              const isLastMessageFromYou = conv.lastMessage?.senderId === currentUser.uid;
+              const isLastMsgSeen =
+                isLastMessageFromYou &&
+                (conv.lastMessage?.status === 'seen' ||
+                  (conv.lastMessage?.seenBy && conv.lastMessage.seenBy.includes(other.uid)) ||
+                  (conv.unreadCounts?.[other.uid] === 0 && (conv.lastMessage?.timestamp || 0) <= (conv.updatedAt || 0)));
+              const isLastMsgDelivered = isLastMessageFromYou && conv.lastMessage?.status === 'delivered';
 
               return (
                 <button
@@ -638,8 +700,8 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                   }}
                   className={`w-full p-2.5 rounded-2xl flex items-center gap-3 transition-all text-left cursor-pointer border ${
                     isActive
-                      ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs'
-                      : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      ? 'bg-surface-container border-secondary/30 shadow-xs border-l-4 border-l-secondary-container'
+                      : 'border-transparent hover:bg-surface-container-low'
                   }`}
                 >
                   <div className="relative shrink-0">
@@ -656,29 +718,53 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        <span className="text-xs font-bold text-on-surface truncate">
                           {other.displayName}
                         </span>
-                        <CheckCircle2 size={13} className="text-blue-500 fill-blue-500/10 shrink-0" />
+                        <CheckCircle2 size={13} className="text-secondary shrink-0" />
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                      <span className="text-[10px] font-mono text-on-surface-variant shrink-0">
                         {formatTimestamp(conv.lastMessage?.timestamp || conv.updatedAt)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[170px]">
-                        {hasAudio ? (
-                          <span className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 font-medium">
-                            <Volume2 size={12} />
-                            <span>Voice Note</span>
+                      {isOtherUserTyping ? (
+                        <div className="flex items-center gap-1.5 text-xs text-secondary font-medium truncate">
+                          <span className="italic">typing</span>
+                          <span className="inline-flex items-center gap-0.5">
+                            <span className="w-1 h-1 rounded-full bg-secondary animate-bounce [animation-delay:-0.3s]" />
+                            <span className="w-1 h-1 rounded-full bg-secondary animate-bounce [animation-delay:-0.15s]" />
+                            <span className="w-1 h-1 rounded-full bg-secondary animate-bounce" />
                           </span>
-                        ) : (
-                          conv.lastMessage?.text || 'Say hi over a cup of chai ☕'
-                        )}
-                      </p>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 min-w-0 max-w-[170px]">
+                          {isLastMessageFromYou && (
+                            <span className="shrink-0 flex items-center">
+                              {isLastMsgSeen ? (
+                                <CheckCheck size={14} className="text-secondary stroke-[2.4]" title="Seen" />
+                              ) : isLastMsgDelivered ? (
+                                <CheckCheck size={13} className="text-on-surface-variant/70" title="Delivered" />
+                              ) : (
+                                <Check size={12} className="text-on-surface-variant/70" title="Sent" />
+                              )}
+                            </span>
+                          )}
+                          <p className={`text-xs truncate ${convUnread > 0 ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`}>
+                            {hasAudio ? (
+                              <span className="inline-flex items-center gap-1 text-secondary font-medium">
+                                <Volume2 size={12} />
+                                <span>Voice Note</span>
+                              </span>
+                            ) : (
+                              conv.lastMessage?.text || 'Say hi over a cup of chai ☕'
+                            )}
+                          </p>
+                        </div>
+                      )}
                       {convUnread > 0 && (
-                        <span className="px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold shrink-0">
+                        <span className="px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold shrink-0">
                           {convUnread}
                         </span>
                       )}
@@ -688,23 +774,23 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               );
             })
           ) : (
-            <div className="p-6 text-center text-slate-400">
-              <Coffee size={24} className="mx-auto mb-2 opacity-40 text-orange-500" />
-              <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">No chats found</div>
-              <div className="text-[11px] text-slate-400 mt-1">Start a conversation or join an active tapri</div>
+            <div className="p-6 text-center text-on-surface-variant">
+              <Coffee size={24} className="mx-auto mb-2 opacity-50 text-secondary" />
+              <div className="text-xs font-semibold text-on-surface">No chats found</div>
+              <div className="text-[11px] text-on-surface-variant mt-1">Start a conversation or join an active tapri</div>
             </div>
           )}
         </div>
       </div>
 
       {/* 6. BOTTOM FOOTER: User Profile, Theme Toggle & Settings */}
-      <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between gap-2">
+      <div className="p-3 border-t border-surface-variant/30 bg-surface-container-low flex items-center justify-between gap-2">
         {currentUser ? (
           <button
             type="button"
             onClick={onOpenProfile}
             title={`Open Profile (@${currentUser.username})`}
-            className="flex items-center gap-2.5 min-w-0 flex-1 p-1 -ml-1 rounded-2xl hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors text-left cursor-pointer group"
+            className="flex items-center gap-2.5 min-w-0 flex-1 p-1.5 -ml-1 rounded-2xl hover:bg-surface-container transition-colors text-left cursor-pointer group"
           >
             <div className="relative shrink-0">
               <UserAvatar
@@ -713,13 +799,13 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
                 photoURL={currentUser.photoURL}
                 size="sm"
               />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#0B1120]" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-xs font-bold text-slate-900 dark:text-white block truncate leading-tight group-hover:text-orange-500 transition-colors">
+              <span className="text-xs font-bold text-on-surface block truncate leading-tight group-hover:text-secondary transition-colors">
                 {currentUser.displayName}
               </span>
-              <span className="text-[10px] font-mono text-slate-400 block truncate">
+              <span className="text-[10px] font-mono text-on-surface-variant block truncate">
                 @{currentUser.username}
               </span>
             </div>
@@ -728,7 +814,7 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
           <button
             type="button"
             onClick={onOpenAuth}
-            className="flex-1 py-1.5 px-3 rounded-xl bg-orange-500 text-white font-semibold text-xs text-center hover:bg-orange-600 transition-colors cursor-pointer"
+            className="flex-1 py-2 px-3 rounded-full bg-secondary-container text-on-secondary-container font-bold text-xs text-center hover:bg-secondary-fixed transition-colors cursor-pointer shadow-2xs"
           >
             Sign In
           </button>
@@ -738,17 +824,17 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
           <button
             type="button"
             onClick={onToggleDarkMode}
-            title={isDarkMode ? 'Switch to Light Warmth ☕' : 'Switch to Deep Navy 🌙'}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
+            title={isDarkMode ? 'Switch to Light Warmth ☕' : 'Switch to Nocturnal Lounge 🌙'}
+            className="p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
           >
-            {isDarkMode ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+            {isDarkMode ? <Sun size={16} className="text-secondary" /> : <Moon size={16} />}
           </button>
 
           <button
             type="button"
             onClick={onOpenSettings}
             title="Preferences & Settings"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
           >
             <Settings size={16} />
           </button>
@@ -760,7 +846,7 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               onClick={() => onLogout()}
               title="Log Out of Berojgar"
               aria-label="Log Out of Berojgar"
-              className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95"
+              className="p-2 rounded-xl text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors cursor-pointer active:scale-95"
             >
               <LogOut size={16} />
             </button>

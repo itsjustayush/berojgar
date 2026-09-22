@@ -104,6 +104,9 @@ export interface Conversation {
     senderName: string;
     timestamp: number;
     type: string;
+    status?: 'sending' | 'sent' | 'delivered' | 'seen';
+    seenBy?: string[];
+    readAt?: Record<string, number>;
   };
   typing?: Record<string, number>; // uid -> timestamp
   unreadCounts?: Record<string, number>;

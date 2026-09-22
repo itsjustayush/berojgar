@@ -464,6 +464,8 @@ export async function sendSocialMessage(
       senderName: fullMessage.senderName,
       timestamp,
       type: fullMessage.type,
+      status: 'delivered',
+      seenBy: [messageData.senderId],
     },
     updatedAt: timestamp,
     messageCount: increment(1),
@@ -484,12 +486,37 @@ export async function sendSocialMessage(
 }
 
 /**
- * Mark messages as seen
+ * Subscribe to a specific conversation document in real-time
+ */
+export function subscribeToConversation(
+  conversationId: string,
+  callback: (conv: Conversation | null) => void
+): () => void {
+  if (!conversationId) return () => {};
+  const convRef = doc(db, 'conversations', conversationId);
+  return onSnapshot(
+    convRef,
+    (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.data() as Conversation);
+      } else {
+        callback(null);
+      }
+    },
+    (err) => {
+      console.warn('Error subscribing to conversation:', err);
+    }
+  );
+}
+
+/**
+ * Mark messages as seen and update read receipts
  */
 export async function markMessagesAsSeen(
   conversationId: string,
   currentUid: string
 ): Promise<void> {
+  if (!conversationId || !currentUid) return;
   try {
     const messagesRef = collection(db, 'conversations', conversationId, 'messages');
     const q = query(
@@ -500,6 +527,7 @@ export async function markMessagesAsSeen(
 
     const snapshot = await getDocs(q);
     const updates: Promise<void>[] = [];
+    const now = Date.now();
 
     snapshot.forEach((docSnap) => {
       const msg = docSnap.data() as SocialMessage;
@@ -508,7 +536,7 @@ export async function markMessagesAsSeen(
           updateDoc(docSnap.ref, {
             status: 'seen',
             seenBy: Array.from(new Set([...(msg.seenBy || []), currentUid])),
-            [`readAt.${currentUid}`]: Date.now(),
+            [`readAt.${currentUid}`]: now,
           })
         );
       }
@@ -516,10 +544,26 @@ export async function markMessagesAsSeen(
 
     if (updates.length > 0) {
       await Promise.all(updates);
-      // Reset unread count for current user
-      await updateDoc(doc(db, 'conversations', conversationId), {
+    }
+
+    // Always reset unread count and update lastMessage status if applicable
+    const convRef = doc(db, 'conversations', conversationId);
+    const convSnap = await getDoc(convRef);
+    if (convSnap.exists()) {
+      const convData = convSnap.data() as Conversation;
+      const convUpdates: Record<string, unknown> = {
         [`unreadCounts.${currentUid}`]: 0,
-      });
+      };
+
+      if (convData.lastMessage && convData.lastMessage.senderId !== currentUid) {
+        convUpdates['lastMessage.status'] = 'seen';
+        convUpdates['lastMessage.seenBy'] = Array.from(
+          new Set([...(convData.lastMessage.seenBy || []), currentUid])
+        );
+        convUpdates[`lastMessage.readAt.${currentUid}`] = now;
+      }
+
+      await updateDoc(convRef, convUpdates);
     }
   } catch (err) {
     console.error('Error marking messages as seen:', err);

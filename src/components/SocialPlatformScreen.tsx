@@ -11,6 +11,7 @@ import {
   getOrCreateDirectConversation,
   getOrCreateTapri,
   setUserPresence,
+  markMessagesAsSeen,
 } from '../lib/socialChatService';
 import { UnifiedSidebar } from './UnifiedSidebar';
 import { SocialChatView } from './SocialChatView';
@@ -180,6 +181,13 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
     return sum + (conv.unreadCounts?.[currentUser?.uid || ''] || 0);
   }, 0);
 
+  // Instantly mark messages as seen when active conversation is selected/opened
+  useEffect(() => {
+    if (activeConversationId && currentUser) {
+      markMessagesAsSeen(activeConversationId, currentUser.uid);
+    }
+  }, [activeConversationId, currentUser?.uid]);
+
   // Adapt site title to reflect number of new unread messages
   useEffect(() => {
     if (!currentUser) {
@@ -281,7 +289,7 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
   }
 
   return (
-    <div className="h-[calc(100dvh-64px)] flex bg-[#F8F9FA] dark:bg-[#080F21] overflow-hidden min-h-[500px] transition-colors">
+    <div className="h-[calc(100dvh-64px)] flex bg-surface text-on-surface overflow-hidden min-h-[500px] transition-colors">
       {/* COMBINED UNIFIED SIDEBAR (Navigation Rail + Chat & Circle Directory) */}
       <div
         className={`h-full shrink-0 transition-[width] duration-300 ease-in-out ${
@@ -367,23 +375,23 @@ export const SocialPlatformScreen: React.FC<SocialPlatformScreenProps> = ({
                 onViewProfile={onNavigateToProfile}
               />
             ) : (
-              <div className="flex-1 h-full flex flex-col items-center justify-center p-8 text-center text-slate-400 bg-[#F8F9FA] dark:bg-[#080F21]">
-                <div className="w-16 h-16 rounded-3xl bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/40 flex items-center justify-center mb-4 text-orange-600 dark:text-orange-400 shadow-xs">
+              <div className="flex-1 h-full flex flex-col items-center justify-center p-8 text-center text-on-surface-variant bg-surface">
+                <div className="w-16 h-16 rounded-3xl bg-secondary-container text-on-secondary-container border border-secondary/20 flex items-center justify-center mb-4 shadow-xs">
                   <Coffee size={28} />
                 </div>
-                <h2 className="font-bold text-xl text-slate-900 dark:text-white mb-1.5">
+                <h2 className="font-bold text-xl text-on-surface mb-1.5">
                   Select a Chat or Join a Tapri
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-5">
+                <p className="text-xs text-on-surface-variant max-w-sm mb-5">
                   Select a contact from your recent conversations, drop by a live Chai Tapri, or search the Berozgar network.
                 </p>
                 {isSidebarCollapsed && (
                   <button
                     type="button"
                     onClick={toggleSidebar}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-orange-500 text-xs font-semibold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-semibold text-xs shadow-2xs hover:bg-secondary-fixed transition-colors cursor-pointer"
                   >
-                    <span>Expand Sidebar</span>
+                    <span>Open Sidebar</span>
                   </button>
                 )}
               </div>

@@ -7,6 +7,8 @@ import {
   User as UserIcon,
   Coffee,
   Compass,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { ViewMode, UserSession, UserProfile } from '../types';
 import { UserAvatar } from './UserAvatar';
@@ -31,6 +33,28 @@ export function Navbar({
   onOpenAuth,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  const toggleDark = () => {
+    setIsDark((prev) => {
+      const next = !prev;
+      if (typeof document !== 'undefined') {
+        if (next) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('berozgar_theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('berozgar_theme', 'light');
+        }
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -53,52 +77,52 @@ export function Navbar({
   };
 
   const navItems: Array<{ view: ViewMode; label: string; icon: typeof MessageSquare }> = [
-    { view: 'LANDING', label: 'Home (Landing)', icon: Coffee },
+    { view: 'LANDING', label: 'Home', icon: Coffee },
     { view: 'CHATS', label: 'Messages & Tapris', icon: MessageSquare },
     { view: 'DIRECTORY', label: 'Directory & Network', icon: Compass },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-[#0B1120]/90 backdrop-blur-xl transition-colors">
+    <header className="sticky top-0 z-40 border-b border-surface-variant/30 bg-surface/90 backdrop-blur-xl transition-colors">
       <div className="mx-auto flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo & Brand */}
         <div className="flex items-center gap-6">
           <button
             onClick={() => navigate('CHATS')}
-            className="group flex items-center gap-3 text-left cursor-pointer"
+            className="group flex items-center gap-3 text-left cursor-pointer bg-transparent border-0 p-0"
             aria-label="Go to Berozgar Chats"
           >
             <BerozgarLogo variant="horizontal" size="md" showTagline />
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1.5">
+          <nav className="hidden md:flex items-center gap-2">
             <button
               onClick={() => navigate('LANDING')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'LANDING'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-2xs font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
               Home
             </button>
             <button
               onClick={() => navigate('CHATS')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'CHATS'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-2xs font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
-              Chats
+              Chats & Tapris
             </button>
             <button
               onClick={() => navigate('DIRECTORY')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'DIRECTORY'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+                  ? 'bg-secondary-container text-on-secondary-container shadow-2xs font-bold'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
               Directory
@@ -108,11 +132,21 @@ export function Navbar({
 
         {/* Right Header Status & Account */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleDark}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
+            title="Toggle theme"
+          >
+            {isDark ? <Sun size={17} className="text-secondary" /> : <Moon size={17} />}
+          </button>
+
           {/* Profile / Auth Button */}
           {currentUser ? (
             <button
               onClick={onOpenProfile}
-              className="group flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1 transition-all hover:border-orange-500/50 cursor-pointer"
+              className="group flex items-center gap-2 rounded-full border border-surface-variant/40 bg-surface-container-low px-3 py-1 transition-all hover:border-secondary/40 hover:bg-surface-container cursor-pointer"
               title="Your Berozgar Profile"
             >
               <UserAvatar
@@ -121,16 +155,16 @@ export function Navbar({
                 photoURL={currentUser.photoURL}
                 size="xs"
               />
-              <span className="text-xs font-mono font-medium text-slate-700 dark:text-slate-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 max-w-[120px] truncate hidden sm:inline">
+              <span className="text-xs font-semibold text-on-surface group-hover:text-secondary max-w-[120px] truncate hidden sm:inline">
                 @{currentUser.username}
               </span>
             </button>
           ) : (
             <button
               onClick={onOpenAuth}
-              className="flex items-center gap-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-xs font-semibold transition-colors cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 rounded-full bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed px-5 py-2 text-xs font-bold transition-all transform active:scale-95 cursor-pointer shadow-2xs"
             >
-              <UserIcon size={13} />
+              <UserIcon size={14} />
               <span>Sign In</span>
             </button>
           )}
@@ -138,7 +172,7 @@ export function Navbar({
           {/* Mobile hamburger menu toggle */}
           <button
             onClick={() => setMenuOpen((open) => !open)}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 md:hidden cursor-pointer"
+            className="grid h-9 w-9 place-items-center rounded-xl border border-surface-variant/40 bg-surface-container-low text-on-surface md:hidden cursor-pointer"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
             aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -152,7 +186,7 @@ export function Navbar({
       {menuOpen && (
         <div
           id="mobile-nav"
-          className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1120] px-5 py-4 md:hidden animate-in slide-in-from-top-2"
+          className="border-t border-surface-variant/30 bg-surface-container-lowest px-5 py-4 md:hidden animate-in slide-in-from-top-2"
         >
           <nav className="grid gap-2" aria-label="Mobile navigation">
             {navItems.map(({ view, label, icon: Icon }) => (
@@ -161,8 +195,8 @@ export function Navbar({
                 onClick={() => navigate(view)}
                 className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm cursor-pointer transition-colors ${
                   currentView === view
-                    ? 'bg-slate-900 text-white dark:bg-orange-500 font-bold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-secondary-container text-on-secondary-container font-bold shadow-2xs'
+                    : 'text-on-surface-variant hover:bg-surface-container'
                 }`}
               >
                 <Icon size={16} />
@@ -170,13 +204,13 @@ export function Navbar({
               </button>
             ))}
           </nav>
-          <div className="mt-4 flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4 font-mono text-[10px] text-slate-400">
+          <div className="mt-4 flex items-center justify-between border-t border-surface-variant/30 pt-4 font-mono text-[10px] text-on-surface-variant">
             <span className="flex items-center gap-2">
-              <ShieldCheck size={14} className="text-orange-500" />
+              <ShieldCheck size={14} className="text-secondary" />
               <span>Berozgar Network</span>
             </span>
             {currentUser && (
-              <span className="text-orange-600 font-semibold">@{currentUser.username}</span>
+              <span className="text-secondary font-semibold">@{currentUser.username}</span>
             )}
           </div>
         </div>
